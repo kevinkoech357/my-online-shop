@@ -1,0 +1,36 @@
+{
+  "name": "mos",
+  "version": "1.0.0",
+  "description": "Backend for an E-Commerce Site.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinkoech357/mos.git"
+  },
+  "author": "Kevin Koech",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kevinkoech357/mos/issues"
+  },
+  "homepage": "https://github.com/kevinkoech357/mos#readme",
+  "dependencies": {
+    "argon2": "^0.40.1",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "mongoose": "^8.2.2",
+    "nanoid": "^5.0.6",
+    "nodemon": "^3.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1"
+  }
+}
