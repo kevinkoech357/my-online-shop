@@ -6,8 +6,18 @@
     },
     "extends": "standard",
     "parserOptions": {
-        "ecmaVersion": "latest"
+        "ecmaVersion": "latest",
+        "sourceType": "module"
     },
     "rules": {
-    }
+        "semi": ["error", "always"]
+    },
+    "overrides": [
+        {
+            "files": ["*.js", "*.mjs"],
+            "parserOptions": {
+                "sourceType": "module"
+            }
+        }
+    ]
 }
