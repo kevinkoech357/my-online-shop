@@ -1,4 +1,4 @@
-import { hashPassword, verifyPassword } from '../utils.mjs';
+import { hashPassword, verifyPassword } from '../utils/password.mjs';
 import User from '../models/userModel.mjs';
 
 const registerUser = async (req, res) => {
@@ -74,7 +74,9 @@ const registerUser = async (req, res) => {
         id: newUser.id,
         firstname: newUser.firstname,
         lastname: newUser.lastname,
-        email: newUser.email
+        email: newUser.email,
+        verified: newUser.verified,
+        role: newUser.role
       }
     });
   } catch (error) {

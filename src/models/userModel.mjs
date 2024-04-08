@@ -5,16 +5,19 @@ import BaseModel from './baseModel.mjs';
 const userSchema = new mongoose.Schema({
   firstname: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   lastname: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   phone: {
     type: Number,
@@ -24,6 +27,15 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  role: {
+    type: String,
+    enum: ['Admin', 'User'],
+    default: 'User'
+  },
+  verified: {
+    type: Boolean,
+    default: false
   }
 });
 
