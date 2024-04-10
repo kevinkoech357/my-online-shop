@@ -5,7 +5,7 @@ const connectToMongoDB = async () => {
   // Load environment variables
   dotenv.config();
 
-  const dbURL = process.env.DB_URL;
+  const dbURL = process.env.MONGO_URL;
 
   if (!dbURL) {
     console.log('No DB_URL ENV VAR Set!!');
