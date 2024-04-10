@@ -1,8 +1,20 @@
-import { hashPassword, verifyPassword } from '../utils/password.mjs';
+import { hashData, verifyData } from '../utils/hashData.mjs';
 import User from '../models/userModel.mjs';
+import { sendOTP } from './OTPCtrl.mjs';
 
+// Capitalize the first letter of users first and last names
+const capitalizeFirstLetter = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+/*
+Define registerUser async function that takes the users firstname, lastname, email, phone, and password.
+All the above are required. If not provided, registration won't be successful.
+Also sends OTP to the user's email which needs to be verified before a user is verified thus allowed to login and checkout products.
+*/
 const registerUser = async (req, res) => {
   try {
+    // Extracting user data from the request body
     const { email, password, firstname, lastname, phone } = req.body;
 
     // Validation for email format
@@ -53,23 +65,36 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // Capitalize first letter of first and last names
+    const capitalizedFirstname = capitalizeFirstLetter(firstname);
+    const capitalizedLastname = capitalizeFirstLetter(lastname);
+
     // Hash the password using the provided function
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashData(password);
 
     // Create new user
     const newUser = new User({
-      firstname,
-      lastname,
+      firstname: capitalizedFirstname,
+      lastname: capitalizedLastname,
       email,
       phone,
       password: hashedPassword
     });
 
+    // Save the new user to the database
     await newUser.save();
 
+    // Send OTP after successfully registering the user
+    await sendOTP({
+      email: newUser.email,
+      subject: 'Verify your Email',
+      message: 'Please use the following OTP to verify your email:'
+    });
+
+    // Return success response with user details and message
     res.status(201).json({
       success: true,
-      message: 'User successfully registered',
+      message: 'User successfully registered, OTP sent for email verification',
       details: {
         id: newUser.id,
         firstname: newUser.firstname,
@@ -80,11 +105,18 @@ const registerUser = async (req, res) => {
       }
     });
   } catch (error) {
+    // Handle any errors that occur during registration process
     console.error('Error registering user:', error);
     res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
   }
 };
 
+/*
+Define loginUser async function that takes user's email and password and verifies if both are valid.
+Additionally, checks if the user with the specified email is verified, if not, the user is asked
+to check email for OTP or ask for a new OTP.
+If not, the user is denied loggin.
+*/
 const loginUser = async (req, res) => {
   try {
     // Extract email and password from request body
@@ -110,8 +142,16 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password!' });
     }
 
+    // If user is not verified, return 401 Unauthorized
+    if (user.verified === false) {
+      return res.status(401.0).json({
+        success: false,
+        message: 'Email not verified. Check email for OTP or ask for a new one.'
+      });
+    }
+
     // Verify password
-    const passwordMatch = await verifyPassword(user.password, password);
+    const passwordMatch = await verifyData(user.password, password);
 
     // If password doesn't match, return 401 Unauthorized
     if (!passwordMatch) {
