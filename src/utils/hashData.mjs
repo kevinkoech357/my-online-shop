@@ -5,7 +5,7 @@ import argon2 from 'argon2';
 const randomBytesAsync = promisify(randomBytes);
 
 // The function below hashes a password using argon2 with salt
-const hashPassword = async (password) => {
+const hashData = async (password) => {
   try {
     // Generate a random salt
     const salt = await randomBytesAsync(32);
@@ -21,7 +21,7 @@ const hashPassword = async (password) => {
 };
 
 // The function below is used to verify if user password matches the stored password
-const verifyPassword = async (hashedPassword, password) => {
+const verifyData = async (hashedPassword, password) => {
   try {
     return await argon2.verify(hashedPassword, password);
   } catch (error) {
@@ -30,4 +30,4 @@ const verifyPassword = async (hashedPassword, password) => {
   }
 };
 
-export { hashPassword, verifyPassword };
+export { hashData, verifyData };
