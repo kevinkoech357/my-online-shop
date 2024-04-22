@@ -3,7 +3,9 @@ info:
   title: My Online Shop API
   version: 1.0.0
   description: |
-    This API provides a comprehensive set of endpoints for managing an online shop. It includes features for user registration and authentication, product management, and order processing. The API is designed to be easy to use and integrate with various front-end applications.
+    This API provides a comprehensive set of endpoints for managing an online shop. It includes features for user registration and authentication,
+    product management, and order processing.
+    The API is designed to be easy to use and integrate with various front-end applications.
 
 servers:
   - url: http://127.0.0.1:7000/api/v1
@@ -14,7 +16,7 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Register a new user
+      summary: Register a new user.
       requestBody:
         required: true
         content:
@@ -100,11 +102,69 @@ paths:
                     type: boolean
                   message:
                     type: string
+  /verify-OTP:
+    post:
+      tags:
+        - Authentication
+      summary: Verify User Email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties: 
+                email:
+                  type: string
+                  format: email
+                  pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+                otp:
+                  type: string
+                  pattern: '^\d{4}$'
+      responses:
+        '200':
+          description: Email Verification successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+
   /login:
     post:
       tags:
         - Authentication
-      summary: Login an existing User
+      summary: Login an existing User.
       requestBody:
         required: true
         content:
@@ -154,6 +214,61 @@ paths:
                     type: string
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+
+  /resend-OTP:
+    post:
+      tags:
+        - Authentication
+      summary: Regenerate a new OTP code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties: 
+                email:
+                  type: string
+                  format: email
+                  pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      responses:
+        '200':
+          description: OTP regeneration successful. Check email.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
