@@ -1,6 +1,6 @@
 import express from 'express';
 import { registerUser, loginUser } from '../controller/authCtrl.mjs';
-import { verifyOTP } from '../controller/OTPCtrl.mjs';
+import { regenerateOTP, verifyOTP } from '../controller/OTPCtrl.mjs';
 
 const router = express.Router();
 
@@ -12,5 +12,8 @@ router.post('/login', loginUser);
 
 // Verify OTP
 router.post('/verify', verifyOTP);
+
+// Regenerate OTP
+router.post('/resend', regenerateOTP);
 
 export default router;

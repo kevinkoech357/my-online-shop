@@ -1,6 +1,6 @@
 import OTP from '../models/OTPModel.mjs';
 import generateOTP from '../utils/generateOTP.mjs';
-import sendEmail from '../utils/sendmail.mjs';
+import sendEmail from '../utils/sendMail.mjs';
 import { hashData, verifyData } from '../utils/hashData.mjs';
 import dotenv from 'dotenv';
 import User from '../models/userModel.mjs';
@@ -34,7 +34,9 @@ const sendOTP = async ({ email, subject, message, duration = 1 }) => {
       subject: 'Verify your Email',
       html: `<p>Welcome <strong style="color:blue;">${email}</strong></p>
             <p>${message}</p><p style="font-size:25px;letter-spacing:2px"><strong>${otpString}</strong></p>
-            <p>This code <strong>expires in ${duration} hour(s)</strong></p>`
+            <p>This code <strong>expires in ${duration} hour.</strong></p>
+            <p>Best Regards,</p>
+            <p>My Online Shop Team</p>`
     };
 
     // Send email with OTP
@@ -80,6 +82,23 @@ const verifyOTP = async (req, res) => {
       }
     }
 
+    // Check if the provided email is registered
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid email. Recheck or create a new account.'
+      });
+    }
+
+    // Check if user has already been verified
+    if (existingUser.verified === true) {
+      return res.status(400).json({
+        success: false,
+        message: 'Provided email is already verified. Proceed to login.'
+      });
+    }
+
     // Find OTP record for the provided email
     const userEmail = await OTP.findOne({ email });
     if (!userEmail) {
@@ -112,8 +131,8 @@ const verifyOTP = async (req, res) => {
     }
 
     // If OTP is valid, mark user's email as verified
-    const existingUser = await User.findOne({ email });
     existingUser.verified = true;
+    existingUser.active = true;
     await existingUser.save();
 
     // Delete the OTP record since it's no longer needed
@@ -134,4 +153,58 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-export { sendOTP, verifyOTP };
+/*
+Define regenerateOTP async function that allows a user to request for a new OTP
+incase the provided OTP is invalid or expired or just because they want to.
+*/
+const regenerateOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // If email is not provided
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required.'
+      });
+    }
+
+    // Check if the provided email is registered
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid email. Recheck or create a new account.'
+      });
+    }
+
+    // Check if user has already been verified
+    if (existingUser.verified === true) {
+      return res.status(400).json({
+        success: false,
+        message: 'Provided email is already verified. Proceed to login.'
+      });
+    }
+
+    // Regenerate and send new OTP after successfully registering the user
+    await sendOTP({
+      email,
+      subject: 'Verify your Email',
+      message: 'Please use the following OTP to verify your email:'
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'New OTP successfully sent to your email.'
+    });
+  } catch (error) {
+    // Handle unexpected errors
+    console.error('Error regenerating OTP:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+};
+
+export { sendOTP, verifyOTP, regenerateOTP };

@@ -142,6 +142,14 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password!' });
     }
 
+    // If user is inactive(suspended), return 401 Unauthorized
+    if (user.active === false) {
+      return res.status(401.0).json({
+        success: false,
+        message: 'User account is suspended. Contact Admin or activate account.'
+      });
+    }
+
     // If user is not verified, return 401 Unauthorized
     if (user.verified === false) {
       return res.status(401.0).json({
