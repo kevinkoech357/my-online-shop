@@ -1,0 +1,8 @@
+[2024-04-06T19:18:52.487Z] Error
+    at Object.registerUser (file:///home/kevinkoech357/Personal/mos/src/controller/authCtrl.mjs:10:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///home/kevinkoech357/Personal/mos/src/routes/authRoute.mjs:10:9
+[2024-04-06T19:19:31.523Z] Error
+    at Object.registerUser (file:///home/kevinkoech357/Personal/mos/src/controller/authCtrl.mjs:10:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///home/kevinkoech357/Personal/mos/src/routes/authRoute.mjs:10:9

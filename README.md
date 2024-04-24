@@ -1,3 +1,3 @@
-# My Online Shop
+# Introduction
 
-This repository hosts all code needed to build a backend for an online e-commerce site using Node, Express and MongoDB.
+This repository hosts all code that power both the frontend and backend of My Online Shop.
