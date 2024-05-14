@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-const connectToMongoDB = async () => {
-  // Load environment variables
-  dotenv.config();
+// Load environment variables
+dotenv.config();
 
+const connectToMongoDB = async () => {
   const dbURL = process.env.MONGO_URL;
 
   if (!dbURL) {
@@ -20,4 +20,4 @@ const connectToMongoDB = async () => {
   }
 };
 
-export { connectToMongoDB };
+export default connectToMongoDB;
