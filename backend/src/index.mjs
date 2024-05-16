@@ -1,17 +1,19 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
-import { connectToMongoDB } from './config/db.connect.mjs';
+import connectToMongoDB from './config/db.connect.mjs';
 import router from './routes/authRoute.mjs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 // Load environment variables
 dotenv.config();
-const PORT = process.env.PORT || 3300;
+const { PORT, COOKIE_SECRET, SESSION_SECRET, MONGO_URL } = process.env;
 
 // Initialize Express application
 const app = express();
@@ -19,12 +21,27 @@ const app = express();
 // Connect to MongoDB
 connectToMongoDB();
 
+// Hande cookies and sessions
+app.use(cookieParser(COOKIE_SECRET));
+app.use(session({
+  secret: SESSION_SECRET,
+  saveUninitialized: false,
+  resave: false,
+  cookie: {
+    maxAge: 60000 * 60 * 72,
+    signed: true
+  },
+  store: MongoStore.create({ mongoUrl: MONGO_URL, ttl: 7 * 24 * 60 * 60 })
+}));
+
 // Enable CORS for all routes
 app.use(cors());
 
-// Set up middleware for parsing request bodies
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+// Parse JSON bodies
+app.use(express.json());
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: false }));
 
 // Mount the authentication router on the /api/v1 path
 app.use('/api/v1', router);
@@ -41,5 +58,5 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Start the server on the specified port
 app.listen(PORT, () => {
-  console.log(`Server is running on PORT ${PORT}`);
+  console.log(`Server is running on http://127.0.0.1:${PORT}/api-docs`);
 });

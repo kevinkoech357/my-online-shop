@@ -1,10 +1,25 @@
 import { hashData, verifyData } from '../utils/hashData.mjs';
 import User from '../models/userModel.mjs';
 import { sendOTP } from './OTPCtrl.mjs';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const { COOKIE_SECRET } = process.env;
 
 // Capitalize the first letter of users first and last names
 const capitalizeFirstLetter = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+/*
+Define set session function that creates and saves a user's session.
+*/
+const setSession = async (req, res) => {
+
+  req.session.visited = true;
+  res.cookie(COOKIE_SECRET, { maxAge: 30000, signed: true });
+
+  res.status(201).send({ success: true, message: 'Sessions successfully set.' });
 };
 
 /*
@@ -115,7 +130,7 @@ const registerUser = async (req, res) => {
 Define loginUser async function that takes user's email and password and verifies if both are valid.
 Additionally, checks if the user with the specified email is verified, if not, the user is asked
 to check email for OTP or ask for a new OTP.
-If not, the user is denied loggin.
+If not, the user is denied logging in.
 */
 const loginUser = async (req, res) => {
   try {
@@ -184,4 +199,4 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser };
+export { registerUser, loginUser, setSession };
