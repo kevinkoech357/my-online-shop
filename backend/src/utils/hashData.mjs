@@ -30,4 +30,4 @@ const verifyData = async (hashedPassword, password) => {
   }
 };
 
-export { hashData, verifyData };
+export { hashData, verifyData, randomBytesAsync };
