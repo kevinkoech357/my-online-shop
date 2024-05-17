@@ -1,25 +1,11 @@
 import { hashData, verifyData } from '../utils/hashData.mjs';
 import User from '../models/userModel.mjs';
 import { sendOTP } from './OTPCtrl.mjs';
-import dotenv from 'dotenv';
-
-dotenv.config();
-const { COOKIE_SECRET } = process.env;
+import setSessionOnLogin from '../utils/setSession.mjs';
 
 // Capitalize the first letter of users first and last names
 const capitalizeFirstLetter = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-/*
-Define set session function that creates and saves a user's session.
-*/
-const setSession = async (req, res) => {
-
-  req.session.visited = true;
-  res.cookie(COOKIE_SECRET, { maxAge: 30000, signed: true });
-
-  res.status(201).send({ success: true, message: 'Sessions successfully set.' });
 };
 
 /*
@@ -179,19 +165,17 @@ const loginUser = async (req, res) => {
     // If password doesn't match, return 401 Unauthorized
     if (!passwordMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password!' });
-    } else {
-      // Successful login
-      return res.status(200).json({
-        success: true,
-        message: `Welcome back ${user.firstname} ${user.lastname}`,
-        userDetails: {
-          id: user.id,
-          firstname: user.firstname,
-          lastname: user.lastname,
-          email: user.email
-        }
-      });
     }
+
+    // If the user is verified and the password matches, create a session
+    await setSessionOnLogin(user, req, res);
+
+    // Successful login
+    return res.status(200).json({
+      success: true,
+      message: `Welcome back ${user.firstname} ${user.lastname}`,
+      userDetails: req.session.user
+    });
   } catch (error) {
     // Handle any errors
     console.error('Error logging in user:', error);
@@ -199,4 +183,28 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, setSession };
+// Define logout function
+// Destroys users session and clears cookies
+const logoutUser = (req, res) => {
+  try {
+    // Clear session data
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+      }
+
+      // Clear session cookie
+      res.clearCookie('userSession');
+
+      // Successful logout
+      return res.status(200).json({ success: true, message: 'Logout successful.' });
+    });
+  } catch (error) {
+    // Handle any errors
+    console.error('Error logging out user:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+  }
+};
+
+export { registerUser, loginUser, logoutUser };
