@@ -21,17 +21,18 @@ const app = express();
 // Connect to MongoDB
 connectToMongoDB();
 
-// Hande cookies and sessions
+// Handle cookies and sessions
 app.use(cookieParser(COOKIE_SECRET));
 app.use(session({
   secret: SESSION_SECRET,
   saveUninitialized: false,
   resave: false,
   cookie: {
-    maxAge: 60000 * 60 * 72,
-    signed: true
+    maxAge: 60000 * 60 * 72, // 72 hours
+    signed: true,
+    secure: false // Will set to true when using HTTPS
   },
-  store: MongoStore.create({ mongoUrl: MONGO_URL, ttl: 7 * 24 * 60 * 60 })
+  store: MongoStore.create({ mongoUrl: MONGO_URL, ttl: 7 * 24 * 60 * 60 }) // 7 days
 }));
 
 // Enable CORS for all routes

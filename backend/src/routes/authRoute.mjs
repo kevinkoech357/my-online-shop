@@ -1,6 +1,7 @@
 import express from 'express';
-import { registerUser, loginUser, setSession } from '../controller/authCtrl.mjs';
+import { registerUser, loginUser, logoutUser } from '../controller/authCtrl.mjs';
 import { regenerateOTP, verifyOTP } from '../controller/OTPCtrl.mjs';
+import checkSessionExpiry from '../middlewares/session.mjs';
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.post('/verify', verifyOTP);
 // Regenerate OTP
 router.post('/resend', regenerateOTP);
 
-// Set session
-router.get('/', setSession);
+// Logout user
+router.post('/logout', checkSessionExpiry, logoutUser);
 
 export default router;
