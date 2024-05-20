@@ -2,51 +2,23 @@ import { hashData, verifyData } from '../utils/hashData.mjs';
 import User from '../models/userModel.mjs';
 import { sendOTP } from './OTPCtrl.mjs';
 import setSessionOnLogin from '../utils/setSession.mjs';
+import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
+import validatePhone from '../utils/validatePhone.mjs';
+import validateEmail from '../utils/validateEmail.mjs';
 
-// Capitalize the first letter of users first and last names
-const capitalizeFirstLetter = (str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+// Define registerUser async function that takes the users firstname, lastname, email, phone, and password.
+// All the above are required. If not provided, registration won't be successful.
+// Also sends OTP to the user's email which needs to be verified before a user is verified thus allowed to login and checkout products.
 
-/*
-Define registerUser async function that takes the users firstname, lastname, email, phone, and password.
-All the above are required. If not provided, registration won't be successful.
-Also sends OTP to the user's email which needs to be verified before a user is verified thus allowed to login and checkout products.
-*/
 const registerUser = async (req, res) => {
   try {
     // Extracting user data from the request body
     const { email, password, firstname, lastname, phone } = req.body;
-
     // Validation for email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid email format'
-      });
-    }
+    await validateEmail(email);
 
     // Validation for phone format
-    if (!/^\d+$/.test(phone)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid phone number format'
-      });
-    }
-
-    // Check if all required fields are provided and meet length requirements
-    const requiredFields = ['email', 'password', 'firstname', 'lastname', 'phone'];
-    const minFieldLengths = { firstname: 3, lastname: 3, password: 8 };
-
-    for (const field of requiredFields) {
-      if (!req.body[field] || req.body[field].length < minFieldLengths[field]) {
-        return res.status(400).json({
-          success: false,
-          message: `Missing or invalid field: ${field}`
-        });
-      }
-    }
+    await validatePhone(phone);
 
     // Find user using email which must be unique for all users
     const existingEmail = await User.findOne({ email });
@@ -67,8 +39,8 @@ const registerUser = async (req, res) => {
     }
 
     // Capitalize first letter of first and last names
-    const capitalizedFirstname = capitalizeFirstLetter(firstname);
-    const capitalizedLastname = capitalizeFirstLetter(lastname);
+    const capitalizedFirstname = await capitalizeFirstLetter(firstname);
+    const capitalizedLastname = await capitalizeFirstLetter(lastname);
 
     // Hash the password using the provided function
     const hashedPassword = await hashData(password);
@@ -112,28 +84,15 @@ const registerUser = async (req, res) => {
   }
 };
 
-/*
-Define loginUser async function that takes user's email and password and verifies if both are valid.
-Additionally, checks if the user with the specified email is verified, if not, the user is asked
-to check email for OTP or ask for a new OTP.
-If not, the user is denied logging in.
-*/
+// Define loginUser async function that takes user's email and password and verifies if both are valid.
+// Additionally, checks if the user with the specified email is verified, if not, the user is asked
+// to check email for OTP or ask for a new OTP.
+// If not, the user is denied logging in.
+
 const loginUser = async (req, res) => {
   try {
     // Extract email and password from request body
     const { email, password } = req.body;
-
-    // Check if all required fields are provided and are strings
-    const requiredFields = ['email', 'password'];
-    for (const field of requiredFields) {
-      if (!req.body[field]) {
-        // Return a 400 Bad Request if any required field is missing
-        return res.status(400).json({
-          success: false,
-          message: `Missing or invalid required field: ${field}`
-        });
-      }
-    }
 
     // Find user by email
     const user = await User.findOne({ email });
@@ -143,19 +102,19 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password!' });
     }
 
-    // If user is inactive(suspended), return 401 Unauthorized
-    if (user.active === false) {
-      return res.status(401.0).json({
-        success: false,
-        message: 'User account is suspended. Contact Admin or activate account.'
-      });
-    }
-
     // If user is not verified, return 401 Unauthorized
     if (user.verified === false) {
       return res.status(401.0).json({
         success: false,
         message: 'Email not verified. Check email for OTP or ask for a new one.'
+      });
+    }
+
+    // If user is inactive(suspended), return 401 Unauthorized
+    if (user.active === false) {
+      return res.status(401.0).json({
+        success: false,
+        message: 'User account is suspended. Contact Admin or activate account.'
       });
     }
 
@@ -185,6 +144,7 @@ const loginUser = async (req, res) => {
 
 // Define logout function
 // Destroys users session and clears cookies
+
 const logoutUser = (req, res) => {
   try {
     // Clear session data
