@@ -3,13 +3,17 @@ import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import connectToMongoDB from './config/db.connect.mjs';
-import router from './routes/authRoute.mjs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+
+// Import routes
+import authrouter from './routes/authRoute.mjs';
+import userRouter from './routes/userRoute.mjs';
+import adminRouter from './routes/adminRoute.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -45,7 +49,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Mount the authentication router on the /api/v1 path
-app.use('/api/v1', router);
+app.use('/api/v1/auth', authrouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/admin', adminRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);

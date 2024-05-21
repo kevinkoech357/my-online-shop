@@ -43,6 +43,13 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.password;
+    return ret;
+  }
+});
+
 // Inherit from BaseModel
 const User = BaseModel.discriminator('User', userSchema);
 

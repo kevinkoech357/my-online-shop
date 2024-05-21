@@ -16,10 +16,11 @@ const setSessionOnLogin = async (user, req, res) => {
 
     // Set session variables
     req.session.user = {
-      id: user.id,
+      _id: user._id,
       firstname: user.firstname,
       lastname: user.lastname,
-      email: user.email
+      email: user.email,
+      role: user.role
     };
 
     // Set the session cookie
