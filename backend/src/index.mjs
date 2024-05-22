@@ -50,7 +50,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Mount the authentication router on the /api/v1 path
 app.use('/api/v1/auth', authrouter);
-app.use('/api/v1/users', userRouter);
+app.use('/api/v1/user', userRouter);
 app.use('/api/v1/admin', adminRouter);
 
 // Get current file and directory paths

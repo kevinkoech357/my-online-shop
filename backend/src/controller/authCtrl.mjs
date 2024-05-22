@@ -133,7 +133,7 @@ const loginUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `Welcome back ${user.firstname} ${user.lastname}`,
-      userDetails: req.session.user
+      details: req.session.user
     });
   } catch (error) {
     // Handle any errors
@@ -145,7 +145,7 @@ const loginUser = async (req, res) => {
 // Define logout function
 // Destroys users session and clears cookies
 
-const logoutUser = (req, res) => {
+const logoutUser = async (req, res) => {
   try {
     // Clear session data
     req.session.destroy((err) => {
