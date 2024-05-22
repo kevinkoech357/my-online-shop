@@ -8,7 +8,7 @@ userRouter.get('/:id', isAuthenticated, isSelf, getUserDetails);
 userRouter.patch('/update/:id', isAuthenticated, isSelf, updateUserDetails);
 userRouter.post('/change-email/:id', isAuthenticated, isSelf, changeEmail);
 userRouter.post('/suspend/:id', isAuthenticated, isSelf, suspendAccount);
-userRouter.post('/recover/:id', isAuthenticated, isSelf, recoverAccount);
+userRouter.post('/recover/:id', recoverAccount);
 userRouter.delete('/delete/:id', isAuthenticated, isSelf, deleteAccount);
 
 export default userRouter;
