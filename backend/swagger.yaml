@@ -1,18 +1,41 @@
 openapi: 3.0.0
 info:
-  title: My Online Shop API
+  title: My Online Shop REST API.
   version: 1.0.0
   description: |
     This API provides a comprehensive set of endpoints for managing an online shop. It includes features for user registration and authentication,
-    product management, and order processing.
+    product management, order processing, admin actions and analytics.
     The API is designed to be easy to use and integrate with various front-end applications.
 
 servers:
   - url: http://127.0.0.1:7000/api/v1
     description: Development server
 
+components:
+  schemas:
+    UserDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+        phone:
+          type: number
+        verified:
+          type: boolean
+        active:
+          type: boolean
+        role:
+          type: string
+
+
 paths:
-  /register:
+  /auth/register:
     post:
       tags:
         - Authentication
@@ -102,7 +125,7 @@ paths:
                     type: boolean
                   message:
                     type: string
-  /verify:
+  /auth/verify:
     post:
       tags:
         - Authentication
@@ -158,7 +181,7 @@ paths:
                     type: boolean
                   message:
                     type: string
-  /login:
+  /auth/login:
     post:
       tags:
         - Authentication
@@ -232,7 +255,7 @@ paths:
                     type: boolean
                   message:
                     type: string
-  /resend:
+  /auth/resend:
     post:
       tags:
         - Authentication
@@ -285,7 +308,7 @@ paths:
                     type: boolean
                   message:
                     type: string
-  /logout:
+  /auth/logout:
     post:
       tags:
         - Authentication
@@ -314,3 +337,388 @@ paths:
                     type: boolean
                   message:
                     type: string
+
+  /user/{id}:
+    get:
+      tags:
+        - User Account Actions
+      summary: Get details associated with user account
+      description: Allows authenticated users to retrieve details of their own account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to retrieve details for.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+  /user/update/{id}:
+    patch:
+      tags:
+        - User Account Actions
+      summary: Update details of specific user account
+      description: Allows authenticated users to update details of their own account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to update details for.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstname
+                - lastname
+                - phone
+                - previousPassword
+                - password
+              properties:
+                firstname:
+                  type: string
+                  minLength: 3
+                lastname:
+                  type: string
+                  minLength: 3
+                phone:
+                  type: string
+                  pattern: '^\d{10}$'
+                previousPassword:
+                  type: string
+                  minLength: 8
+                password: 
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: User details updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+      
+  /user/change-email/{id}:
+    post:
+      tags:
+        - User Account Actions
+      summary: Change user email.
+      description: Allows an authenticated user to change email associated with their own account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to change email for.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties: 
+                email:
+                  type: string
+                  format: email
+                  pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      responses:
+        '200':
+          description: Email successfully updated. Verify OTP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+      
+
+  /user/suspend/{id}:
+    post:
+      tags:
+        - User Account Actions
+      summary: Deactivate/Suspend user account.
+      description: Allows an authenticated user to deactivate/suspend own account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to suspend.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account successfully deactivated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+  /user/recover/{id}:
+    post:
+      tags:
+        - User Account Actions
+      summary: Recover deactivated user account.
+      description: Allows a registered user to recover their own deactivated account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to recover.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account successfully recovered.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+  /user/delete/{id}:
+    delete:
+      tags:
+        - User Account Actions
+      summary: Delete user account.
+      description: Allows a registered user to delete their own deactivated account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+
+  /admin/users/{id}:
+    get:
+      tags:
+        - Admin Account Actions
+      summary: Get details of a specific user.
+      description: Allows admins to retrieve details of a specific user account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to retrieve details for.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+  /admin/users:
+    get:
+      tags:
+        - Admin Account Actions
+      summary: Get details of all registered users.
+      description: Allows admins to retrieve details of all registered accounts.
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.      
+
+  /admin/users/suspend/{id}:
+    post:
+      tags:
+        - Admin Account Actions
+      summary: Deactivate/Suspend user account.
+      description: Allows admin to deactivate/suspend user account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to suspend.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account successfully deactivated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+  /admin/users/recover/{id}:
+    post:
+      tags:
+        - Admin Account Actions
+      summary: Recover deactivated user account.
+      description: Allows admin to recover suspended user account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to recover.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account successfully recovered.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
+
+  /admin/users/delete/{id}:
+    delete:
+      tags:
+        - Admin Account Actions
+      summary: Delete user account.
+      description: Allows admin to delete a specific user account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user account to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error. Failed to retrieve user details.
