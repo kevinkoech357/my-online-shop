@@ -338,19 +338,12 @@ paths:
                   message:
                     type: string
 
-  /user/{id}:
+  /user:
     get:
       tags:
         - User Account Actions
       summary: Get details associated with user account
       description: Allows authenticated users to retrieve details of their own account.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID of the user account to retrieve details for.
-          schema:
-            type: string
       responses:
         '200':
           description: User details retrieved successfully
@@ -367,19 +360,12 @@ paths:
         '500':
           description: Internal server error. Failed to retrieve user details.
 
-  /user/update/{id}:
+  /user/update:
     patch:
       tags:
         - User Account Actions
       summary: Update details of specific user account
       description: Allows authenticated users to update details of their own account.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID of the user account to update details for.
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -424,19 +410,12 @@ paths:
         '500':
           description: Internal server error. Failed to retrieve user details.
       
-  /user/change-email/{id}:
+  /user/change-email:
     post:
       tags:
         - User Account Actions
       summary: Change user email.
       description: Allows an authenticated user to change email associated with their own account.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID of the user account to change email for.
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -467,19 +446,12 @@ paths:
           description: Internal server error. Failed to retrieve user details.
       
 
-  /user/suspend/{id}:
+  /user/suspend:
     post:
       tags:
         - User Account Actions
       summary: Deactivate/Suspend user account.
       description: Allows an authenticated user to deactivate/suspend own account.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID of the user account to suspend.
-          schema:
-            type: string
       responses:
         '200':
           description: Account successfully deactivated.
@@ -501,53 +473,13 @@ paths:
         '500':
           description: Internal server error. Failed to retrieve user details.
 
-  /user/recover/{id}:
-    post:
-      tags:
-        - User Account Actions
-      summary: Recover deactivated user account.
-      description: Allows a registered user to recover their own deactivated account.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID of the user account to recover.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Account successfully recovered.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-        '401':
-          description: Unauthorized. User is not authenticated.
-        '403':
-          description: Forbidden. User is not authorized to access this resource.
-        '404':
-          description: User not found. The specified user ID does not exist.
-        '500':
-          description: Internal server error. Failed to retrieve user details.
 
-  /user/delete/{id}:
+  /user/delete:
     delete:
       tags:
         - User Account Actions
       summary: Delete user account.
       description: Allows a registered user to delete their own deactivated account.
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID of the user account to delete.
-          schema:
-            type: string
       responses:
         '200':
           description: Account successfully deleted.
