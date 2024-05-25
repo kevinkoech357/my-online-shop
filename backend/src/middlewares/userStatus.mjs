@@ -1,25 +1,25 @@
+import User from '../models/userModel.mjs';
+
 // Middleware to check if user session is expired or if the user is authenticated
-const isAuthenticated = (req, res, next) => {
-  if (!req.session || !req.session.user) {
+const isAuthenticated = async (req, res, next) => {
+  const user = req.session.user;
+
+  if (!user) {
     // Session data not available or invalid
-    return res.status(401).json({ success: false, message: 'Your session has expired. Please log in again.' });
+    return res.status(401).json({ success: false, message: 'Your session is invalid or has expired. Please log in again.' });
   }
+
+  const currentUser = await User.findById(user._id);
+
+  if (!currentUser) {
+    // User Not Found
+    return res.status(404).json({ success: false, message: 'User Not Found.' });
+  }
+
+  req.user = currentUser;
 
   // Session is valid
   next();
 };
 
-// Middleware to check if the user is accessing their own account
-const isSelf = (req, res, next) => {
-  const { id } = req.params;
-  const user = req.session.user;
-
-  if (user._id !== id) {
-    return res.status(403).json({ success: false, message: 'Forbidden. You can only access your own account.' });
-  }
-
-  // User owns account
-  next();
-};
-
-export { isAuthenticated, isSelf };
+export default isAuthenticated;

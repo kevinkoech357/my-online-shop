@@ -114,7 +114,7 @@ const loginUser = async (req, res) => {
     if (user.active === false) {
       return res.status(401.0).json({
         success: false,
-        message: 'User account is suspended. Contact Admin or activate account.'
+        message: 'User account is suspended. Contact Admin to re-activate account.'
       });
     }
 
