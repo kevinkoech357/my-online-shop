@@ -14,6 +14,7 @@ import MongoStore from 'connect-mongo';
 import authRouter from './routes/authRoute.mjs';
 import userRouter from './routes/userRoute.mjs';
 import adminRouter from './routes/adminRoute.mjs';
+import productRouter from './routes/productRoute.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -48,10 +49,11 @@ app.use(express.json());
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: false }));
 
-// Mount the authentication router on the /api/v1 path
+// Mount app routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/products', productRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
