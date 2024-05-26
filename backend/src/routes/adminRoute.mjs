@@ -1,15 +1,14 @@
 import express from 'express';
-import { getUserDetails, updateUserDetails, changeEmail, suspendAccount, recoverAccount, deleteAccount } from '../controller/userCtrl.mjs';
-import { isAuthenticated } from '../middlewares/userStatus.mjs';
 import isAdmin from '../middlewares/userRole.mjs';
+import isAuthenticated from '../middlewares/userStatus.mjs';
+import { adminGetUserDetails, adminGetAllUsers, adminSuspendAccount, adminRecoverAccount, adminDeleteAccount } from '../controller/adminCtrl.mjs';
 
 const adminRouter = express.Router();
 
-adminRouter.get('users/:id', isAuthenticated, isAdmin, getUserDetails);
-adminRouter.patch('/update/:id', isAuthenticated, isAdmin, updateUserDetails);
-adminRouter.post('/change-email/:id', isAuthenticated, isAdmin, changeEmail);
-adminRouter.post('/suspend/:id', isAuthenticated, isAdmin, suspendAccount);
-adminRouter.post('/recover/:id', isAuthenticated, isAdmin, recoverAccount);
-adminRouter.delete('/delete/:id', isAuthenticated, isAdmin, deleteAccount);
+adminRouter.get('/users/:id', isAuthenticated, isAdmin, adminGetUserDetails);
+adminRouter.get('/users', isAuthenticated, isAdmin, adminGetAllUsers);
+adminRouter.post('/users/suspend/:id', isAuthenticated, isAdmin, adminSuspendAccount);
+adminRouter.post('/users/recover/:id', isAuthenticated, isAdmin, adminRecoverAccount);
+adminRouter.delete('/users/delete/:id', isAuthenticated, isAdmin, adminDeleteAccount);
 
 export default adminRouter;

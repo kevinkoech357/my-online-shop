@@ -114,7 +114,7 @@ const loginUser = async (req, res) => {
     if (user.active === false) {
       return res.status(401.0).json({
         success: false,
-        message: 'User account is suspended. Contact Admin or activate account.'
+        message: 'User account is suspended. Contact Admin to re-activate account.'
       });
     }
 
@@ -133,7 +133,7 @@ const loginUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `Welcome back ${user.firstname} ${user.lastname}`,
-      userDetails: req.session.user
+      details: req.session.user
     });
   } catch (error) {
     // Handle any errors
@@ -145,7 +145,7 @@ const loginUser = async (req, res) => {
 // Define logout function
 // Destroys users session and clears cookies
 
-const logoutUser = (req, res) => {
+const logoutUser = async (req, res) => {
   try {
     // Clear session data
     req.session.destroy((err) => {

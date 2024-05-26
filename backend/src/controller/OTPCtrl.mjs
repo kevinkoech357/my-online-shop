@@ -2,10 +2,7 @@ import OTP from '../models/OTPModel.mjs';
 import generateOTP from '../utils/generateOTP.mjs';
 import sendEmail from '../utils/sendMail.mjs';
 import { hashData, verifyData } from '../utils/hashData.mjs';
-import dotenv from 'dotenv';
 import User from '../models/userModel.mjs';
-
-dotenv.config();
 
 // Retrieve MAIL_USERNAME from environment variables
 const mailAddress = process.env.MAIL_USERNAME;
