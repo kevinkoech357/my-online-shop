@@ -33,6 +33,27 @@ components:
         role:
           type: string
 
+    ProductDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        brand:
+          type: string
+        price:
+          type: number
+        sold:
+          type: number
+        quantity:
+          type: number
+        color:
+          type: string
 
 paths:
   /auth/register:
@@ -358,7 +379,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
 
   /user/update:
     patch:
@@ -408,7 +429,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
       
   /user/change-email:
     post:
@@ -443,7 +464,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
       
 
   /user/suspend:
@@ -471,7 +492,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
 
 
   /user/delete:
@@ -499,7 +520,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
 
 
   /admin/users/{id}:
@@ -529,7 +550,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
 
   /admin/users:
     get:
@@ -551,7 +572,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.      
+          description: Internal server error.      
 
   /admin/users/suspend/{id}:
     post:
@@ -585,7 +606,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error
 
   /admin/users/recover/{id}:
     post:
@@ -619,7 +640,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
 
   /admin/users/delete/{id}:
     delete:
@@ -653,4 +674,190 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error. Failed to retrieve user details.
+          description: Internal server error.
+
+  /admin/products/create:
+    post:
+      tags:
+        - Admin Product Actions
+      summary: Create / Add a New Product.
+      description: Allows admin to create/add a new product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+                - brand
+                - category
+                - price
+                - quantity
+                - color
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                brand:
+                  type: string
+                category:
+                  type: string
+                brand: 
+                  type: string
+                color:
+                  type: string
+                price:
+                  type: number
+                quantity:
+                  type: number
+      responses:
+        '200':
+          description: Product created successfully.
+          content:
+            application/json:
+               schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /admin/products/update/{id}:
+    put:
+      tags:
+        - Admin Product Actions
+      summary: Update details of a specific product.
+      description: Allows admins to update details of a product based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the product to update details for.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+                - brand
+                - category
+                - price
+                - quantity
+                - color
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                brand:
+                  type: string
+                category:
+                  type: string
+                brand: 
+                  type: string
+                color:
+                  type: string
+                price:
+                  type: number
+                quantity:
+                  type: number  
+      responses:
+        '200':
+          description: Product details updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: Product not Found.
+        '500':
+          description: Internal server error.
+    
+
+  /admin/products/delete/{id}:
+    delete:
+      tags:
+        - Admin Product Actions
+      summary: Delete a specific product.
+      description: Allows admin to delete a product based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the product to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /products/{id}:
+    get:
+      tags:
+        - Product Actions
+      summary: Get details of a specific product.
+      description: Allows any user to retrieve details of a specific product based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the product to retrieve details for.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '404':
+          description: Product not Found.
+        '500':
+          description: Internal server error.
+
+  /products:
+    get:
+      tags:
+        - Product Actions
+      summary: Get all products
+      description: Allows any user to retrieve all products.
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '500':
+          description: Internal server error.    
+
