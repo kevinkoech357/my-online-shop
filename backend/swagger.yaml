@@ -728,7 +728,7 @@ paths:
           description: Internal server error.
 
   /admin/products/update/{id}:
-    put:
+    patch:
       tags:
         - Admin Product Actions
       summary: Update details of a specific product.

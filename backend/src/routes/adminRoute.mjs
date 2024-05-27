@@ -20,7 +20,7 @@ adminRouter.delete('/users/delete/:id', isAuthenticated, isAdmin, adminDeleteAcc
 
 // Routes for performing Product related actions
 adminRouter.post('/products/create', isAuthenticated, isAdmin, checkRequiredFields(productFields), adminCreateProduct);
-adminRouter.put('/products/update/:id', isAuthenticated, isAdmin, adminModifyProduct);
+adminRouter.patch('/products/update/:id', isAuthenticated, isAdmin, adminModifyProduct);
 adminRouter.delete('/products/delete/:id', isAuthenticated, isAdmin, adminDeleteProduct);
 
 export default adminRouter;
