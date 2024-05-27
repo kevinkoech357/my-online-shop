@@ -9,17 +9,21 @@ const isAuthenticated = async (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Your session is invalid or has expired. Please log in again.' });
   }
 
-  const currentUser = await User.findById(user._id);
+  try {
+    const currentUser = await User.findById(user._id);
 
-  if (!currentUser) {
-    // User Not Found
-    return res.status(404).json({ success: false, message: 'User Not Found.' });
+    if (!currentUser) {
+      return res.status(401).json({ success: false, message: 'User not found. Please log in again.' });
+    }
+
+    req.user = currentUser;
+
+    // Session is valid
+    next();
+  } catch (error) {
+    console.error('Error finding user:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
   }
-
-  req.user = currentUser;
-
-  // Session is valid
-  next();
 };
 
 export default isAuthenticated;
