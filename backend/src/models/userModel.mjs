@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
-import BaseModel from './baseModel.mjs';
 
-// Define schema for the user model, inheriting from the base model
+// Define userSchema for the User Model
 const userSchema = new mongoose.Schema({
   firstname: {
     type: String,
@@ -40,8 +39,24 @@ const userSchema = new mongoose.Schema({
   active: {
     type: Boolean,
     default: false
-  }
-});
+  },
+  cart: {
+    type: Array,
+    default: []
+  },
+  address: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Address'
+    }
+  ],
+  wishlist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    }
+  ]
+}, { timestamps: true });
 
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
@@ -50,7 +65,6 @@ userSchema.set('toJSON', {
   }
 });
 
-// Inherit from BaseModel
-const User = BaseModel.discriminator('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 export default User;
