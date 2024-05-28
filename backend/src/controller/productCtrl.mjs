@@ -1,17 +1,24 @@
 import Product from '../models/productModel.mjs';
 import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
+import slugify from 'slugify';
 
 // ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================================================================================
 // Define adminCreateProduct function that allows the admin to add a product to the DB
 
 const adminCreateProduct = async (req, res) => {
   // Destructure body
-  const { name, description, slug, quantity, brand, color, price, images, category } = req.body;
+  const { name, description, quantity, brand, color, price, images, category } = req.body;
   try {
     // Capitalized necessary fields
     const capitalizedName = await capitalizeFirstLetter(name);
     const capitalizedDescription = await capitalizeFirstLetter(description);
     const capitalizedBrand = await capitalizeFirstLetter(brand);
+
+    // Create slug
+    const slug = slugify(name, {
+      replacement: '-',
+      lower: true
+    });
 
     // Create new Product
     const newProduct = new Product({
@@ -42,6 +49,14 @@ const adminModifyProduct = async (req, res) => {
   // Get product id from params
   const { id } = req.params;
   try {
+    // Check if the name field is being modified
+    if (req.body.name) {
+      // Generate the new slug based on the modified name
+      req.body.slug = slugify(req.body.name, {
+        replacement: '-',
+        lower: true
+      });
+    }
     const modifiedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
 
     if (!modifiedProduct) {
@@ -101,15 +116,66 @@ const viewOneProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    const allProducts = await Product.find();
+    // Check if req.query is null or empty
+    if (!req.query || Object.keys(req.query).length === 0) {
+      // If no query parameters provided, return all products
+      const allProducts = await Product.find();
 
-    if (!allProducts) {
-      res.status(200).json({ success: true, message: 'No products available' });
+      if (allProducts.length === 0) {
+        return res.status(200).json({ success: true, message: 'No products available' });
+      }
+
+      return res.status(200).json({ success: true, message: 'All products successfully retrieved.', products: allProducts });
     }
 
-    res.status(200).json({ success: true, message: 'All products successully retrieved.', products: allProducts });
+    // Get query parameters
+    const { page = 1, limit = 10, sortBy = 'createdAt', order = 'asc', name, brand, category, minPrice, maxPrice } = req?.query;
+
+    // Build query options
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      sort: {
+        [sortBy]: order === 'asc' ? 1 : -1
+      }
+    };
+
+    // Filter products based on query parameters
+    const query = {};
+
+    if (name) {
+      query.name = new RegExp(name, 'i');
+    }
+
+    if (brand) {
+      query.brand = new RegExp(brand, 'i');
+    }
+
+    if (category) {
+      query.category = new RegExp(category, 'i');
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) {
+        query.price.$gte = parseFloat(minPrice);
+      }
+      if (maxPrice) {
+        query.price.$lte = parseFloat(maxPrice);
+      }
+    }
+
+    // Retrieve paginated and filtered products
+    const allProducts = await Product.paginate(query, options);
+
+    // Check if products are found
+    if (allProducts.docs.length === 0) {
+      return res.status(200).json({ success: true, message: 'No products matching the criteria available.' });
+    }
+
+    res.status(200).json({ success: true, message: 'Products successfully retrieved.', products: allProducts });
   } catch (error) {
-    console.log('Error retrieving products:', error);
+    console.error('Error retrieving products:', error);
     res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
   }
 };
