@@ -850,7 +850,57 @@ paths:
       tags:
         - Product Actions
       summary: Get all products
-      description: Allows any user to retrieve all products.
+      description: | 
+        Allows any user to retrieve all products.
+        Supports filtering by name, brand, category, and price range.
+        If no query parameters are provided, all products available will be returned.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            description: The page number for pagination (default: 1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            description: The number of products per page (default: 10)
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            description: The field to sort the products by (default: createdAt)
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            description: The sort order (asc for ascending, desc for descending, default: asc)
+        - in: query
+          name: name
+          schema:
+            type: string
+            description: Filter products by name (case-insensitive)
+        - in: query
+          name: brand
+          schema:
+            type: string
+            description: Filter products by brand (case-insensitive)
+        - in: query
+          name: category
+          schema:
+            type: string
+            description: Filter products by category (case-insensitive)
+        - in: query
+          name: minPrice
+          schema:
+            type: number
+            description: Filter products by minimum price
+        - in: query
+          name: maxPrice
+          schema:
+            type: number
+            description: Filter products by maximum price
       responses:
         '200':
           description: Products retrieved successfully
@@ -859,5 +909,5 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductDetails'
         '500':
-          description: Internal server error.    
+          description: Internal server error. 
 
