@@ -33,9 +33,11 @@
     "express-winston": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.2",
+    "mongoose-paginate-v2": "^1.8.1",
     "morgan": "^1.10.0",
     "nanoid": "^5.0.6",
     "nodemailer": "^6.9.13",
+    "slugify": "^1.6.6",
     "swagger-ui-express": "^5.0.0",
     "winston": "^3.13.0",
     "yamljs": "^0.3.0"
