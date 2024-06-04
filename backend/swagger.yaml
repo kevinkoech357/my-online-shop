@@ -55,6 +55,20 @@ components:
         color:
           type: string
 
+    BlogDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        author:
+          type: string
+
 paths:
   /auth/register:
     post:
@@ -911,3 +925,161 @@ paths:
         '500':
           description: Internal server error. 
 
+
+  /admin/blog/create:
+    post:
+      tags:
+        - Admin Blog Actions
+      summary: Write / Create a new Blog post.
+      description: Allows admin to write / create a new Blog Post.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - category
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                category:
+                  type: string
+      responses:
+        '200':
+          description: Blog post created successfully.
+          content:
+            application/json:
+               schema:
+                $ref: '#/components/schemas/BlogDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /admin/blog/edit/{id}:
+    patch:
+      tags:
+        - Admin Blog Actions
+      summary: Edit a specific blog post.
+      description: Allows admins to edit a specific blog post based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the blog post to edit.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - category
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                category:
+                  type: string 
+      responses:
+        '200':
+          description: Blog post edited successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: Blog post not Found.
+        '500':
+          description: Internal server error.
+    
+
+  /admin/blog/delete/{id}:
+    delete:
+      tags:
+        - Admin Blog Actions
+      summary: Delete a specific blog post.
+      description: Allows admin to delete a blog post based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the blog post to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Blog post successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /blog/{id}:
+    get:
+      tags:
+        - Blog Actions
+      summary: Get a specific blog post.
+      description: Allows any user to retrieve a specific blog post based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the blog post to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Blog post retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogDetails'
+        '404':
+          description: Blog not Found.
+        '500':
+          description: Internal server error.
+
+  /blog:
+    get:
+      tags:
+        - Blog Actions
+      summary: Get all blog posts.
+      description: | 
+        Allows any user to retrieve all blog posts.
+      responses:
+        '200':
+          description: Blog Posts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogDetails'
+        '500':
+          description: Internal server error. 
