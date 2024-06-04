@@ -10,7 +10,7 @@ import validateEmail from '../utils/validateEmail.mjs';
 // All the above are required. If not provided, registration won't be successful.
 // Also sends OTP to the user's email which needs to be verified before a user is verified thus allowed to login and checkout products.
 
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
     // Extracting user data from the request body
     const { email, password, firstname, lastname, phone } = req.body;
@@ -78,9 +78,7 @@ const registerUser = async (req, res) => {
       }
     });
   } catch (error) {
-    // Handle any errors that occur during registration process
-    console.error('Error registering user:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
@@ -89,7 +87,7 @@ const registerUser = async (req, res) => {
 // to check email for OTP or ask for a new OTP.
 // If not, the user is denied logging in.
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   try {
     // Extract email and password from request body
     const { email, password } = req.body;
@@ -127,7 +125,7 @@ const loginUser = async (req, res) => {
     }
 
     // If the user is verified and the password matches, create a session
-    await setSessionOnLogin(user, req, res);
+    await setSessionOnLogin(user, req, res, next);
 
     // Successful login
     return res.status(200).json({
@@ -136,16 +134,14 @@ const loginUser = async (req, res) => {
       details: req.session.user
     });
   } catch (error) {
-    // Handle any errors
-    console.error('Error logging in user:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
 // Define logout function
 // Destroys users session and clears cookies
 
-const logoutUser = async (req, res) => {
+const logoutUser = async (req, res, next) => {
   try {
     // Clear session data
     req.session.destroy((err) => {
@@ -161,9 +157,7 @@ const logoutUser = async (req, res) => {
       return res.status(200).json({ success: true, message: 'Logout successful.' });
     });
   } catch (error) {
-    // Handle any errors
-    console.error('Error logging out user:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 

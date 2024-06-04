@@ -2,14 +2,14 @@ import Product from '../models/productModel.mjs';
 import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
 import slugify from 'slugify';
 
-// ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================================================================================
-// Define adminCreateProduct function that allows the admin to add a product to the DB
+// ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================
 
-const adminCreateProduct = async (req, res) => {
+// Admin function to create a new product
+const adminCreateProduct = async (req, res, next) => {
   // Destructure body
   const { name, description, quantity, brand, color, price, images, category } = req.body;
   try {
-    // Capitalized necessary fields
+    // Capitalize necessary fields
     const capitalizedName = await capitalizeFirstLetter(name);
     const capitalizedDescription = await capitalizeFirstLetter(description);
     const capitalizedBrand = await capitalizeFirstLetter(brand);
@@ -33,19 +33,18 @@ const adminCreateProduct = async (req, res) => {
       category
     });
 
+    // Save the new product to the database
     await newProduct.save();
 
     // Return a valid response with new product details
-    res.status(201).json({ success: true, message: 'New Product successfully Added', details: newProduct });
+    res.status(201).json({ success: true, message: 'New Product successfully added', details: newProduct });
   } catch (error) {
-    console.log('Error creating product:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
-// Define adminModifyProduct function that allows the admin to modify specific product details based on ID
-
-const adminModifyProduct = async (req, res) => {
+// Admin function to modify specific product details based on ID
+const adminModifyProduct = async (req, res, next) => {
   // Get product id from params
   const { id } = req.params;
   try {
@@ -60,61 +59,60 @@ const adminModifyProduct = async (req, res) => {
     const modifiedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
 
     if (!modifiedProduct) {
+      // If product not found, send a 404 response
       return res.status(404).json({ success: false, message: 'Product not found.' });
     }
 
+    // Send success response
     return res.status(200).json({ success: true, message: 'Product details successfully modified.', details: modifiedProduct });
   } catch (error) {
-    console.error('Error modifying product:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
-// Define adminDeleteProduct function that allows the admin to delete a specific product based on ID
-
-const adminDeleteProduct = async (req, res) => {
+// Admin function to delete a specific product based on ID
+const adminDeleteProduct = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const product = await Product.findById(id);
+    const product = await Product.findByIdAndDelete(id);
 
     if (!product) {
-      res.status(404).json({ success: false, message: 'No product Found' });
+      // If product not found, send a 404 response
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    await Product.findByIdAndDelete(id);
-
-    res.status(200).json({ success: true, message: 'Product details successfully deleted' });
+    // Send success response
+    res.status(200).json({ success: true, message: 'Product successfully deleted' });
   } catch (error) {
-    console.log('Error deleting product:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
-// ==============================================================END ADMIN PRODUCT RELATED ACTIONS===============================================================================================
+// ==========================================================END ADMIN PRODUCT RELATED ACTIONS========================
 
-// ==========================================================START ANY-USER PRODUCT RELATED ACTIONS=================================================================================================
+// ==========================================================START ANY-USER PRODUCT RELATED ACTIONS==================
 
-// Define viewOneProduct that returns all details associated with one product based on ID
-
-const viewOneProduct = async (req, res) => {
+// Function to view a specific product by ID (accessible by any user)
+const viewOneProduct = async (req, res, next) => {
   const { id } = req.params;
   try {
+    // Find the product by ID
     const product = await Product.findById(id);
 
     if (!product) {
-      res.status(404).json({ success: false, message: 'No product Found' });
+      // If product not found, send a 404 response
+      return res.status(404).json({ success: false, message: 'No product found' });
     }
 
+    // Send success response with product details
     res.status(200).json({ success: true, message: 'Product details successfully retrieved.', details: product });
   } catch (error) {
-    console.log('Error retrieving product:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
-// Define getAllProducts that returns all available products in the DB
-
-const getAllProducts = async (req, res) => {
+// Function to get all products (accessible by any user)
+const getAllProducts = async (req, res, next) => {
   try {
     // Check if req.query is null or empty
     if (!req.query || Object.keys(req.query).length === 0) {
@@ -125,6 +123,7 @@ const getAllProducts = async (req, res) => {
         return res.status(200).json({ success: true, message: 'No products available' });
       }
 
+      // Send success response with all products
       return res.status(200).json({ success: true, message: 'All products successfully retrieved.', products: allProducts });
     }
 
@@ -173,13 +172,13 @@ const getAllProducts = async (req, res) => {
       return res.status(200).json({ success: true, message: 'No products matching the criteria available.' });
     }
 
+    // Send success response with filtered products
     res.status(200).json({ success: true, message: 'Products successfully retrieved.', products: allProducts });
   } catch (error) {
-    console.error('Error retrieving products:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
-// ==========================================================END ANY-USER PRODUCT RELATED ACTIONS=================================================================================================
+// ==========================================================END ANY-USER PRODUCT RELATED ACTIONS====================
 
 export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts };
