@@ -63,7 +63,7 @@ const sendOTP = async ({ email, subject, message, duration = 1 }) => {
 Define verifyOTP async funtion that is used to verify the users email and account in general.
 If users dont verify email, they wont be able to checkout.
 */
-const verifyOTP = async (req, res) => {
+const verifyOTP = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
@@ -141,12 +141,7 @@ const verifyOTP = async (req, res) => {
       message: 'Email verification successful.'
     });
   } catch (error) {
-    // Handle unexpected errors
-    console.error('Error verifying OTP:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error. Please try again later.'
-    });
+    next(error);
   }
 };
 
@@ -154,7 +149,7 @@ const verifyOTP = async (req, res) => {
 Define regenerateOTP async function that allows a user to request for a new OTP
 incase the provided OTP is invalid or expired or just because they want to.
 */
-const regenerateOTP = async (req, res) => {
+const regenerateOTP = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -195,12 +190,7 @@ const regenerateOTP = async (req, res) => {
       message: 'New OTP successfully sent to your email.'
     });
   } catch (error) {
-    // Handle unexpected errors
-    console.error('Error regenerating OTP:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error. Please try again later.'
-    });
+    next(error);
   }
 };
 

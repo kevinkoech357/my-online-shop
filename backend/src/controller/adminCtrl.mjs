@@ -3,7 +3,7 @@ import User from '../models/userModel.mjs';
 // Define a adminGetUserDetails function that returns a JSON
 // response with the specified user details
 
-const adminGetUserDetails = async (req, res) => {
+const adminGetUserDetails = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -15,15 +15,14 @@ const adminGetUserDetails = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'User details successfully retrieved.', details: user });
   } catch (error) {
-    console.error('Error retrieving user details:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
 // Define adminGetAllUsers functions that allows admin to get
 // all registered users
 
-const adminGetAllUsers = async (req, res) => {
+const adminGetAllUsers = async (req, res, next) => {
   try {
     const allUsers = await User.find();
 
@@ -33,8 +32,7 @@ const adminGetAllUsers = async (req, res) => {
 
     return res.status(200).json({ success: true, message: 'All users successfully retrieved', users: allUsers });
   } catch (error) {
-    console.error('Error retrieving user details:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
@@ -42,7 +40,7 @@ const adminGetAllUsers = async (req, res) => {
 // Users to suspend/deactivate their accounts
 // Can also be used by Admin
 
-const adminSuspendAccount = async (req, res) => {
+const adminSuspendAccount = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -57,8 +55,7 @@ const adminSuspendAccount = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Account successfully deactivated.' });
   } catch (error) {
-    console.error('Error suspending account:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
@@ -66,7 +63,7 @@ const adminSuspendAccount = async (req, res) => {
 // accounts to restore them
 // Can also be used by Admin
 
-const adminRecoverAccount = async (req, res) => {
+const adminRecoverAccount = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -81,8 +78,7 @@ const adminRecoverAccount = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Account successfully recovered.' });
   } catch (error) {
-    console.error('Error suspending account:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 
@@ -90,7 +86,7 @@ const adminRecoverAccount = async (req, res) => {
 // Users to delete their accounts
 // Can also be used by Admin
 
-const adminDeleteAccount = async (req, res) => {
+const adminDeleteAccount = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -104,8 +100,7 @@ const adminDeleteAccount = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Account successfully deleted.' });
   } catch (error) {
-    console.error('Error deleting account:', error);
-    res.status(500).json({ success: false, message: 'Internal server error. Please try again later.' });
+    next(error);
   }
 };
 

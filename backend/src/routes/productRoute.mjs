@@ -5,7 +5,7 @@ import validateMongoID from '../middlewares/validateMongoID.mjs';
 const productRouter = express.Router();
 
 // Product related open/public routes
-productRouter.get('/:id', validateMongoID, viewOneProduct);
 productRouter.get('/', getAllProducts);
+productRouter.get('/:id', validateMongoID, viewOneProduct);
 
 export default productRouter;
