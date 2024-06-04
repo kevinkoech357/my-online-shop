@@ -15,6 +15,8 @@ import authRouter from './routes/authRoute.mjs';
 import userRouter from './routes/userRoute.mjs';
 import adminRouter from './routes/adminRoute.mjs';
 import productRouter from './routes/productRoute.mjs';
+import blogRouter from './routes/blogRoute.mjs';
+import errorHandler from './middlewares/errorHandler.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -54,6 +56,10 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/products', productRouter);
+app.use('/api/v1/blog', blogRouter);
+
+// Register the global error handler
+app.use(errorHandler);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
