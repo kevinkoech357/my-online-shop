@@ -22,7 +22,7 @@ const adminWriteBlog = async (req, res, next) => {
     await newBlog.save();
 
     // Send success response
-    res.status(201).json({ success: true, message: 'New Blog created successfully', details: newBlog });
+    return res.status(201).json({ success: true, message: 'New Blog Post created successfully', details: newBlog });
   } catch (error) {
     // Pass any errors to the global error handler
     next(error);
@@ -37,12 +37,12 @@ const adminModifyBlog = async (req, res, next) => {
     const modifiedBlog = await Blog.findByIdAndUpdate(id, req.body, { new: true });
 
     if (!modifiedBlog) {
-      // If blog not found, send a 404 response
-      return res.status(404).json({ success: false, message: 'Blog not found.' });
+      // If Blog Post Not Found, send a 404 response
+      return res.status(404).json({ success: false, message: 'Blog Post Not Found.' });
     }
 
     // Send success response
-    return res.status(200).json({ success: true, message: 'Blog successfully modified.', details: modifiedBlog });
+    return res.status(200).json({ success: true, message: 'Blog Post successfully modified.', details: modifiedBlog });
   } catch (error) {
     // Pass any errors to the global error handler
     next(error);
@@ -57,12 +57,12 @@ const adminDeleteBlog = async (req, res, next) => {
     const blog = await Blog.findByIdAndDelete(id);
 
     if (!blog) {
-      // If blog not found, send a 404 response
-      return res.status(404).json({ success: false, message: 'Blog not found' });
+      // If Blog Post Not Found, send a 404 response
+      return res.status(404).json({ success: false, message: 'Blog Post Not Found' });
     }
 
     // Send success response
-    res.status(200).json({ success: true, message: 'Blog successfully deleted' });
+    return res.status(200).json({ success: true, message: 'Blog Post successfully deleted' });
   } catch (error) {
     // Pass any errors to the global error handler
     next(error);
@@ -80,8 +80,8 @@ const getAllBlogs = async (req, res, next) => {
     const allBlogPosts = await Blog.find();
 
     if (allBlogPosts.length === 0) {
-      // If no blogs are found, send a 204 response
-      return res.status(204).send({ success: true, message: 'No Blog Posts available' });
+      // If no blogs are found, send a 200 response with empty array
+      return res.status(200).json({ success: true, message: 'No Blog Posts Found.', details: [] });
     }
 
     // Send success response with all blog posts
@@ -100,12 +100,12 @@ const viewOneBlog = async (req, res, next) => {
     const blog = await Blog.findById(id);
 
     if (!blog) {
-      // If blog not found, send a 404 response
-      return res.status(404).json({ success: false, message: 'No blog found' });
+      // If Blog Post Not Found, send a 404 response
+      return res.status(404).json({ success: false, message: 'Blog Post Not Found' });
     }
 
     // Send success response with blog details
-    res.status(200).json({ success: true, message: 'Blog details successfully retrieved.', details: blog });
+    return res.status(200).json({ success: true, message: 'Blog Post successfully retrieved.', details: blog });
   } catch (error) {
     // Pass any errors to the global error handler
     next(error);

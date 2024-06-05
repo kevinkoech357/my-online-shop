@@ -12,13 +12,16 @@ const getUserDetails = async (req, res, next) => {
   const { _id } = req.user;
 
   try {
+    // Find user based on ID
     const user = await User.findById(_id);
 
     if (!user) {
+      // Return 404
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    res.status(200).json({ success: true, message: 'User details successfully retrieved.', details: user });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'User details successfully retrieved.', details: user });
   } catch (error) {
     next(error);
   }
@@ -32,13 +35,16 @@ const updateUserDetails = async (req, res, next) => {
   const { firstname, lastname, phone, previousPassword, password } = req.body;
 
   try {
+    // Find user based on id
     const user = await User.findById(_id);
 
     if (!user) {
+      // Return 404
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
     if (previousPassword) {
+      // Check if previous password is correct
       const passwordMatch = await verifyData(user.password, previousPassword);
 
       if (!passwordMatch) {
@@ -58,7 +64,9 @@ const updateUserDetails = async (req, res, next) => {
     if (lastname) user.lastname = await capitalizeFirstLetter(lastname);
 
     await user.save();
-    res.status(200).json({ success: true, message: 'User details successfully updated.', details: user });
+
+    // Return success response
+    return res.status(200).json({ success: true, message: 'User details successfully updated.', details: user });
   } catch (error) {
     next(error);
   }
@@ -66,6 +74,7 @@ const updateUserDetails = async (req, res, next) => {
 
 // Define changeEmail function that allows registered and authenticated
 // Users to change their emails if need be
+
 const changeEmail = async (req, res, next) => {
   const { _id } = req.user;
   const { email } = req.body;
@@ -74,6 +83,7 @@ const changeEmail = async (req, res, next) => {
     const user = await User.findById(_id);
 
     if (!user) {
+      // Return 404
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
@@ -92,7 +102,7 @@ const changeEmail = async (req, res, next) => {
     user.verified = false;
     await user.save();
 
-    res.status(200).json({ success: true, message: 'Email successfully updated. Verify OTP.', details: user });
+    return res.status(200).json({ success: true, message: 'Email successfully updated. Verify OTP.', details: user });
   } catch (error) {
     next(error);
   }
@@ -106,18 +116,18 @@ const suspendAccount = async (req, res, next) => {
   const { _id } = req.user;
 
   try {
-    const user = await User.findById(_id);
+    // Find and Update user
+    const user = await User.findByIdAndUpdate(_id, { active: false }, { new: true });
 
     if (!user) {
+      // Return 404
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    user.active = false;
-    await user.save();
-
     req.session.destroy(); // Destroy session after suspending account
 
-    res.status(200).json({ success: true, message: 'Account successfully deactivated.' });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'Account successfully deactivated.' });
   } catch (error) {
     next(error);
   }
@@ -131,16 +141,18 @@ const deleteAccount = async (req, res, next) => {
   const { _id } = req.user;
 
   try {
-    const user = await User.findById(_id);
+    // Find and Delete user
+    const user = await User.findByIdAndDelete(_id);
 
     if (!user) {
+      // Return 404
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    await User.findByIdAndDelete(_id);
     req.session.destroy(); // Destroy session after deleting account
 
-    res.status(200).json({ success: true, message: 'Account successfully deleted.' });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'Account successfully deleted.' });
   } catch (error) {
     next(error);
   }

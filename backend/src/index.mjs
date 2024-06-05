@@ -10,13 +10,16 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 
-// Import routes
+// Import routers
 import authRouter from './routes/authRoute.mjs';
 import userRouter from './routes/userRoute.mjs';
 import adminRouter from './routes/adminRoute.mjs';
 import productRouter from './routes/productRoute.mjs';
 import blogRouter from './routes/blogRoute.mjs';
-import errorHandler from './middlewares/errorHandler.mjs';
+import productCategoryRouter from './routes/productCategoryRoute.mjs';
+
+// Import middlewares
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -57,9 +60,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/blog', blogRouter);
-
-// Register the global error handler
-app.use(errorHandler);
+app.use('/api/v1/prod-categories', productCategoryRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
@@ -70,6 +71,12 @@ const swaggerDocument = YAML.load(resolve(__dirname, '..', 'swagger.yaml'));
 
 // Serve Swagger UI with the Swagger document
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Add the NotFound middleware
+app.use(notFoundHandler);
+
+// Register the global error handler
+app.use(errorHandler);
 
 // Start the server on the specified port
 app.listen(PORT, () => {
