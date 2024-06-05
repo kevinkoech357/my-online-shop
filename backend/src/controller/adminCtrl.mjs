@@ -7,13 +7,16 @@ const adminGetUserDetails = async (req, res, next) => {
   const { id } = req.params;
 
   try {
+    // Find user based on ID
     const user = await User.findById(id);
 
     if (!user) {
+      // Return 404 response
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    res.status(200).json({ success: true, message: 'User details successfully retrieved.', details: user });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'User details successfully retrieved.', details: user });
   } catch (error) {
     next(error);
   }
@@ -24,81 +27,87 @@ const adminGetUserDetails = async (req, res, next) => {
 
 const adminGetAllUsers = async (req, res, next) => {
   try {
+    // Retrieve all users
     const allUsers = await User.find();
 
     if (!allUsers) {
-      return res.status(200).json({ success: true, message: 'No users available.' });
+      // Return success with empty array
+      return res.status(200).json({ success: true, message: 'No users available.', users: [] });
     }
-
+    // Return success response
     return res.status(200).json({ success: true, message: 'All users successfully retrieved', users: allUsers });
   } catch (error) {
     next(error);
   }
 };
 
-// Define adminSuspendAccount function that allows registered and authenticated
-// Users to suspend/deactivate their accounts
-// Can also be used by Admin
+// Define adminRecoverAccount function that allows the admin
+// accounts to suspend/deactivate user accounts
 
 const adminSuspendAccount = async (req, res, next) => {
   const { id } = req.params;
-
   try {
-    const user = await User.findById(id);
+    // Find and update user.active field
+    const user = await User.findByIdAndUpdate(
+      id,
+      { active: false },
+      { new: true }
+    );
 
     if (!user) {
+      // Return 404 response
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    user.active = false;
-    await user.save();
-
-    res.status(200).json({ success: true, message: 'Account successfully deactivated.' });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'Account successfully suspended.' });
   } catch (error) {
     next(error);
   }
 };
 
-// Define adminRecoverAccount function that allows registered users with suspended/deactivated
-// accounts to restore them
-// Can also be used by Admin
+// Define adminRecoverAccount function that allows the admin
+// accounts to restore suspended/deactivated accounts
 
 const adminRecoverAccount = async (req, res, next) => {
   const { id } = req.params;
-
   try {
-    const user = await User.findById(id);
+    // Find and update user.active field
+    const user = await User.findByIdAndUpdate(
+      id,
+      { active: true },
+      { new: true }
+    );
 
     if (!user) {
+      // Return 404 response
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    user.active = true;
-    await user.save();
-
-    res.status(200).json({ success: true, message: 'Account successfully recovered.' });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'Account successfully recovered.' });
   } catch (error) {
     next(error);
   }
 };
 
-// Define adminDeleteAccount function that allows registered and authenticated
-// Users to delete their accounts
-// Can also be used by Admin
+// Define adminDeleteAccount function that allows the admin
+// to delete user accounts
 
 const adminDeleteAccount = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id);
+    // Find and delete user
+    const user = await User.findByIdAndDelete(id);
 
     if (!user) {
+      // Return 404 if user is Not found
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    await User.findByIdAndDelete(id);
-
-    res.status(200).json({ success: true, message: 'Account successfully deleted.' });
+    // Return success response
+    return res.status(200).json({ success: true, message: 'Account successfully deleted.' });
   } catch (error) {
     next(error);
   }

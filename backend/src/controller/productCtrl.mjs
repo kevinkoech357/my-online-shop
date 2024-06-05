@@ -37,7 +37,7 @@ const adminCreateProduct = async (req, res, next) => {
     await newProduct.save();
 
     // Return a valid response with new product details
-    res.status(201).json({ success: true, message: 'New Product successfully added', details: newProduct });
+    return res.status(201).json({ success: true, message: 'New Product successfully added', details: newProduct });
   } catch (error) {
     next(error);
   }
@@ -82,7 +82,7 @@ const adminDeleteProduct = async (req, res, next) => {
     }
 
     // Send success response
-    res.status(200).json({ success: true, message: 'Product successfully deleted' });
+    return res.status(200).json({ success: true, message: 'Product successfully deleted' });
   } catch (error) {
     next(error);
   }
@@ -105,7 +105,7 @@ const viewOneProduct = async (req, res, next) => {
     }
 
     // Send success response with product details
-    res.status(200).json({ success: true, message: 'Product details successfully retrieved.', details: product });
+    return res.status(200).json({ success: true, message: 'Product details successfully retrieved.', details: product });
   } catch (error) {
     next(error);
   }
@@ -173,7 +173,7 @@ const getAllProducts = async (req, res, next) => {
     }
 
     // Send success response with filtered products
-    res.status(200).json({ success: true, message: 'Products successfully retrieved.', products: allProducts });
+    return res.status(200).json({ success: true, message: 'Products successfully retrieved.', products: allProducts });
   } catch (error) {
     next(error);
   }

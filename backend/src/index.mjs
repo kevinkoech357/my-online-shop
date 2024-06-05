@@ -60,13 +60,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/blog', blogRouter);
-app.use('/api/v1/product-categories', productCategoryRouter);
-
-// Add the NotFound middleware
-app.use(notFoundHandler);
-
-// Register the global error handler
-app.use(errorHandler);
+app.use('/api/v1/prod-categories', productCategoryRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
@@ -77,6 +71,12 @@ const swaggerDocument = YAML.load(resolve(__dirname, '..', 'swagger.yaml'));
 
 // Serve Swagger UI with the Swagger document
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Add the NotFound middleware
+app.use(notFoundHandler);
+
+// Register the global error handler
+app.use(errorHandler);
 
 // Start the server on the specified port
 app.listen(PORT, () => {

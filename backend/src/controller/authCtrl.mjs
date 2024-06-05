@@ -65,7 +65,7 @@ const registerUser = async (req, res, next) => {
     });
 
     // Return success response with user details and message
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'User successfully registered, OTP sent for email verification',
       details: {
