@@ -32,6 +32,12 @@ components:
           type: boolean
         role:
           type: string
+        wishlist:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductDetails'
+        address:
+          type: array
 
     ProductDetails:
       type: object
@@ -932,6 +938,57 @@ paths:
                 $ref: '#/components/schemas/ProductDetails'
         '500':
           description: Internal server error. 
+
+  /products/wishlist/me:
+    get:
+      tags:
+        - Product Actions
+      summary: Retrive user's wishlist.
+      description: Allows authenticated users to view all products in their wishlist.
+      responses:
+        '200':
+          description: Wishlist retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
+
+  /products/wishlist:
+    put:
+      tags:
+        - Product Actions
+      summary: Add / Remove a specific product from wishlist.
+      description: Allows authenticated users to add / remove a product from their wishlist.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productID
+              properties:
+                productID:
+                  type: string
+      responses:
+        '200':
+          description: Wishlist updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
 
 
   /admin/blog/create:
