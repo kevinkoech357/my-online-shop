@@ -2,7 +2,6 @@ import Product from '../models/productModel.mjs';
 import User from '../models/userModel.mjs';
 import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
 import slugify from 'slugify';
-import mongoose from 'mongoose';
 
 // ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================
 
@@ -191,13 +190,6 @@ const addToWishlist = async (req, res, next) => {
   const { productID } = req.body;
 
   try {
-    const isValid = mongoose.Types.ObjectId.isValid(productID);
-
-    // Invalid id
-    if (!isValid) {
-      return res.status(400).json({ success: false, message: 'Invalid ID parameter.' });
-    }
-
     // Check if user exists based on ID
     const user = await User.findById(_id);
 
@@ -269,6 +261,60 @@ const getWishlist = async (req, res, next) => {
   }
 };
 
+// Define rateProduct that allows authenticated users
+// to rate a specific product
+
+const rateProduct = async (req, res, next) => {
+  // Get _id from user session
+  const { _id } = req.user;
+  // Get star and productID from req.body
+  const { star, productID, comment } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User Not Found.' });
+    }
+
+    // Check if product exists
+    const product = await Product.findById(productID);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product Not Found.' });
+    }
+
+    // Check if user has already rated the product
+    const userRating = product.ratings.find(ratingObj => ratingObj.postedBy.toString() === _id.toString());
+
+    if (userRating) {
+      // Update existing user rating
+      if (star) userRating.star = star;
+      if (comment) userRating.comment = comment;
+    } else {
+      // Add new rating
+      product.ratings.push({ star, comment, postedBy: _id });
+    }
+
+    // Calculate total rating
+    const totalRatings = product.ratings.reduce((acc, ratingObj) => acc + ratingObj.star, 0);
+    product.totalRating = (totalRatings / product.ratings.length).toFixed(1);
+
+    // Save the updated product
+    await product.save();
+
+    // Fetch updated product for response
+    const updatedProduct = await Product.findById(productID);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product rated successfully.',
+      details: updatedProduct
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ==========================================================END ANY-USER PRODUCT RELATED ACTIONS====================
 
-export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, getWishlist };
+export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, getWishlist, rateProduct };
