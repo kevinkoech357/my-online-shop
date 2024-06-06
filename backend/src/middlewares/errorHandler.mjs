@@ -27,11 +27,25 @@ const errorHandler = (err, req, res, next) => {
 
 // Handle routes Not Found
 const notFoundHandler = (req, res, next) => {
+  // Create a new Error instance with a message indicating the requested URL
   const error = new Error(`Not Found - ${req.originalUrl}`);
-  res.status(404).json({
+  // Return a 404
+  return res.status(404).json({
     success: false,
     error: error.message
   });
+  // Since the response is sent, there's no need to continue to the next middleware
 };
 
-export { errorHandler, notFoundHandler };
+// JSON Error Handler
+const JSONErrorHandler = (err, req, res, next) => {
+  // Check if the error is a SyntaxError, has status 400, and if the error occurred in the request body
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    // Return a 400 response
+    return res.status(400).json({ success: false, message: 'Invalid JSON format.' });
+  }
+  // If the error doesn't match the conditions above, proceed to the next middleware
+  next();
+};
+
+export { errorHandler, notFoundHandler, JSONErrorHandler };
