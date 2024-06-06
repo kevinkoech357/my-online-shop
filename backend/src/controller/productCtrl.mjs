@@ -1,6 +1,8 @@
 import Product from '../models/productModel.mjs';
+import User from '../models/userModel.mjs';
 import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
 import slugify from 'slugify';
+import mongoose from 'mongoose';
 
 // ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================
 
@@ -179,6 +181,94 @@ const getAllProducts = async (req, res, next) => {
   }
 };
 
+// Define addToWishlist function that allows authenticated users to add
+// different products to their wishlist
+
+const addToWishlist = async (req, res, next) => {
+  // Get _id from user session
+  const { _id } = req.user;
+  // Get productID from req.body
+  const { productID } = req.body;
+
+  try {
+    const isValid = mongoose.Types.ObjectId.isValid(productID);
+
+    // Invalid id
+    if (!isValid) {
+      return res.status(400).json({ success: false, message: 'Invalid ID parameter.' });
+    }
+
+    // Check if user exists based on ID
+    const user = await User.findById(_id);
+
+    if (!user) {
+      // Return 404 if user not found
+      return res.status(404).json({ success: false, message: 'User Not Found.' });
+    }
+
+    // Check if product exists based on productID
+    const product = await Product.findById(productID);
+
+    if (!product) {
+      // Return 404 if product not found
+      return res.status(404).json({ success: false, message: 'Product Not Found.' });
+    }
+
+    // Check if product has already been added to wishlist
+    const productAlreadyAdded = user.wishlist.includes(productID);
+
+    if (productAlreadyAdded) {
+      // Remove product from wishlist
+      const updatedUser = await User.findByIdAndUpdate(
+        _id,
+        { $pull: { wishlist: productID } },
+        { new: true }
+      );
+      // Return response
+      return res.status(200).json({ success: true, message: 'Product successfully removed from wishlist.', details: updatedUser });
+    } else {
+      // Add product to wishlist
+      const updatedUser = await User.findByIdAndUpdate(
+        _id,
+        { $push: { wishlist: productID } },
+        { new: true }
+      );
+      // Return response
+      return res.status(200).json({ success: true, message: 'Product successfully added to wishlist.', details: updatedUser });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Define getWishlist function that allows authenticated users
+// to view all products in their wishlist
+
+const getWishlist = async (req, res, next) => {
+  // Get _id from user session
+  const { _id } = req.user;
+
+  try {
+    // Check if user exists based on ID
+    const user = await User.findById(_id).populate('wishlist');
+
+    if (!user) {
+      // Return 404 if user not found
+      return res.status(404).json({ success: false, message: 'User Not Found.' });
+    }
+
+    // Return response with wishlist details
+    return res.status(200).json({
+      success: true,
+      message: user.wishlist.length > 0 ? 'Wishlist retrieved successfully.' : 'Wishlist is empty.',
+      details: user.wishlist,
+      count: user.wishlist.length
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ==========================================================END ANY-USER PRODUCT RELATED ACTIONS====================
 
-export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts };
+export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, getWishlist };

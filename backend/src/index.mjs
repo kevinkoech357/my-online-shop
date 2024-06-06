@@ -19,7 +19,7 @@ import blogRouter from './routes/blogRoute.mjs';
 import productCategoryRouter from './routes/productCategoryRoute.mjs';
 
 // Import middlewares
-import { errorHandler, notFoundHandler } from './middlewares/errorHandler.mjs';
+import { JSONErrorHandler, errorHandler, notFoundHandler } from './middlewares/errorHandler.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -71,6 +71,9 @@ const swaggerDocument = YAML.load(resolve(__dirname, '..', 'swagger.yaml'));
 
 // Serve Swagger UI with the Swagger document
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Add JSONError middleware
+app.use(JSONErrorHandler);
 
 // Add the NotFound middleware
 app.use(notFoundHandler);
