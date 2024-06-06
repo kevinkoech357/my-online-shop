@@ -60,6 +60,8 @@ components:
           type: number
         color:
           type: string
+        ratings:
+          type: array
 
     BlogDetails:
       type: object
@@ -960,7 +962,7 @@ paths:
           description: Internal server error.
 
   /products/wishlist:
-    put:
+    patch:
       tags:
         - Product Actions
       summary: Add / Remove a specific product from wishlist.
@@ -990,6 +992,45 @@ paths:
         '500':
           description: Internal server error.
 
+
+  /products/rate:
+    patch:
+      tags:
+        - Product Actions
+      summary: Rate a specific product.
+      description: Allows authenticated users to rate a product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productID
+                - star
+                - comment
+              properties:
+                productID:
+                  type: string
+                star:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Product rated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetails'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
 
   /admin/blog/create:
     post:
