@@ -40,7 +40,8 @@ const productSchema = new mongoose.Schema({
     default: 0
   },
   images: {
-    type: Array
+    type: Array,
+    default: ['https://asset.cloudinary.com/dndbt307f/50e6884448b201deb55c4fd0160f4b84']
   },
   color: {
     type: String,

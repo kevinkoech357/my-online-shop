@@ -19,6 +19,10 @@ const blogSchema = new mongoose.Schema({
   author: {
     type: String,
     default: 'Admin'
+  },
+  images: {
+    type: Array,
+    default: ['https://asset.cloudinary.com/dndbt307f/3b1d0d8addfb951c92049204d0a9e27f']
   }
 }, { timestamps: true });
 

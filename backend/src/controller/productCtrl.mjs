@@ -8,7 +8,7 @@ import slugify from 'slugify';
 // Admin function to create a new product
 const adminCreateProduct = async (req, res, next) => {
   // Destructure body
-  const { name, description, quantity, brand, color, price, images, category } = req.body;
+  const { name, description, quantity, brand, color, price, category } = req.body;
   try {
     // Capitalize necessary fields
     const capitalizedName = await capitalizeFirstLetter(name);
@@ -30,7 +30,6 @@ const adminCreateProduct = async (req, res, next) => {
       brand: capitalizedBrand,
       color,
       price,
-      images,
       category
     });
 
