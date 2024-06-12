@@ -20,10 +20,12 @@ const blogSchema = new mongoose.Schema({
     type: String,
     default: 'Admin'
   },
-  images: {
-    type: Array,
-    default: ['https://asset.cloudinary.com/dndbt307f/3b1d0d8addfb951c92049204d0a9e27f']
-  }
+  images: [
+    {
+      public_id: String,
+      url: String
+    }
+  ]
 }, { timestamps: true });
 
 const Blog = mongoose.model('Blog', blogSchema);
