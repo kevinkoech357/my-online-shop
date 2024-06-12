@@ -1,34 +1,51 @@
-import cloudinary from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
-// Configure cloudinary
-// First by getting env vars
-
-const { CLOUDINARY_NAME, API_KEY, API_SECRET } = process.env;
-
+// Configure Cloudinary with environment variables
 cloudinary.config({
-  cloud_name: CLOUDINARY_NAME,
-  api_key: API_KEY,
-  api_secret: API_SECRET
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
 });
 
-// Define cloudinaryUploadImage that will enable async
-// upload of images
-
-const cloudinaryUploadImage = async (fileToUpload, folderName) => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(fileToUpload, {
+// Function to upload an image to Cloudinary
+const cloudinaryUploadImage = async (fileToUpload) => {
+  try {
+    // Attempt to upload the image to Cloudinary
+    const result = await cloudinary.uploader.upload(fileToUpload, {
       folder: process.env.CLOUDINARY_FOLDER,
-      resource_type: 'image'
-    }, (error, result) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve({
-          url: result.secure_url
-        });
-      }
+      resource_type: 'image',
+      allowed_formats: ['jpeg', 'png']
     });
-  });
+
+    // Return the URL and public ID of the uploaded image
+    return {
+      url: result.secure_url,
+      public_id: result.public_id
+    };
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
+  }
 };
 
-export { cloudinaryUploadImage };
+// Function to delete an image from Cloudinary
+const cloudinaryDeleteImage = async (publicId) => {
+  try {
+    // Attempt to delete the image from Cloudinary using the provided public ID
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    // Check the result of the deletion
+    if (result.result === 'ok') {
+      console.log(`Image with public_id ${publicId} deleted successfully`);
+      return { success: true }; // Return success if the deletion was successful
+    } else {
+      console.error(`Error deleting image with public_id ${publicId}`);
+      throw new Error('Failed to delete image');
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    throw error;
+  }
+};
+
+export { cloudinaryUploadImage, cloudinaryDeleteImage };
