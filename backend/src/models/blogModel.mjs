@@ -19,7 +19,13 @@ const blogSchema = new mongoose.Schema({
   author: {
     type: String,
     default: 'Admin'
-  }
+  },
+  images: [
+    {
+      public_id: String,
+      url: String
+    }
+  ]
 }, { timestamps: true });
 
 const Blog = mongoose.model('Blog', blogSchema);

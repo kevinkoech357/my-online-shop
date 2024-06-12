@@ -2,7 +2,7 @@ import { createLogger, transports, format } from 'winston';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import 'winston-daily-rotate-file';
-import fs from 'fs/promises'; // Import fs.promises for async file system operations
+import createDirectory from './createDirectory.mjs';
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
@@ -12,15 +12,7 @@ const __dirname = dirname(__filename);
 const logDirPath = path.join(__dirname, '..', 'logs');
 
 // Create the logs directory asynchronously if it doesn't exist
-async function createLogsDirectory () {
-  try {
-    await fs.mkdir(logDirPath, { recursive: true });
-  } catch (error) {
-    console.error(`Error creating logs directory: ${error}`);
-  }
-}
-
-createLogsDirectory(); // Call the function to create logs directory
+await createDirectory(logDirPath);
 
 // Configure Winston logger
 const logger = createLogger({

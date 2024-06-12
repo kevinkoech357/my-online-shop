@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import isInteger from '../utils/isInteger.mjs';
 
 // Middleware for validating if required body fields are present
 const checkRequiredFields = (requiredFields) => (req, res, next) => {
@@ -72,4 +73,15 @@ const validateRatingDetails = (req, res, next) => {
   next();
 };
 
-export { checkFieldLength, checkRequiredFields, validateProductID, validateRatingDetails };
+// Middleware to validate if quantity and price are integers
+const validateIntegerFields = (req, res, next) => {
+  const { quantity, price } = req.body;
+
+  if (!isInteger(quantity) || !isInteger(price)) {
+    return res.status(400).json({ success: false, message: 'Quantity and price must be integers' });
+  }
+
+  next();
+};
+
+export { checkFieldLength, checkRequiredFields, validateProductID, validateRatingDetails, validateIntegerFields };
