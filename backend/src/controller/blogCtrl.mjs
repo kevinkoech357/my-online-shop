@@ -1,5 +1,8 @@
 import Blog from '../models/blogModel.mjs';
 import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
+import { cloudinaryUploadImage, cloudinaryDeleteImage } from '../utils/cloudinaryConfig.mjs';
+import fs from 'fs/promises';
+import path from 'path';
 
 // ===================================================START ADMIN BLOG RELATED ACTIONS=========================================
 
@@ -69,6 +72,83 @@ const adminDeleteBlog = async (req, res, next) => {
   }
 };
 
+// Admin function to upload images for a specific product based on its ID
+const adminUploadBlogImages = async (req, res, next) => {
+  try {
+    const rootDir = path.resolve();
+
+    const files = req.files;
+    if (!Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No files attached to the request.' });
+    }
+
+    const imageUrls = [];
+    for (const file of files) {
+      const filePath = path.join(rootDir, 'uploads/images/blogs', file.filename);
+      const uploadResult = await cloudinaryUploadImage(filePath);
+      imageUrls.push(uploadResult);
+      await fs.unlink(filePath);
+    }
+
+    const { id } = req.params;
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      id,
+      { $push: { images: { $each: imageUrls } } },
+      { new: true }
+    );
+
+    if (!updatedBlog) {
+      return res.status(404).json({ success: false, message: 'Blog Not Found' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Images successfully uploaded', details: updatedBlog });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin function to delete one image from a Blog based on its ID
+const adminDeleteBlogImage = async (req, res, next) => {
+  const { id } = req.params; // Blog ID
+  const { imageID } = req.body; // Image ID
+
+  try {
+    // Find the blog by ID
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    // Find the index of the image to delete
+    const imageIndex = blog.images.findIndex(image => image._id.toString() === imageID);
+
+    if (imageIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Image not found in the Blog' });
+    }
+
+    // Get the public ID of the image to delete
+    const publicIdToDelete = blog.images[imageIndex].public_id;
+
+    // Delete the image from Cloudinary using the helper function
+    const deleteResult = await cloudinaryDeleteImage(publicIdToDelete);
+
+    if (!deleteResult.success) {
+      return res.status(500).json({ success: false, message: 'Failed to delete image from Cloudinary' });
+    }
+
+    // Remove the image from the blog's images array
+    blog.images.splice(imageIndex, 1);
+
+    // Save the updated blog
+    const updatedBlog = await blog.save();
+
+    return res.status(200).json({ success: true, message: 'Image successfully deleted', details: updatedBlog });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ==========================================================END ADMIN BLOG RELATED ACTIONS==============================
 
 // ==========================================================START ANY-USER BLOG RELATED ACTIONS==========================
@@ -114,4 +194,4 @@ const viewOneBlog = async (req, res, next) => {
 
 // ==========================================================END ANY-USER BLOG RELATED ACTIONS==============================
 
-export { adminWriteBlog, adminModifyBlog, adminDeleteBlog, getAllBlogs, viewOneBlog };
+export { adminWriteBlog, adminModifyBlog, adminDeleteBlog, adminUploadBlogImages, adminDeleteBlogImage, getAllBlogs, viewOneBlog };

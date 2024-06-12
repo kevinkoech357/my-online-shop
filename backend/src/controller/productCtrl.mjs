@@ -2,6 +2,9 @@ import Product from '../models/productModel.mjs';
 import User from '../models/userModel.mjs';
 import capitalizeFirstLetter from '../utils/capitalizeName.mjs';
 import slugify from 'slugify';
+import { cloudinaryUploadImage, cloudinaryDeleteImage } from '../utils/cloudinaryConfig.mjs';
+import fs from 'fs/promises';
+import path from 'path';
 
 // ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================
 
@@ -83,6 +86,83 @@ const adminDeleteProduct = async (req, res, next) => {
 
     // Send success response
     return res.status(200).json({ success: true, message: 'Product successfully deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin function to upload images for a specific product based on its ID
+const adminUploadProductImages = async (req, res, next) => {
+  try {
+    const rootDir = path.resolve();
+
+    const files = req.files;
+    if (!Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No files attached to the request.' });
+    }
+
+    const imageUrls = [];
+    for (const file of files) {
+      const filePath = path.join(rootDir, 'uploads/images/products', file.filename);
+      const uploadResult = await cloudinaryUploadImage(filePath);
+      imageUrls.push(uploadResult);
+      await fs.unlink(filePath);
+    }
+
+    const { id } = req.params;
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { $push: { images: { $each: imageUrls } } },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: 'Product Not Found' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Images successfully uploaded', details: updatedProduct });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin function to delete one image from a Product based on its ID
+const adminDeleteProductImage = async (req, res, next) => {
+  const { id } = req.params; // Product ID
+  const { imageID } = req.body; // Image ID
+
+  try {
+    // Find the product by ID
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    // Find the index of the image to delete
+    const imageIndex = product.images.findIndex(image => image._id.toString() === imageID);
+
+    if (imageIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Image not found in the product' });
+    }
+
+    // Get the public ID of the image to delete
+    const publicIdToDelete = product.images[imageIndex].public_id;
+
+    // Delete the image from Cloudinary using the helper function
+    const deleteResult = await cloudinaryDeleteImage(publicIdToDelete);
+
+    if (!deleteResult.success) {
+      return res.status(500).json({ success: false, message: 'Failed to delete image from Cloudinary' });
+    }
+
+    // Remove the image from the product's images array
+    product.images.splice(imageIndex, 1);
+
+    // Save the updated product
+    const updatedProduct = await product.save();
+
+    return res.status(200).json({ success: true, message: 'Image successfully deleted', details: updatedProduct });
   } catch (error) {
     next(error);
   }
@@ -316,4 +396,4 @@ const rateProduct = async (req, res, next) => {
 
 // ==========================================================END ANY-USER PRODUCT RELATED ACTIONS====================
 
-export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, getWishlist, rateProduct };
+export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, getWishlist, rateProduct, adminUploadProductImages, adminDeleteProductImage };
