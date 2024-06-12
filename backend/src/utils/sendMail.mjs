@@ -1,4 +1,7 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Retrieve MAIL_SERVER, MAIL_USERNAME, and MAIL_PASSWORD from environment variables
 const { MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD } = process.env;
