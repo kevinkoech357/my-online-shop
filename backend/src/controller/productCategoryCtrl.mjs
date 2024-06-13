@@ -9,7 +9,7 @@ const adminCreateProductCategory = async (req, res, next) => {
 
   try {
     // Check if a category with the same title already exists
-    const existingCategory = await ProductCategory.findOne({ title });
+    const existingCategory = await ProductCategory.find({ title });
     if (existingCategory) {
       return res.status(409).json({
         success: false,
@@ -40,10 +40,14 @@ const adminCreateProductCategory = async (req, res, next) => {
 
 const adminModifyProductCategory = async (req, res, next) => {
   const { id } = req.params;
+  const { title } = req.body;
 
   try {
+    // Capitalize title
+    const capitalizedTitle = await capitalizeFirstLetter(title);
+
     // Find and update the product category
-    const productCategoryToUpdate = await ProductCategory.findByIdAndUpdate(id, req.body, { new: true });
+    const productCategoryToUpdate = await ProductCategory.findByIdAndUpdate(id, { title: capitalizedTitle }, { new: true });
 
     if (!productCategoryToUpdate) {
       // Return a 404 with not found message
