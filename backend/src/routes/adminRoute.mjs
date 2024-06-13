@@ -10,13 +10,14 @@ import { adminCreateProduct, adminModifyProduct, adminDeleteProduct, adminUpload
 import { adminWriteBlog, adminModifyBlog, adminDeleteBlog, adminUploadBlogImages, adminDeleteBlogImage } from '../controller/blogCtrl.mjs';
 import { adminCreateProductCategory, adminModifyProductCategory, adminDeleteProductCategory } from '../controller/productCategoryCtrl.mjs';
 import { productImageResize, uploadPhoto, blogImageResize } from '../middlewares/imageUploads.mjs';
+import { adminCreateBrand, adminModifyBrand, adminDeleteBrand } from '../controller/brandCtrl.mjs';
 
 const adminRouter = express.Router();
 
 // Define required fields
 const productFields = ['name', 'description', 'price', 'brand', 'color', 'quantity', 'category'];
 const blogFields = ['title', 'content', 'category'];
-const productCategoryField = ['title'];
+const titleField = ['title'];
 const deleteImageField = ['imageID'];
 
 // Routes for performing User Account Actions
@@ -42,8 +43,13 @@ adminRouter.patch('/blog/edit/:id', validateMongoID, isAuthenticated, isAdmin, a
 adminRouter.delete('/blog/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteBlog);
 
 // Routes for performing Product Category related actions
-adminRouter.post('/prod-category/create', checkRequiredFields(productCategoryField), isAuthenticated, isAdmin, adminCreateProductCategory);
-adminRouter.patch('/prod-category/update/:id', validateMongoID, checkRequiredFields(productCategoryField), isAuthenticated, isAdmin, adminModifyProductCategory);
-adminRouter.delete('/prod-category/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteProductCategory);
+adminRouter.post('/product/category/create', checkRequiredFields(titleField), isAuthenticated, isAdmin, adminCreateProductCategory);
+adminRouter.patch('/product/category/update/:id', validateMongoID, checkRequiredFields(titleField), isAuthenticated, isAdmin, adminModifyProductCategory);
+adminRouter.delete('/product/category/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteProductCategory);
+
+// Routes for performing Brand related actions
+adminRouter.post('/brand/create', checkRequiredFields(titleField), isAuthenticated, isAdmin, adminCreateBrand);
+adminRouter.patch('/brand/update/:id', validateMongoID, checkRequiredFields(titleField), isAuthenticated, isAdmin, adminModifyBrand);
+adminRouter.delete('/brand/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteBrand);
 
 export default adminRouter;

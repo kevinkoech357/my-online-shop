@@ -17,6 +17,7 @@ import adminRouter from './routes/adminRoute.mjs';
 import productRouter from './routes/productRoute.mjs';
 import blogRouter from './routes/blogRoute.mjs';
 import productCategoryRouter from './routes/productCategoryRoute.mjs';
+import brandRouter from './routes/brandRoute.mjs';
 
 // Import middlewares
 import { JSONErrorHandler, errorHandler, notFoundHandler } from './middlewares/errorHandler.mjs';
@@ -61,6 +62,7 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/blog', blogRouter);
 app.use('/api/v1/prod-categories', productCategoryRouter);
+app.use('/api/v1/brands', brandRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
