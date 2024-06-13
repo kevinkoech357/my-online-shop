@@ -85,6 +85,14 @@ components:
         title:
           type: string
 
+    BrandDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+
 paths:
   /auth/register:
     post:
@@ -1190,7 +1198,7 @@ paths:
         '500':
           description: Internal server error.
 
-  /admin/prod-category/create:
+  /admin/product/category/create:
     post:
       tags:
         - Admin Product Category Actions
@@ -1221,7 +1229,7 @@ paths:
         '500':
           description: Internal server error.
 
-  /admin/prod-category/update/{id}:
+  /admin/product/category/update/{id}:
     patch:
       tags:
         - Admin Product Category Actions
@@ -1262,7 +1270,7 @@ paths:
           description: Internal server error.
     
 
-  /admin/prod-category/delete/{id}:
+  /admin/product/category/delete/{id}:
     delete:
       tags:
         - Admin Product Category Actions
@@ -1294,12 +1302,12 @@ paths:
         '500':
           description: Internal server error.
 
-  /prod-categories/{id}:
+  /product/categories/{id}:
     get:
       tags:
         - Product Category Actions
       summary: Get a specific Product Category.
-      description: Allows any user to retrieve a Product Category post based on ID.
+      description: Allows any user to retrieve a Product Category based on ID.
       parameters:
         - in: path
           name: id
@@ -1315,11 +1323,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductCategoryDetails'
         '404':
-          description: Product Category Found.
+          description: Product Category not Found.
         '500':
           description: Internal server error.
 
-  /prod-categories:
+  /product/categories:
     get:
       tags:
         - Product Category Actions
@@ -1333,5 +1341,151 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductCategoryDetails'
+        '500':
+          description: Internal server error.
+
+  /admin/brand/create:
+    post:
+      tags:
+        - Admin Brand Actions
+      summary: Write / Create a new Brand.
+      description: Allows admin to write / create a new Brand.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+      responses:
+        '200':
+          description: Brand created successfully.
+          content:
+            application/json:
+               schema:
+                $ref: '#/components/schemas/BrandDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /admin/brand/update/{id}:
+    patch:
+      tags:
+        - Admin Brand Actions
+      summary: Edit a specific Brand.
+      description: Allows admins to update a specific Brand based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the Brand to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+      responses:
+        '200':
+          description: Brand updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: Brand not Found.
+        '500':
+          description: Internal server error.
+    
+
+  /admin/brand/delete/{id}:
+    delete:
+      tags:
+        - Admin Brand Actions
+      summary: Delete a specific Brand.
+      description: Allows admin to delete a Brand based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the Brand to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Brand successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /brands/{id}:
+    get:
+      tags:
+        - Brand Actions
+      summary: Get a specific Brand.
+      description: Allows any user to retrieve a Brand based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the Brand to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Brand retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandDetails'
+        '404':
+          description: Brand not Found.
+        '500':
+          description: Internal server error.
+
+  /brands:
+    get:
+      tags:
+        - Brand Actions
+      summary: Get all Brands.
+      description: | 
+        Allows any user to retrieve all Brands.
+      responses:
+        '200':
+          description: Brand retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandDetails'
         '500':
           description: Internal server error. 
