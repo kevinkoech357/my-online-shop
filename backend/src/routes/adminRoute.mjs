@@ -11,6 +11,7 @@ import { adminWriteBlog, adminModifyBlog, adminDeleteBlog, adminUploadBlogImages
 import { adminCreateProductCategory, adminModifyProductCategory, adminDeleteProductCategory } from '../controller/productCategoryCtrl.mjs';
 import { productImageResize, uploadPhoto, blogImageResize } from '../middlewares/imageUploads.mjs';
 import { adminCreateBrand, adminModifyBrand, adminDeleteBrand } from '../controller/brandCtrl.mjs';
+import { adminCreateLocation, adminDeleteLocation, adminModifyLocation } from '../controller/locationCtrl.mjs';
 
 const adminRouter = express.Router();
 
@@ -18,6 +19,7 @@ const adminRouter = express.Router();
 const productFields = ['name', 'description', 'price', 'brand', 'color', 'quantity', 'category'];
 const blogFields = ['title', 'content', 'category'];
 const titleField = ['title'];
+const locationField = ['name', 'county', 'town'];
 const deleteImageField = ['imageID'];
 
 // Routes for performing User Account Actions
@@ -51,5 +53,10 @@ adminRouter.delete('/product/category/delete/:id', validateMongoID, isAuthentica
 adminRouter.post('/brand/create', checkRequiredFields(titleField), isAuthenticated, isAdmin, adminCreateBrand);
 adminRouter.patch('/brand/update/:id', validateMongoID, checkRequiredFields(titleField), isAuthenticated, isAdmin, adminModifyBrand);
 adminRouter.delete('/brand/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteBrand);
+
+// Routes for performing Location related actions
+adminRouter.post('/location/create', checkRequiredFields(locationField), isAuthenticated, isAdmin, adminCreateLocation);
+adminRouter.patch('/location/update/:id', validateMongoID, isAuthenticated, isAdmin, adminModifyLocation);
+adminRouter.delete('/location/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteLocation);
 
 export default adminRouter;
