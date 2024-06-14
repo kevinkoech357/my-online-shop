@@ -93,6 +93,18 @@ components:
         title:
           type: string
 
+    LocationDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        county:
+          type: string
+        town:
+          type: string
+
 paths:
   /auth/register:
     post:
@@ -470,7 +482,7 @@ paths:
           description: Internal server error.
       
   /user/change-email:
-    post:
+    put:
       tags:
         - User Account Actions
       summary: Change user email.
@@ -504,6 +516,77 @@ paths:
         '500':
           description: Internal server error.
       
+  /user/save-address:
+    patch:
+      tags:
+        - User Account Actions
+      summary: Save user's address.
+      description: Allows an authenticated user to save their address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - county
+                - town
+              properties: 
+                county:
+                  type: string
+                town:
+                  type: string
+      responses:
+        '200':
+          description: Address saved successfully..
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error.
+
+  /user/change-address:
+    patch:
+      tags:
+        - User Account Actions
+      summary: Change saved address.
+      description: Allows an authenticated user to change their address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - county
+                - town
+              properties: 
+                county:
+                  type: string
+                town:
+                  type: string
+      responses:
+        '200':
+          description: Address changed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: User not found. The specified user ID does not exist.
+        '500':
+          description: Internal server error.
 
   /user/suspend:
     post:
@@ -1487,5 +1570,163 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BrandDetails'
+        '500':
+          description: Internal server error.
+
+  /admin/location/create:
+    post:
+      tags:
+        - Admin Location Actions
+      summary: Write / Create a new Location.
+      description: Allows admin to write / create a new Location.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - county
+                - town
+              properties:
+                name:
+                  type: string
+                county:
+                  type: string
+                town:
+                  type: string
+      responses:
+        '200':
+          description: Location created successfully.
+          content:
+            application/json:
+               schema:
+                $ref: '#/components/schemas/LocationDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /admin/location/update/{id}:
+    patch:
+      tags:
+        - Admin Location Actions
+      summary: Edit a specific Location.
+      description: Allows admins to update a specific Location based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the Location to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - county
+                - town
+              properties:
+                name:
+                  type: string
+                county:
+                  type: string
+                town:
+                  county: string
+      responses:
+        '200':
+          description: Location updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '404':
+          description: Location not Found.
+        '500':
+          description: Internal server error.
+    
+
+  /admin/location/delete/{id}:
+    delete:
+      tags:
+        - Admin Location Actions
+      summary: Delete a specific Location.
+      description: Allows admin to delete a Location based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the Location to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /locations/{id}:
+    get:
+      tags:
+        - Location Actions
+      summary: Get a specific Location.
+      description: Allows any user to retrieve a Location based on ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the Location to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationDetails'
+        '404':
+          description: Location not Found.
+        '500':
+          description: Internal server error.
+
+  /locations:
+    get:
+      tags:
+        - Location Actions
+      summary: Get all Locations.
+      description: | 
+        Allows any user to retrieve all Locations.
+      responses:
+        '200':
+          description: Locations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationDetails'
         '500':
           description: Internal server error. 
