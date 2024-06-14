@@ -9,7 +9,7 @@ const adminCreateBrand = async (req, res, next) => {
 
   try {
     // Check if a Brand with the same title already exists
-    const existingBrand = await Brand.find({ title });
+    const existingBrand = await Brand.findOne({ title });
     if (existingBrand) {
       return res.status(409).json({
         success: false,
@@ -116,7 +116,7 @@ const viewOneBrand = async (req, res, next) => {
 
     if (!brand) {
       // Return 404
-      return res.status(404).json({ success: false, message: 'No Brand Found' });
+      return res.status(404).json({ success: false, message: 'Brand Not Found' });
     }
 
     // Return a success response

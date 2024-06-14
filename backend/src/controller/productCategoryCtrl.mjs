@@ -9,7 +9,7 @@ const adminCreateProductCategory = async (req, res, next) => {
 
   try {
     // Check if a category with the same title already exists
-    const existingCategory = await ProductCategory.find({ title });
+    const existingCategory = await ProductCategory.findOne({ title });
     if (existingCategory) {
       return res.status(409).json({
         success: false,
@@ -116,7 +116,7 @@ const viewOneProductCategory = async (req, res, next) => {
 
     if (!productCategory) {
       // Return 404
-      return res.status(404).json({ success: false, message: 'No Product Category Found' });
+      return res.status(404).json({ success: false, message: 'Product Category Not Found' });
     }
 
     // Return a success response
