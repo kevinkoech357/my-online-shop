@@ -36,8 +36,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductDetails'
-        address:
+        primaryAddress:
+          type: object
+          properties:
+            county:
+              type: String
+            town:
+              type: String
+        secondaryAddresses:
           type: array
+          items:
+            type: object
+            properties:
+              county:
+                type: string
+              town:
+                type: string
 
     ProductDetails:
       type: object
@@ -529,9 +543,13 @@ paths:
             schema:
               type: object
               required:
+                - type
                 - county
                 - town
               properties: 
+                type:
+                  type: string
+                  enum: [primary, secondary]
                 county:
                   type: string
                 town:
@@ -552,39 +570,23 @@ paths:
         '500':
           description: Internal server error.
 
-  /user/change-address:
-    patch:
+  /user/wishlist:
+    get:
       tags:
         - User Account Actions
-      summary: Change saved address.
-      description: Allows an authenticated user to change their address.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - county
-                - town
-              properties: 
-                county:
-                  type: string
-                town:
-                  type: string
+      summary: Retrive user's wishlist.
+      description: Allows authenticated users to view all products in their wishlist.
       responses:
         '200':
-          description: Address changed successfully.
+          description: Wishlist retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDetails'
-        '401':
-          description: Unauthorized. User is not authenticated.
-        '403':
-          description: Forbidden. User is not authorized to access this resource.
+                $ref: '#/components/schemas/ProductDetails'
+        '400':
+          description: Bad request.
         '404':
-          description: User not found. The specified user ID does not exist.
+          description: Not Found.
         '500':
           description: Internal server error.
 
@@ -908,6 +910,101 @@ paths:
         '500':
           description: Internal server error.
     
+  /admin/products/upload/{id}/images:
+    put:
+      tags:
+        - Admin Product Actions
+      summary: Upload images for a specific product.
+      description: Allows an admin user to upload images for a product based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to upload images for.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - images
+      responses:
+        '200':
+          description: Images successfully uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  details:
+                    $ref: '#/components/schemas/ProductDetails'
+        '400':
+          description: Bad request. No files attached to the request.
+        '401':
+          description: Unauthorized. Admin authentication failed.
+        '404':
+          description: Product Not Found.
+        '500':
+          description: Internal server error.
+
+  /admin/products/delete/{id}/images:
+    put:
+      tags:
+        - Admin Product Actions
+      summary: Delete an image from a specific product.
+      description: Allows an admin user to delete an image from a product based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to delete an image from.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageID:
+                  type: string
+                  description: ID of the image to delete from the product.
+              required:
+                - imageID
+      responses:
+        '200':
+          description: Image successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  details:
+                    $ref: '#/components/schemas/ProductDetails'
+        '401':
+          description: Unauthorized. Admin authentication failed.
+        '404':
+          description: Product or Image not found.
+        '500':
+          description: Internal server error.
 
   /admin/products/delete/{id}:
     delete:
@@ -1032,25 +1129,6 @@ paths:
         '500':
           description: Internal server error. 
 
-  /products/wishlist/me:
-    get:
-      tags:
-        - Product Actions
-      summary: Retrive user's wishlist.
-      description: Allows authenticated users to view all products in their wishlist.
-      responses:
-        '200':
-          description: Wishlist retrieved successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductDetails'
-        '400':
-          description: Bad request.
-        '404':
-          description: Not Found.
-        '500':
-          description: Internal server error.
 
   /products/wishlist:
     patch:
@@ -1084,12 +1162,19 @@ paths:
           description: Internal server error.
 
 
-  /products/rate:
+  /products/{productID}/rate:
     patch:
       tags:
         - Product Actions
       summary: Rate a specific product.
       description: Allows authenticated users to rate a product.
+      parameters:
+        - in: path
+          name: productID
+          required: true
+          description: ID of the product to rate.
+          schema:
+            type: string     
       requestBody:
         required: true
         content:
@@ -1097,12 +1182,9 @@ paths:
             schema:
               type: object
               required:
-                - productID
                 - star
                 - comment
               properties:
-                productID:
-                  type: string
                 star:
                   type: number
                   minimum: 1
@@ -1116,6 +1198,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductDetails'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
+
+  /products/{id}/rating:
+    get:
+      tags:
+        - Product Actions
+      summary: Get rating of a specific specific product.
+      description: Allows any-user to view single product ratings.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the product retrieve ratings for.
+          schema:
+            type: string     
+      responses:
+        '200':
+          description: Product ratings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  totalRating:
+                    type: number
+                  ratingsCount:
+                    type: integer
+                  ratings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        star:
+                          type: number
+                        comment:
+                          type: string
+                        postedBy:
+                          type: string
         '400':
           description: Bad request.
         '404':
@@ -1206,6 +1335,102 @@ paths:
         '500':
           description: Internal server error.
     
+  /admin/blog/upload/{id}/images:
+    put:
+      tags:
+        - Admin Blog Actions
+      summary: Upload images for a specific blog.
+      description: Allows an admin user to upload images for a blog based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the blog to upload images for.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - images
+      responses:
+        '200':
+          description: Images successfully uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  details:
+                    $ref: '#/components/schemas/BlogDetails'
+        '400':
+          description: Bad request. No files attached to the request.
+        '401':
+          description: Unauthorized. Admin authentication failed.
+        '404':
+          description: Blog or Image Not Found.
+        '500':
+          description: Internal server error.
+
+  /admin/blog/delete/{id}/images:
+    put:
+      tags:
+        - Admin Blog Actions
+      summary: Delete an image from a specific blog.
+      description: Allows an admin user to delete an image from a blog based on its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the blog to delete an image from.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageID:
+                  type: string
+                  description: ID of the image to delete from the blog.
+              required:
+                - imageID
+      responses:
+        '200':
+          description: Image successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  details:
+                    $ref: '#/components/schemas/BlogDetails'
+        '401':
+          description: Unauthorized. Admin authentication failed.
+        '404':
+          description: Blog or Image Not found.
+        '500':
+          description: Internal server error.
+
 
   /admin/blog/delete/{id}:
     delete:
