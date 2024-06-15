@@ -108,6 +108,83 @@ const changeEmail = async (req, res, next) => {
   }
 };
 
+// Define saveAddress function that allows registered and authenticated
+// Users to save their address
+
+const saveAddress = async (req, res, next) => {
+  const { _id } = req.user;
+  const { county, town, type } = req.body;
+
+  try {
+    // Capitalize county and town
+    const capitalizedCounty = await capitalizeFirstLetter(county);
+    const capitalizedTown = await capitalizeFirstLetter(town);
+
+    // Find user by ID
+    const user = await User.findById(_id);
+
+    if (!user) {
+      // Return 404 if user not found
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Update the user's primary or secondary address based on type
+    if (type === 'primary') {
+      user.primaryAddress = { county: capitalizedCounty, town: capitalizedTown };
+    } else if (type === 'secondary') {
+      // Check if secondary address already exists
+      const existingSecondary = user.secondaryAddresses.find(addr =>
+        addr.county === capitalizedCounty && addr.town === capitalizedTown
+      );
+
+      if (existingSecondary) {
+        return res.status(400).json({ success: false, message: 'Secondary address already exists.' });
+      }
+
+      // Add new secondary address
+      user.secondaryAddresses.push({ county: capitalizedCounty, town: capitalizedTown });
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid address type. Must be primary or secondary.' });
+    }
+
+    // Save the user document
+    await user.save();
+
+    // Return success response
+    return res.status(200).json({ success: true, message: 'Address saved successfully', details: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Define getWishlist function that allows authenticated users
+// to view all products in their wishlist
+
+const getWishlist = async (req, res, next) => {
+  // Get _id from user session
+  const { _id } = req.user;
+
+  try {
+    // Check if user exists based on ID
+    const user = await User.findById(_id).populate('wishlist');
+
+    if (!user) {
+      // Return 404 if user not found
+      return res.status(404).json({ success: false, message: 'User Not Found.' });
+    }
+
+    // Return response with wishlist details
+    return res.status(200).json({
+      success: true,
+      message: user.wishlist.length > 0 ? 'Wishlist retrieved successfully.' : 'Wishlist is empty.',
+      details: user.wishlist,
+      count: user.wishlist.length
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Define suspendAccount function that allows registered and authenticated
 // Users to suspend/deactivate their accounts
 // Can also be used by Admin
@@ -158,4 +235,4 @@ const deleteAccount = async (req, res, next) => {
   }
 };
 
-export { getUserDetails, updateUserDetails, changeEmail, suspendAccount, deleteAccount };
+export { getUserDetails, updateUserDetails, changeEmail, suspendAccount, deleteAccount, saveAddress, getWishlist };

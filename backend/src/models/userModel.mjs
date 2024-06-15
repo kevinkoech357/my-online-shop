@@ -44,12 +44,14 @@ const userSchema = new mongoose.Schema({
     type: Array,
     default: []
   },
-  address: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Address'
-    }
-  ],
+  primaryAddress: {
+    county: String,
+    town: String
+  },
+  secondaryAddresses: [{
+    county: String,
+    town: String
+  }],
   wishlist: [
     {
       type: mongoose.Schema.Types.ObjectId,
