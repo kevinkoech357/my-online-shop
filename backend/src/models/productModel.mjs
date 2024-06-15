@@ -56,7 +56,8 @@ const productSchema = new mongoose.Schema({
       postedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-      }
+      },
+      userName: String
     }
   ],
   totalRating: {
