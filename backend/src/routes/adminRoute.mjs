@@ -31,15 +31,15 @@ adminRouter.delete('/users/delete/:id', validateMongoID, isAuthenticated, isAdmi
 
 // Routes for performing Product related actions
 adminRouter.post('/products/create', checkRequiredFields(productFields), validateIntegerFields, isAuthenticated, isAdmin, adminCreateProduct);
-adminRouter.put('/products/upload/image/:id', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 5), productImageResize, adminUploadProductImages);
-adminRouter.put('/products/delete/image/:id', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteProductImage);
+adminRouter.put('/products/upload/:id/images', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 5), productImageResize, adminUploadProductImages);
+adminRouter.put('/products/delete/:id/images', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteProductImage);
 adminRouter.patch('/products/update/:id', validateMongoID, isAuthenticated, isAdmin, adminModifyProduct);
 adminRouter.delete('/products/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteProduct);
 
 // Routes for performing Blog related actions
 adminRouter.post('/blog/create', checkRequiredFields(blogFields), isAuthenticated, isAdmin, adminWriteBlog);
-adminRouter.put('/blog/upload/image/:id', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 2), blogImageResize, adminUploadBlogImages);
-adminRouter.put('/blog/delete/image/:id', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteBlogImage);
+adminRouter.put('/blog/upload/:id/images', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 2), blogImageResize, adminUploadBlogImages);
+adminRouter.put('/blog/delete/:id/images', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteBlogImage);
 adminRouter.patch('/blog/edit/:id', validateMongoID, isAuthenticated, isAdmin, adminModifyBlog);
 
 adminRouter.delete('/blog/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteBlog);
