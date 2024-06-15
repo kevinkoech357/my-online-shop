@@ -10,13 +10,16 @@ import { adminCreateProduct, adminModifyProduct, adminDeleteProduct, adminUpload
 import { adminWriteBlog, adminModifyBlog, adminDeleteBlog, adminUploadBlogImages, adminDeleteBlogImage } from '../controller/blogCtrl.mjs';
 import { adminCreateProductCategory, adminModifyProductCategory, adminDeleteProductCategory } from '../controller/productCategoryCtrl.mjs';
 import { productImageResize, uploadPhoto, blogImageResize } from '../middlewares/imageUploads.mjs';
+import { adminCreateBrand, adminModifyBrand, adminDeleteBrand } from '../controller/brandCtrl.mjs';
+import { adminCreateLocation, adminDeleteLocation, adminModifyLocation } from '../controller/locationCtrl.mjs';
 
 const adminRouter = express.Router();
 
 // Define required fields
 const productFields = ['name', 'description', 'price', 'brand', 'color', 'quantity', 'category'];
 const blogFields = ['title', 'content', 'category'];
-const productCategoryField = ['title'];
+const titleField = ['title'];
+const locationField = ['name', 'county', 'town'];
 const deleteImageField = ['imageID'];
 
 // Routes for performing User Account Actions
@@ -28,22 +31,32 @@ adminRouter.delete('/users/delete/:id', validateMongoID, isAuthenticated, isAdmi
 
 // Routes for performing Product related actions
 adminRouter.post('/products/create', checkRequiredFields(productFields), validateIntegerFields, isAuthenticated, isAdmin, adminCreateProduct);
-adminRouter.put('/products/upload/image/:id', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 5), productImageResize, adminUploadProductImages);
-adminRouter.put('/products/delete/image/:id', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteProductImage);
+adminRouter.put('/products/upload/:id/images', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 5), productImageResize, adminUploadProductImages);
+adminRouter.put('/products/delete/:id/images', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteProductImage);
 adminRouter.patch('/products/update/:id', validateMongoID, isAuthenticated, isAdmin, adminModifyProduct);
 adminRouter.delete('/products/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteProduct);
 
 // Routes for performing Blog related actions
 adminRouter.post('/blog/create', checkRequiredFields(blogFields), isAuthenticated, isAdmin, adminWriteBlog);
-adminRouter.put('/blog/upload/image/:id', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 2), blogImageResize, adminUploadBlogImages);
-adminRouter.put('/blog/delete/image/:id', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteBlogImage);
+adminRouter.put('/blog/upload/:id/images', validateMongoID, isAuthenticated, isAdmin, uploadPhoto.array('images', 2), blogImageResize, adminUploadBlogImages);
+adminRouter.put('/blog/delete/:id/images', validateMongoID, checkRequiredFields(deleteImageField), isAuthenticated, isAdmin, adminDeleteBlogImage);
 adminRouter.patch('/blog/edit/:id', validateMongoID, isAuthenticated, isAdmin, adminModifyBlog);
 
 adminRouter.delete('/blog/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteBlog);
 
 // Routes for performing Product Category related actions
-adminRouter.post('/prod-category/create', checkRequiredFields(productCategoryField), isAuthenticated, isAdmin, adminCreateProductCategory);
-adminRouter.patch('/prod-category/update/:id', validateMongoID, checkRequiredFields(productCategoryField), isAuthenticated, isAdmin, adminModifyProductCategory);
-adminRouter.delete('/prod-category/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteProductCategory);
+adminRouter.post('/product/category/create', checkRequiredFields(titleField), isAuthenticated, isAdmin, adminCreateProductCategory);
+adminRouter.patch('/product/category/update/:id', validateMongoID, checkRequiredFields(titleField), isAuthenticated, isAdmin, adminModifyProductCategory);
+adminRouter.delete('/product/category/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteProductCategory);
+
+// Routes for performing Brand related actions
+adminRouter.post('/brand/create', checkRequiredFields(titleField), isAuthenticated, isAdmin, adminCreateBrand);
+adminRouter.patch('/brand/update/:id', validateMongoID, checkRequiredFields(titleField), isAuthenticated, isAdmin, adminModifyBrand);
+adminRouter.delete('/brand/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteBrand);
+
+// Routes for performing Location related actions
+adminRouter.post('/location/create', checkRequiredFields(locationField), isAuthenticated, isAdmin, adminCreateLocation);
+adminRouter.patch('/location/update/:id', validateMongoID, isAuthenticated, isAdmin, adminModifyLocation);
+adminRouter.delete('/location/delete/:id', validateMongoID, isAuthenticated, isAdmin, adminDeleteLocation);
 
 export default adminRouter;

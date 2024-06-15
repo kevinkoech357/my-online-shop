@@ -93,6 +93,8 @@ const adminDeleteProduct = async (req, res, next) => {
 
 // Admin function to upload images for a specific product based on its ID
 const adminUploadProductImages = async (req, res, next) => {
+  const { id } = req.params; // Product ID
+
   try {
     const rootDir = path.resolve();
 
@@ -109,7 +111,6 @@ const adminUploadProductImages = async (req, res, next) => {
       await fs.unlink(filePath);
     }
 
-    const { id } = req.params;
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { $push: { images: { $each: imageUrls } } },
@@ -312,42 +313,16 @@ const addToWishlist = async (req, res, next) => {
   }
 };
 
-// Define getWishlist function that allows authenticated users
-// to view all products in their wishlist
-
-const getWishlist = async (req, res, next) => {
-  // Get _id from user session
-  const { _id } = req.user;
-
-  try {
-    // Check if user exists based on ID
-    const user = await User.findById(_id).populate('wishlist');
-
-    if (!user) {
-      // Return 404 if user not found
-      return res.status(404).json({ success: false, message: 'User Not Found.' });
-    }
-
-    // Return response with wishlist details
-    return res.status(200).json({
-      success: true,
-      message: user.wishlist.length > 0 ? 'Wishlist retrieved successfully.' : 'Wishlist is empty.',
-      details: user.wishlist,
-      count: user.wishlist.length
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 // Define rateProduct that allows authenticated users
 // to rate a specific product
 
 const rateProduct = async (req, res, next) => {
   // Get _id from user session
   const { _id } = req.user;
-  // Get star and productID from req.body
-  const { star, productID, comment } = req.body;
+  // Get product id from params
+  const { productID } = req.params;
+  // Get star and comment from req.body
+  const { star, comment } = req.body;
 
   try {
     // Check if user exists
@@ -369,9 +344,10 @@ const rateProduct = async (req, res, next) => {
       // Update existing user rating
       if (star) userRating.star = star;
       if (comment) userRating.comment = comment;
+      userRating.userName = `${user.firstname} ${user.lastname}`;
     } else {
       // Add new rating
-      product.ratings.push({ star, comment, postedBy: _id });
+      product.ratings.push({ star, comment, postedBy: _id, userName: `${user.firstname} ${user.lastname}` });
     }
 
     // Calculate total rating
@@ -394,6 +370,44 @@ const rateProduct = async (req, res, next) => {
   }
 };
 
+// Define getProductRating that allows any user to view all posted
+// Product ratings
+
+const getProductRating = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    // Find Product and populate ratings with user's firstname and lastname
+    const product = await Product.findById(id).populate({
+      path: 'ratings.postedBy',
+      select: 'firstname lastname'
+    });
+
+    if (!product) {
+      // Return 404 if product not found
+      return res.status(404).json({ success: false, message: 'Product Not Found' });
+    }
+
+    // Prepare ratings array with user's full name
+    const ratings = product.ratings.map(rating => ({
+      star: rating.star,
+      comment: rating.comment,
+      userName: rating.postedBy ? `${rating.postedBy.firstname} ${rating.postedBy.lastname}` : 'Unknown User'
+    }));
+
+    // Return products rating with count
+    return res.status(200).json({
+      success: true,
+      message: "Product's ratings retrieved successfully",
+      totalRating: product.totalRating,
+      ratingsCount: product.ratings.length,
+      ratings
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ==========================================================END ANY-USER PRODUCT RELATED ACTIONS====================
 
-export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, getWishlist, rateProduct, adminUploadProductImages, adminDeleteProductImage };
+export { adminCreateProduct, adminModifyProduct, adminDeleteProduct, viewOneProduct, getAllProducts, addToWishlist, rateProduct, adminUploadProductImages, adminDeleteProductImage, getProductRating };
