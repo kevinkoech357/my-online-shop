@@ -119,6 +119,19 @@ components:
         town:
           type: string
 
+    CartDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          type: string
+        items:
+          type: array
+        cartTotal:
+          type: number
+        
+
 paths:
   /auth/register:
     post:
@@ -1162,7 +1175,7 @@ paths:
           description: Internal server error.
 
 
-  /products/{productID}/rate:
+  /products/{id}/rate:
     patch:
       tags:
         - Product Actions
@@ -1170,7 +1183,7 @@ paths:
       description: Allows authenticated users to rate a product.
       parameters:
         - in: path
-          name: productID
+          name: id
           required: true
           description: ID of the product to rate.
           schema:
@@ -1245,6 +1258,175 @@ paths:
                           type: string
                         postedBy:
                           type: string
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
+
+  /user/cart/create:
+    post:
+      tags:
+        - Cart Actions
+      summary: Update User Cart
+      description: Updates or creates a user's shopping cart with new items.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart:
+                  type: object
+                  required:
+                    - items
+                  properties:
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          product:
+                            type: string
+                            description: ID of the product to add to cart
+                            example: "6039a1c9a0b12f001c33ba8a"
+                            format: uuid
+                          quantity:
+                            type: integer
+                            description: Quantity of the product
+                            example: 2
+                          color:
+                            type: string
+                            description: Color of the product
+                            example: "red"
+      responses:
+        '201':
+          description: Cart Updated or Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Cart Updated
+                  cart:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        format: uuid
+                        description: ID of the cart
+                        example: "60c7c47b9a1d6400159fcbf4"
+                      user:
+                        type: string
+                        format: uuid
+                        description: ID of the user
+                        example: "6039a1c9a0b12f001c33ba8a"
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            product:
+                              type: string
+                              format: uuid
+                              description: ID of the product
+                              example: "6039a1c9a0b12f001c33ba8a"
+                            quantity:
+                              type: integer
+                              description: Quantity of the product in the cart
+                              example: 2
+                            color:
+                              type: string
+                              description: Color of the product in the cart
+                              example: "red"
+                            price:
+                              type: number
+                              description: Price of the product in the cart
+                              example: 25.99
+                      cartTotal:
+                        type: number
+                        description: Total price of the cart
+                        example: 51.98
+        '400':
+          description: Bad request. Invalid input or missing required fields.
+        '401':
+          description: Unauthorized. User session is invalid or expired.
+        '404':
+          description: Not found. User or product not found.
+        '500':
+          description: Internal Server Error.
+
+  /user/my-cart:
+    get:
+      tags:
+        - Cart Actions
+      summary: Retrive user's cart.
+      description: Allows authenticated users to view all products in their cart.
+      responses:
+        '200':
+          description: Cart retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDetails'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
+
+  /user/cart/clear:
+    delete:
+      tags:
+        - Cart Actions
+      summary: Clear a User's cart.
+      description: Allows authenticated users to clear their cart.
+      responses:
+        '200':
+          description: Cart cleared successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDetails'
+        '400':
+          description: Bad request.
+        '404':
+          description: Not Found.
+        '500':
+          description: Internal server error.
+
+  /user/cart/remove-product:
+    delete:
+      tags:
+        - Cart Actions
+      summary: Remove a Product from a User's Cart.
+      description: Allows authenticated users to remove a product from their cart based on its ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productID
+              properties:
+                productID:
+                  type: string
+      responses:
+        '200':
+          description: Product successfully removed from cart.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDetails'
         '400':
           description: Bad request.
         '404':
