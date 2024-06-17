@@ -19,6 +19,6 @@ productRouter.get('/:id/rating', validateMongoID, getProductRating);
 productRouter.patch('/wishlist', checkRequiredFields(wishlistField), validateProductID, isAuthenticated, addToWishlist);
 
 // Rate product private route
-productRouter.patch('/:productID/rate', validateMongoID, checkRequiredFields(ratingField), validateRatingDetails, isAuthenticated, rateProduct);
+productRouter.patch('/:id/rate', validateMongoID, checkRequiredFields(ratingField), validateRatingDetails, isAuthenticated, rateProduct);
 
 export default productRouter;
