@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-// Define orderSchema for the Order Model
+// Define Cart Modelling Schema
 
-const orderSchema = new mongoose.Schema({
+const cartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -30,21 +30,13 @@ const orderSchema = new mongoose.Schema({
       }
     }
   ],
-  status: {
-    type: String,
-    enum: ['pending', 'processing', 'completed', 'cancelled'],
-    default: 'pending'
-  },
-  totalPrice: {
+  cartTotal: {
     type: Number,
-    required: true
-  },
-  shippingAddress: {
-    type: String,
-    required: true
+    default: 0,
+    min: [0, 'Cart total can\'t be negative']
   }
 }, { timestamps: true });
 
-const Order = mongoose.model('Order', orderSchema);
+const Cart = mongoose.model('Cart', cartSchema);
 
-export default Order;
+export default Cart;

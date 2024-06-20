@@ -320,7 +320,7 @@ const rateProduct = async (req, res, next) => {
   // Get _id from user session
   const { _id } = req.user;
   // Get product id from params
-  const { productID } = req.params;
+  const { id } = req.params;
   // Get star and comment from req.body
   const { star, comment } = req.body;
 
@@ -332,7 +332,7 @@ const rateProduct = async (req, res, next) => {
     }
 
     // Check if product exists
-    const product = await Product.findById(productID);
+    const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product Not Found.' });
     }
@@ -358,7 +358,7 @@ const rateProduct = async (req, res, next) => {
     await product.save();
 
     // Fetch updated product for response
-    const updatedProduct = await Product.findById(productID);
+    const updatedProduct = await Product.findById(id);
 
     return res.status(200).json({
       success: true,
