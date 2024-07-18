@@ -22,6 +22,7 @@ import brandRouter from './routes/brandRoute.mjs';
 // Import middlewares
 import { JSONErrorHandler, errorHandler, notFoundHandler } from './middlewares/errorHandler.mjs';
 import locationRouter from './routes/locationRoute.mjs';
+import newsletterRouter from './routes/newsletterRoute.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -65,6 +66,7 @@ app.use('/api/v1/blog', blogRouter);
 app.use('/api/v1/prod-categories', productCategoryRouter);
 app.use('/api/v1/brands', brandRouter);
 app.use('/api/v1/locations', locationRouter);
+app.use('/api/v1/newsletter', newsletterRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
