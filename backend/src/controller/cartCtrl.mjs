@@ -45,7 +45,7 @@ const userCart = async (req, res, next) => {
 
       const product = await Product.findById(newItem.product).select('price');
       if (!product) {
-        return res.status(404).json({ success: false, message: `Product with ID ${newItem.product} Not Found` });
+        return res.status(404).json({ success: false, message: 'Product Not Found' });
       }
 
       const existingItemKey = `${newItem.product}_${newItem.color}`;
@@ -128,7 +128,10 @@ const getUserCart = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User Not Found' });
     }
     // Retrieve the existing cart
-    const existingCart = await Cart.findOne({ user: _id });
+    const existingCart = await Cart.findOne({ user: _id }).populate({
+      path: 'items.product',
+      select: '_id name price color'
+    });
 
     if (!existingCart) {
       // Return 404
@@ -162,22 +165,15 @@ const clearCart = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User Not Found' });
     }
 
-    // Retrieve the existing cart
-    const existingCart = await Cart.findOne({ user: _id });
+    // Retrieve the existing cart and delete user's ID
+    const existingCart = await Cart.findOneAndDelete({ user: user._id });
 
     if (!existingCart) {
       // Return 404
       return res.status(404).json({ success: false, message: 'Cart Not Found' });
     }
 
-    // Clear the items array and reset cartTotal
-    existingCart.items = [];
-    existingCart.cartTotal = 0;
-
-    // Save the updated cart
-    await existingCart.save();
-
-    return res.status(200).json({ success: true, message: 'Cart successfully cleared', details: existingCart });
+    return res.status(200).json({ success: true, message: 'Cart successfully cleared'});
   } catch (error) {
     next(error);
   }
