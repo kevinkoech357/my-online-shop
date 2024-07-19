@@ -173,7 +173,7 @@ const clearCart = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Cart Not Found' });
     }
 
-    return res.status(200).json({ success: true, message: 'Cart successfully cleared'});
+    return res.status(200).json({ success: true, message: 'Cart successfully cleared' });
   } catch (error) {
     next(error);
   }
