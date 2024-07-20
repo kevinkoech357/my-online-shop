@@ -1,28 +1,32 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
-import connectToMongoDB from './config/db.connect.mjs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+import MongoStore from "connect-mongo";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
+import session from "express-session";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+import connectToMongoDB from "./config/db.connect.mjs";
 
+import adminRouter from "./routes/adminRoute.mjs";
 // Import routers
-import authRouter from './routes/authRoute.mjs';
-import userRouter from './routes/userRoute.mjs';
-import adminRouter from './routes/adminRoute.mjs';
-import productRouter from './routes/productRoute.mjs';
-import blogRouter from './routes/blogRoute.mjs';
-import productCategoryRouter from './routes/productCategoryRoute.mjs';
-import brandRouter from './routes/brandRoute.mjs';
+import authRouter from "./routes/authRoute.mjs";
+import blogRouter from "./routes/blogRoute.mjs";
+import brandRouter from "./routes/brandRoute.mjs";
+import productCategoryRouter from "./routes/productCategoryRoute.mjs";
+import productRouter from "./routes/productRoute.mjs";
+import userRouter from "./routes/userRoute.mjs";
 
 // Import middlewares
-import { JSONErrorHandler, errorHandler, notFoundHandler } from './middlewares/errorHandler.mjs';
-import locationRouter from './routes/locationRoute.mjs';
-import newsletterRouter from './routes/newsletterRoute.mjs';
+import {
+	JSONErrorHandler,
+	errorHandler,
+	notFoundHandler,
+} from "./middlewares/errorHandler.mjs";
+import locationRouter from "./routes/locationRoute.mjs";
+import newsletterRouter from "./routes/newsletterRoute.mjs";
 
 // Load environment variables
 dotenv.config();
@@ -36,17 +40,19 @@ connectToMongoDB();
 
 // Handle cookies and sessions
 app.use(cookieParser(COOKIE_SECRET));
-app.use(session({
-  secret: SESSION_SECRET,
-  saveUninitialized: false,
-  resave: false,
-  cookie: {
-    maxAge: 60000 * 60 * 72, // 72 hours
-    signed: true,
-    secure: false // Will set to true when using HTTPS
-  },
-  store: MongoStore.create({ mongoUrl: MONGO_URL, ttl: 7 * 24 * 60 * 60 }) // 7 days
-}));
+app.use(
+	session({
+		secret: SESSION_SECRET,
+		saveUninitialized: false,
+		resave: false,
+		cookie: {
+			maxAge: 60000 * 60 * 72, // 72 hours
+			signed: true,
+			secure: false, // Will set to true when using HTTPS
+		},
+		store: MongoStore.create({ mongoUrl: MONGO_URL, ttl: 7 * 24 * 60 * 60 }), // 7 days
+	}),
+);
 
 // Enable CORS for all routes
 app.use(cors());
@@ -58,25 +64,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Mount app routes
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/user', userRouter);
-app.use('/api/v1/admin', adminRouter);
-app.use('/api/v1/products', productRouter);
-app.use('/api/v1/blog', blogRouter);
-app.use('/api/v1/prod-categories', productCategoryRouter);
-app.use('/api/v1/brands', brandRouter);
-app.use('/api/v1/locations', locationRouter);
-app.use('/api/v1/newsletter', newsletterRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/products", productRouter);
+app.use("/api/v1/blog", blogRouter);
+app.use("/api/v1/prod-categories", productCategoryRouter);
+app.use("/api/v1/brands", brandRouter);
+app.use("/api/v1/locations", locationRouter);
+app.use("/api/v1/newsletter", newsletterRouter);
 
 // Get current file and directory paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load Swagger YAML file
-const swaggerDocument = YAML.load(resolve(__dirname, '..', 'swagger.yaml'));
+const swaggerDocument = YAML.load(resolve(__dirname, "..", "swagger.yaml"));
 
 // Serve Swagger UI with the Swagger document
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Add JSONError middleware
 app.use(JSONErrorHandler);
@@ -89,5 +95,5 @@ app.use(errorHandler);
 
 // Start the server on the specified port
 app.listen(PORT, () => {
-  console.log(`Server is running on http://127.0.0.1:${PORT}/api-docs`);
+	console.log(`Server is running on http://127.0.0.1:${PORT}/api-docs`);
 });
