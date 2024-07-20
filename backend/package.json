@@ -1,54 +1,50 @@
 {
-  "name": "mos",
-  "version": "1.0.0",
-  "description": "Backend for My Online Shop.",
-  "main": "index.mjs",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint . --fix",
-    "start:dev": "nodemon ./src/index.mjs",
-    "start": "node ./src/index.mjs"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kevinkoech357/mos.git"
-  },
-  "author": "Kevin Koech",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kevinkoech357/mos/issues"
-  },
-  "homepage": "https://github.com/kevinkoech357/mos#readme",
-  "dependencies": {
-    "argon2": "^0.40.1",
-    "body-parser": "^1.20.2",
-    "cloudinary": "^2.2.0",
-    "connect-mongo": "^5.1.0",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.18.3",
-    "express-request-id": "^3.0.0",
-    "express-session": "^1.18.0",
-    "express-winston": "^4.2.0",
-    "mongoose": "^8.2.2",
-    "mongoose-paginate-v2": "^1.8.1",
-    "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.13",
-    "sharp": "^0.33.4",
-    "slugify": "^1.6.6",
-    "swagger-ui-express": "^5.0.0",
-    "winston": "^3.13.0",
-    "winston-daily-rotate-file": "^5.0.0",
-    "yamljs": "^0.3.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.1.1",
-    "nodemon": "^3.1.0"
-  },
-  "type": "module"
+	"name": "mos",
+	"version": "1.0.0",
+	"description": "Backend for My Online Shop.",
+	"main": "index.mjs",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"lint": "npx @biomejs/biome check --write .",
+		"start:dev": "nodemon ./src/index.mjs",
+		"start": "node ./src/index.mjs"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kevinkoech357/mos.git"
+	},
+	"author": "Kevin Koech",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/kevinkoech357/mos/issues"
+	},
+	"homepage": "https://github.com/kevinkoech357/mos#readme",
+	"dependencies": {
+		"argon2": "^0.40.1",
+		"body-parser": "^1.20.2",
+		"cloudinary": "^2.2.0",
+		"connect-mongo": "^5.1.0",
+		"cookie-parser": "^1.4.6",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express": "^4.18.3",
+		"express-request-id": "^3.0.0",
+		"express-session": "^1.18.0",
+		"express-winston": "^4.2.0",
+		"mongoose": "^8.2.2",
+		"mongoose-paginate-v2": "^1.8.1",
+		"multer": "^1.4.5-lts.1",
+		"nodemailer": "^6.9.13",
+		"sharp": "^0.33.4",
+		"slugify": "^1.6.6",
+		"swagger-ui-express": "^5.0.0",
+		"winston": "^3.13.0",
+		"winston-daily-rotate-file": "^5.0.0",
+		"yamljs": "^0.3.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.8.3",
+		"nodemon": "^3.1.0"
+	},
+	"type": "module"
 }
