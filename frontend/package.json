@@ -1,5 +1,5 @@
 {
-	"name": "mos-frontend",
+	"name": "my-online-shop-frontend",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
@@ -10,35 +10,22 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@hookform/resolvers": "^3.3.4",
-		"@radix-ui/react-alert-dialog": "^1.0.5",
-		"@radix-ui/react-avatar": "^1.0.4",
-		"@radix-ui/react-dropdown-menu": "^2.0.6",
-		"@radix-ui/react-label": "^2.0.2",
-		"@radix-ui/react-navigation-menu": "^1.1.4",
-		"@radix-ui/react-slot": "^1.0.2",
-		"@radix-ui/react-toast": "^1.1.5",
-		"class-variance-authority": "^0.7.0",
-		"clsx": "^2.1.1",
-		"embla-carousel-react": "^8.0.2",
-		"input-otp": "^1.2.4",
-		"lucide-react": "^0.372.0",
+		"@chakra-ui/react": "^2.8.2",
+		"@emotion/react": "^11.13.0",
+		"@emotion/styled": "^11.13.0",
+		"framer-motion": "^11.3.21",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-hook-form": "^7.51.3",
-		"tailwind-merge": "^2.3.0",
-		"tailwindcss-animate": "^1.0.7",
+		"react-icons": "^5.2.1",
+		"react-router-dom": "^6.26.0",
 		"zod": "^3.23.4"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.8.3",
-		"@types/node": "^20.12.7",
-		"@types/react": "^18.2.66",
-		"@types/react-dom": "^18.2.22",
-		"@vitejs/plugin-react": "^4.2.1",
-		"autoprefixer": "^10.4.19",
-		"postcss": "^8.4.38",
-		"tailwindcss": "^3.4.3",
-		"vite": "^5.2.0"
+		"@types/react": "^18.3.3",
+		"@types/react-dom": "^18.3.0",
+		"@vitejs/plugin-react": "^4.3.1",
+		"vite": "^5.3.4"
 	}
 }
