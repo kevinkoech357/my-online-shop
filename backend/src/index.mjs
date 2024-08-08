@@ -1,23 +1,16 @@
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+import compression from "compression";
 import MongoStore from "connect-mongo";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import connectToMongoDB from "./config/db.connect.mjs";
-
-import adminRouter from "./routes/adminRoute.mjs";
-// Import routers
-import authRouter from "./routes/authRoute.mjs";
-import blogRouter from "./routes/blogRoute.mjs";
-import brandRouter from "./routes/brandRoute.mjs";
-import productCategoryRouter from "./routes/productCategoryRoute.mjs";
-import productRouter from "./routes/productRoute.mjs";
-import userRouter from "./routes/userRoute.mjs";
 
 // Import middlewares
 import {
@@ -25,8 +18,17 @@ import {
 	errorHandler,
 	notFoundHandler,
 } from "./middlewares/errorHandler.mjs";
+
+// Import routers
+import adminRouter from "./routes/adminRoute.mjs";
+import authRouter from "./routes/authRoute.mjs";
+import blogRouter from "./routes/blogRoute.mjs";
+import brandRouter from "./routes/brandRoute.mjs";
 import locationRouter from "./routes/locationRoute.mjs";
 import newsletterRouter from "./routes/newsletterRoute.mjs";
+import productCategoryRouter from "./routes/productCategoryRoute.mjs";
+import productRouter from "./routes/productRoute.mjs";
+import userRouter from "./routes/userRoute.mjs";
 
 // Load environment variables
 dotenv.config();
@@ -37,6 +39,12 @@ const app = express();
 
 // Connect to MongoDB
 connectToMongoDB();
+
+// Security middlewares
+app.use(helmet());
+
+// Compression middleware
+app.use(compression());
 
 // Handle cookies and sessions
 app.use(cookieParser(COOKIE_SECRET));
@@ -55,7 +63,7 @@ app.use(
 );
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({ credentials: true }));
 
 // Parse JSON bodies
 app.use(express.json());
