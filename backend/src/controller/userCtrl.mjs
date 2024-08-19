@@ -17,9 +17,7 @@ const getUserDetails = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Return success response
@@ -46,9 +44,7 @@ const updateUserDetails = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		if (previousPassword) {
@@ -58,8 +54,7 @@ const updateUserDetails = async (req, res, next) => {
 			if (!passwordMatch) {
 				return res.status(401).json({
 					success: false,
-					message:
-						"Password mismatch. If you've forgotten your previous password, request a request link to your email account.",
+					message: "Password mismatch. If you've forgotten your previous password, request a request link to your email account.",
 				});
 			}
 
@@ -106,9 +101,7 @@ const changeEmail = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Validate email
@@ -153,9 +146,7 @@ const saveAddress = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404 if user not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Update the user's primary or secondary address based on type
@@ -166,10 +157,7 @@ const saveAddress = async (req, res, next) => {
 			};
 		} else if (type === "secondary") {
 			// Check if secondary address already exists
-			const existingSecondary = user.secondaryAddresses.find(
-				(addr) =>
-					addr.county === capitalizedCounty && addr.town === capitalizedTown,
-			);
+			const existingSecondary = user.secondaryAddresses.find((addr) => addr.county === capitalizedCounty && addr.town === capitalizedTown);
 
 			if (existingSecondary) {
 				return res.status(400).json({
@@ -217,18 +205,13 @@ const getWishlist = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404 if user not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found." });
+			return res.status(404).json({ success: false, message: "User Not Found." });
 		}
 
 		// Return response with wishlist details
 		return res.status(200).json({
 			success: true,
-			message:
-				user.wishlist.length > 0
-					? "Wishlist retrieved successfully."
-					: "Wishlist is empty.",
+			message: user.wishlist.length > 0 ? "Wishlist retrieved successfully." : "Wishlist is empty.",
 			details: user.wishlist,
 			count: user.wishlist.length,
 		});
@@ -246,25 +229,17 @@ const suspendAccount = async (req, res, next) => {
 
 	try {
 		// Find and Update user
-		const user = await User.findByIdAndUpdate(
-			_id,
-			{ active: false },
-			{ new: true },
-		);
+		const user = await User.findByIdAndUpdate(_id, { active: false }, { new: true });
 
 		if (!user) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		req.session.destroy(); // Destroy session after suspending account
 
 		// Return success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Account successfully deactivated." });
+		return res.status(200).json({ success: true, message: "Account successfully deactivated." });
 	} catch (error) {
 		next(error);
 	}
@@ -283,28 +258,16 @@ const deleteAccount = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		req.session.destroy(); // Destroy session after deleting account
 
 		// Return success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Account successfully deleted." });
+		return res.status(200).json({ success: true, message: "Account successfully deleted." });
 	} catch (error) {
 		next(error);
 	}
 };
 
-export {
-	getUserDetails,
-	updateUserDetails,
-	changeEmail,
-	suspendAccount,
-	deleteAccount,
-	saveAddress,
-	getWishlist,
-};
+export { getUserDetails, updateUserDetails, changeEmail, suspendAccount, deleteAccount, saveAddress, getWishlist };

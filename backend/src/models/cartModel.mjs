@@ -69,10 +69,7 @@ cartSchema.virtual("totalItems").get(function () {
 
 // Pre-save hook to recalculate cart total
 cartSchema.pre("save", function (next) {
-	this.cartTotal = this.items.reduce(
-		(total, item) => total + item.price * item.quantity,
-		0,
-	);
+	this.cartTotal = this.items.reduce((total, item) => total + item.price * item.quantity, 0);
 	next();
 });
 
@@ -84,9 +81,7 @@ cartSchema.methods.updateItems = function (newItems) {
 
 // Method to remove item from cart
 cartSchema.methods.removeItem = function (productId) {
-	this.items = this.items.filter(
-		(item) => item.product.toString() !== productId.toString(),
-	);
+	this.items = this.items.filter((item) => item.product.toString() !== productId.toString());
 	return this.save();
 };
 

@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		delete ret.password;
+		ret.password = undefined;
 		return ret;
 	},
 });

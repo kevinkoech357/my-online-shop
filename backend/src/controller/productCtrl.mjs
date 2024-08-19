@@ -1,21 +1,17 @@
-import path from "path";
-import fs from "fs/promises";
+import fs from "node:fs/promises";
+import path from "node:path";
 import slugify from "slugify";
 import Product from "../models/productModel.mjs";
 import User from "../models/userModel.mjs";
 import capitalizeFirstLetter from "../utils/capitalizeName.mjs";
-import {
-	cloudinaryDeleteImage,
-	cloudinaryUploadImage,
-} from "../utils/cloudinaryConfig.mjs";
+import { cloudinaryDeleteImage, cloudinaryUploadImage } from "../utils/cloudinaryConfig.mjs";
 
 // ===================================================START ADMIN PRODUCT RELATED ACTIONS=======================================
 
 // Admin function to create a new product
 const adminCreateProduct = async (req, res, next) => {
 	// Destructure body
-	const { name, description, quantity, brand, color, price, category } =
-		req.body;
+	const { name, description, quantity, brand, color, price, category } = req.body;
 	try {
 		// Capitalize necessary fields
 		const capitalizedName = await capitalizeFirstLetter(name);
@@ -73,9 +69,7 @@ const adminModifyProduct = async (req, res, next) => {
 
 		if (!modifiedProduct) {
 			// If product not found, send a 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "Product not found." });
+			return res.status(404).json({ success: false, message: "Product not found." });
 		}
 
 		// Send success response
@@ -97,15 +91,11 @@ const adminDeleteProduct = async (req, res, next) => {
 
 		if (!product) {
 			// If product not found, send a 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "Product not found" });
+			return res.status(404).json({ success: false, message: "Product not found" });
 		}
 
 		// Send success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Product successfully deleted" });
+		return res.status(200).json({ success: true, message: "Product successfully deleted" });
 	} catch (error) {
 		next(error);
 	}
@@ -120,33 +110,21 @@ const adminUploadProductImages = async (req, res, next) => {
 
 		const files = req.files;
 		if (!Array.isArray(files) || files.length === 0) {
-			return res
-				.status(400)
-				.json({ success: false, message: "No files attached to the request." });
+			return res.status(400).json({ success: false, message: "No files attached to the request." });
 		}
 
 		const imageUrls = [];
 		for (const file of files) {
-			const filePath = path.join(
-				rootDir,
-				"uploads/images/products",
-				file.filename,
-			);
+			const filePath = path.join(rootDir, "uploads/images/products", file.filename);
 			const uploadResult = await cloudinaryUploadImage(filePath);
 			imageUrls.push(uploadResult);
 			await fs.unlink(filePath);
 		}
 
-		const updatedProduct = await Product.findByIdAndUpdate(
-			id,
-			{ $push: { images: { $each: imageUrls } } },
-			{ new: true },
-		);
+		const updatedProduct = await Product.findByIdAndUpdate(id, { $push: { images: { $each: imageUrls } } }, { new: true });
 
 		if (!updatedProduct) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Not Found" });
+			return res.status(404).json({ success: false, message: "Product Not Found" });
 		}
 
 		return res.status(200).json({
@@ -169,20 +147,14 @@ const adminDeleteProductImage = async (req, res, next) => {
 		const product = await Product.findById(id);
 
 		if (!product) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Product not found" });
+			return res.status(404).json({ success: false, message: "Product not found" });
 		}
 
 		// Find the index of the image to delete
-		const imageIndex = product.images.findIndex(
-			(image) => image._id.toString() === imageID,
-		);
+		const imageIndex = product.images.findIndex((image) => image._id.toString() === imageID);
 
 		if (imageIndex === -1) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Image not found in the product" });
+			return res.status(404).json({ success: false, message: "Image not found in the product" });
 		}
 
 		// Get the public ID of the image to delete
@@ -227,9 +199,7 @@ const viewOneProduct = async (req, res, next) => {
 
 		if (!product) {
 			// If product not found, send a 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "No product found" });
+			return res.status(404).json({ success: false, message: "No product found" });
 		}
 
 		// Send success response with product details
@@ -252,9 +222,7 @@ const getAllProducts = async (req, res, next) => {
 			const allProducts = await Product.find();
 
 			if (allProducts.length === 0) {
-				return res
-					.status(200)
-					.json({ success: true, message: "No products available" });
+				return res.status(200).json({ success: true, message: "No products available" });
 			}
 
 			// Send success response with all products
@@ -266,22 +234,12 @@ const getAllProducts = async (req, res, next) => {
 		}
 
 		// Get query parameters
-		const {
-			page = 1,
-			limit = 10,
-			sortBy = "createdAt",
-			order = "asc",
-			name,
-			brand,
-			category,
-			minPrice,
-			maxPrice,
-		} = req?.query;
+		const { page = 1, limit = 10, sortBy = "createdAt", order = "asc", name, brand, category, minPrice, maxPrice } = req.query;
 
 		// Build query options
 		const options = {
-			page: parseInt(page, 10),
-			limit: parseInt(limit, 10),
+			page: Number.parseInt(page, 10),
+			limit: Number.parseInt(limit, 10),
 			sort: {
 				[sortBy]: order === "asc" ? 1 : -1,
 			},
@@ -305,10 +263,10 @@ const getAllProducts = async (req, res, next) => {
 		if (minPrice || maxPrice) {
 			query.price = {};
 			if (minPrice) {
-				query.price.$gte = parseFloat(minPrice);
+				query.price.$gte = Number.parseFloat(minPrice);
 			}
 			if (maxPrice) {
-				query.price.$lte = parseFloat(maxPrice);
+				query.price.$lte = Number.parseFloat(maxPrice);
 			}
 		}
 
@@ -349,9 +307,7 @@ const addToWishlist = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404 if user not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found." });
+			return res.status(404).json({ success: false, message: "User Not Found." });
 		}
 
 		// Check if product exists based on productID
@@ -359,9 +315,7 @@ const addToWishlist = async (req, res, next) => {
 
 		if (!product) {
 			// Return 404 if product not found
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Not Found." });
+			return res.status(404).json({ success: false, message: "Product Not Found." });
 		}
 
 		// Check if product has already been added to wishlist
@@ -369,31 +323,22 @@ const addToWishlist = async (req, res, next) => {
 
 		if (productAlreadyAdded) {
 			// Remove product from wishlist
-			const updatedUser = await User.findByIdAndUpdate(
-				_id,
-				{ $pull: { wishlist: productID } },
-				{ new: true },
-			);
+			const updatedUser = await User.findByIdAndUpdate(_id, { $pull: { wishlist: productID } }, { new: true });
 			// Return response
 			return res.status(200).json({
 				success: true,
 				message: "Product successfully removed from wishlist.",
 				details: updatedUser,
 			});
-		} else {
-			// Add product to wishlist
-			const updatedUser = await User.findByIdAndUpdate(
-				_id,
-				{ $push: { wishlist: productID } },
-				{ new: true },
-			);
-			// Return response
-			return res.status(200).json({
-				success: true,
-				message: "Product successfully added to wishlist.",
-				details: updatedUser,
-			});
 		}
+		// Add product to wishlist
+		const updatedUser = await User.findByIdAndUpdate(_id, { $push: { wishlist: productID } }, { new: true });
+		// Return response
+		return res.status(200).json({
+			success: true,
+			message: "Product successfully added to wishlist.",
+			details: updatedUser,
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -414,23 +359,17 @@ const rateProduct = async (req, res, next) => {
 		// Check if user exists
 		const user = await User.findById(_id);
 		if (!user) {
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found." });
+			return res.status(404).json({ success: false, message: "User Not Found." });
 		}
 
 		// Check if product exists
 		const product = await Product.findById(id);
 		if (!product) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Not Found." });
+			return res.status(404).json({ success: false, message: "Product Not Found." });
 		}
 
 		// Check if user has already rated the product
-		const userRating = product.ratings.find(
-			(ratingObj) => ratingObj.postedBy.toString() === _id.toString(),
-		);
+		const userRating = product.ratings.find((ratingObj) => ratingObj.postedBy.toString() === _id.toString());
 
 		if (userRating) {
 			// Update existing user rating
@@ -452,10 +391,7 @@ const rateProduct = async (req, res, next) => {
 		}
 
 		// Calculate total rating
-		const totalRatings = product.ratings.reduce(
-			(acc, ratingObj) => acc + ratingObj.star,
-			0,
-		);
+		const totalRatings = product.ratings.reduce((acc, ratingObj) => acc + ratingObj.star, 0);
 		product.totalRating = (totalRatings / product.ratings.length).toFixed(1);
 
 		// Save the updated product
@@ -489,18 +425,14 @@ const getProductRating = async (req, res, next) => {
 
 		if (!product) {
 			// Return 404 if product not found
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Not Found" });
+			return res.status(404).json({ success: false, message: "Product Not Found" });
 		}
 
 		// Prepare ratings array with user's full name
 		const ratings = product.ratings.map((rating) => ({
 			star: rating.star,
 			comment: rating.comment,
-			userName: rating.postedBy
-				? `${rating.postedBy.firstname} ${rating.postedBy.lastname}`
-				: "Unknown User",
+			userName: rating.postedBy ? `${rating.postedBy.firstname} ${rating.postedBy.lastname}` : "Unknown User",
 		}));
 
 		// Return products rating with count

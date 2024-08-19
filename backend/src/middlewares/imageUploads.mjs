@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs/promises";
+import fs from "node:fs/promises";
+import path from "node:path";
 import multer from "multer";
 import sharp from "sharp";
 import createDirectory from "../utils/createDirectory.mjs";

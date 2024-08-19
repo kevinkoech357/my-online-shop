@@ -1,8 +1,5 @@
 import express from "express";
-import {
-	getAllProductCategories,
-	viewOneProductCategory,
-} from "../controller/productCategoryCtrl.mjs";
+import { getAllProductCategories, viewOneProductCategory } from "../controller/productCategoryCtrl.mjs";
 import validateMongoID from "../middlewares/validateMongoID.mjs";
 
 const productCategoryRouter = express.Router();

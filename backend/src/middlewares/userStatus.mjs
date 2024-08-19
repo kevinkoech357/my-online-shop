@@ -12,27 +12,19 @@ const isAuthenticated = async (req, res, next) => {
 		});
 	}
 
-	try {
-		const currentUser = await User.findById(user._id);
+	const currentUser = await User.findById(user._id);
 
-		if (!currentUser) {
-			return res.status(401).json({
-				success: false,
-				message: "User not found. Please log in again.",
-			});
-		}
-
-		req.user = currentUser;
-
-		// Session is valid
-		next();
-	} catch (error) {
-		console.error("Error finding user:", error);
-		return res.status(500).json({
+	if (!currentUser) {
+		return res.status(401).json({
 			success: false,
-			message: "Internal server error. Please try again later.",
+			message: "User not found. Create an account to proceed.",
 		});
 	}
+
+	req.user = currentUser;
+
+	// Session is valid
+	next();
 };
 
 export default isAuthenticated;

@@ -18,9 +18,7 @@ const userCart = async (req, res, next) => {
 		const user = await User.findById(_id);
 		// If user not found, return 404
 		if (!user) {
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found" });
+			return res.status(404).json({ success: false, message: "User Not Found" });
 		}
 
 		// Retrieve existing cart or initialize a new one
@@ -31,9 +29,7 @@ const userCart = async (req, res, next) => {
 
 		// Retrieve all products needed for the cart in one query
 		const productIds = cart.items.map((item) => item.product);
-		const products = await Product.find({ _id: { $in: productIds } }).select(
-			"_id price quantity color",
-		);
+		const products = await Product.find({ _id: { $in: productIds } }).select("_id price quantity color");
 
 		// Create a map of products for quick lookup
 		const productsMap = products.reduce((map, product) => {
@@ -50,7 +46,7 @@ const userCart = async (req, res, next) => {
 			if (!product) {
 				return res.status(404).json({
 					success: false,
-					message: `Product Not Found`,
+					message: "Product Not Found",
 				});
 			}
 
@@ -89,10 +85,7 @@ const userCart = async (req, res, next) => {
 
 		// Update cart items and total
 		existingCart.items = updatedItems;
-		existingCart.cartTotal = updatedItems.reduce(
-			(total, item) => total + item.price * item.quantity,
-			0,
-		);
+		existingCart.cartTotal = updatedItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
 		// Save the updated cart
 		await existingCart.save();
@@ -120,9 +113,7 @@ const getUserCart = async (req, res, next) => {
 		const user = await User.findById(_id);
 		if (!user) {
 			// Return 404 if the user is not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found" });
+			return res.status(404).json({ success: false, message: "User Not Found" });
 		}
 
 		// Retrieve the user's cart and populate product details
@@ -133,9 +124,7 @@ const getUserCart = async (req, res, next) => {
 
 		if (!existingCart) {
 			// Return 404 if the cart is not found
-			return res
-				.status(404)
-				.json({ success: false, message: "Cart Not Found" });
+			return res.status(404).json({ success: false, message: "Cart Not Found" });
 		}
 
 		if (existingCart.items.length === 0) {
@@ -166,34 +155,26 @@ const clearCart = async (req, res, next) => {
 		const user = await User.findById(_id);
 		if (!user) {
 			// Return 404 if the user is not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found" });
+			return res.status(404).json({ success: false, message: "User Not Found" });
 		}
 
 		// Retrieve the user's cart
 		const existingCart = await Cart.findOne({ user: _id });
 		if (!existingCart) {
 			// Return 404 if the cart is not found
-			return res
-				.status(404)
-				.json({ success: false, message: "Cart Not Found" });
+			return res.status(404).json({ success: false, message: "Cart Not Found" });
 		}
 
 		if (existingCart.items.length === 0) {
 			// Return a message indicating the cart is empty
-			return res
-				.status(200)
-				.json({ success: true, message: "Cart is empty. Nothing to clear." });
+			return res.status(200).json({ success: true, message: "Cart is empty. Nothing to clear." });
 		}
 
 		// Use the cart model's method to clear the cart
 		await existingCart.clearCart();
 
 		// Return a success message
-		return res
-			.status(200)
-			.json({ success: true, message: "Cart successfully cleared" });
+		return res.status(200).json({ success: true, message: "Cart successfully cleared" });
 	} catch (error) {
 		next(error);
 	}
@@ -212,27 +193,21 @@ const removeProductFromCart = async (req, res, next) => {
 		const user = await User.findById(_id);
 		if (!user) {
 			// Return 404 if the user is not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User Not Found" });
+			return res.status(404).json({ success: false, message: "User Not Found" });
 		}
 
 		// Validate productID
 		const isValid = mongoose.Types.ObjectId.isValid(productID);
 		// Invalid id
 		if (!isValid) {
-			return res
-				.status(400)
-				.json({ success: false, message: "Invalid Product ID." });
+			return res.status(400).json({ success: false, message: "Invalid Product ID." });
 		}
 
 		// Retrieve the user's cart
 		const existingCart = await Cart.findOne({ user: _id });
 		if (!existingCart) {
 			// Return 404 if the cart is not found
-			return res
-				.status(404)
-				.json({ success: false, message: "Cart Not Found" });
+			return res.status(404).json({ success: false, message: "Cart Not Found" });
 		}
 
 		if (existingCart.items.length === 0) {
@@ -244,15 +219,11 @@ const removeProductFromCart = async (req, res, next) => {
 		}
 
 		// Find the index of the product in the cart items array
-		const productIndex = existingCart.items.findIndex(
-			(item) => item.product.toString() === productID,
-		);
+		const productIndex = existingCart.items.findIndex((item) => item.product.toString() === productID);
 
 		if (productIndex === -1) {
 			// Return 404 if the product is not found in the cart
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Not Found" });
+			return res.status(404).json({ success: false, message: "Product Not Found" });
 		}
 
 		// Use the cart model's method to remove the product

@@ -1,11 +1,8 @@
-import path from "path";
-import fs from "fs/promises";
+import fs from "node:fs/promises";
+import path from "node:path";
 import Blog from "../models/blogModel.mjs";
 import capitalizeFirstLetter from "../utils/capitalizeName.mjs";
-import {
-	cloudinaryDeleteImage,
-	cloudinaryUploadImage,
-} from "../utils/cloudinaryConfig.mjs";
+import { cloudinaryDeleteImage, cloudinaryUploadImage } from "../utils/cloudinaryConfig.mjs";
 
 // ===================================================START ADMIN BLOG RELATED ACTIONS=========================================
 
@@ -50,9 +47,7 @@ const adminModifyBlog = async (req, res, next) => {
 
 		if (!modifiedBlog) {
 			// If Blog Post Not Found, send a 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "Blog Post Not Found." });
+			return res.status(404).json({ success: false, message: "Blog Post Not Found." });
 		}
 
 		// Send success response
@@ -76,15 +71,11 @@ const adminDeleteBlog = async (req, res, next) => {
 
 		if (!blog) {
 			// If Blog Post Not Found, send a 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "Blog Post Not Found" });
+			return res.status(404).json({ success: false, message: "Blog Post Not Found" });
 		}
 
 		// Send success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Blog Post successfully deleted" });
+		return res.status(200).json({ success: true, message: "Blog Post successfully deleted" });
 	} catch (error) {
 		// Pass any errors to the global error handler
 		next(error);
@@ -98,34 +89,22 @@ const adminUploadBlogImages = async (req, res, next) => {
 
 		const files = req.files;
 		if (!Array.isArray(files) || files.length === 0) {
-			return res
-				.status(400)
-				.json({ success: false, message: "No files attached to the request." });
+			return res.status(400).json({ success: false, message: "No files attached to the request." });
 		}
 
 		const imageUrls = [];
 		for (const file of files) {
-			const filePath = path.join(
-				rootDir,
-				"uploads/images/blogs",
-				file.filename,
-			);
+			const filePath = path.join(rootDir, "uploads/images/blogs", file.filename);
 			const uploadResult = await cloudinaryUploadImage(filePath);
 			imageUrls.push(uploadResult);
 			await fs.unlink(filePath);
 		}
 
 		const { id } = req.params;
-		const updatedBlog = await Blog.findByIdAndUpdate(
-			id,
-			{ $push: { images: { $each: imageUrls } } },
-			{ new: true },
-		);
+		const updatedBlog = await Blog.findByIdAndUpdate(id, { $push: { images: { $each: imageUrls } } }, { new: true });
 
 		if (!updatedBlog) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Blog Not Found" });
+			return res.status(404).json({ success: false, message: "Blog Not Found" });
 		}
 
 		return res.status(200).json({
@@ -148,20 +127,14 @@ const adminDeleteBlogImage = async (req, res, next) => {
 		const blog = await Blog.findById(id);
 
 		if (!blog) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Blog not found" });
+			return res.status(404).json({ success: false, message: "Blog not found" });
 		}
 
 		// Find the index of the image to delete
-		const imageIndex = blog.images.findIndex(
-			(image) => image._id.toString() === imageID,
-		);
+		const imageIndex = blog.images.findIndex((image) => image._id.toString() === imageID);
 
 		if (imageIndex === -1) {
-			return res
-				.status(404)
-				.json({ success: false, message: "Image not found in the Blog" });
+			return res.status(404).json({ success: false, message: "Image not found in the Blog" });
 		}
 
 		// Get the public ID of the image to delete
@@ -205,9 +178,7 @@ const getAllBlogs = async (_req, res, next) => {
 
 		if (allBlogPosts.length === 0) {
 			// If no blogs are found, send a 200 response with empty array
-			return res
-				.status(200)
-				.json({ success: true, message: "No Blog Posts Found.", details: [] });
+			return res.status(200).json({ success: true, message: "No Blog Posts Found.", details: [] });
 		}
 
 		// Send success response with all blog posts
@@ -231,9 +202,7 @@ const viewOneBlog = async (req, res, next) => {
 
 		if (!blog) {
 			// If Blog Post Not Found, send a 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "Blog Post Not Found" });
+			return res.status(404).json({ success: false, message: "Blog Post Not Found" });
 		}
 
 		// Send success response with blog details
@@ -250,12 +219,4 @@ const viewOneBlog = async (req, res, next) => {
 
 // ==========================================================END ANY-USER BLOG RELATED ACTIONS==============================
 
-export {
-	adminWriteBlog,
-	adminModifyBlog,
-	adminDeleteBlog,
-	adminUploadBlogImages,
-	adminDeleteBlogImage,
-	getAllBlogs,
-	viewOneBlog,
-};
+export { adminWriteBlog, adminModifyBlog, adminDeleteBlog, adminUploadBlogImages, adminDeleteBlogImage, getAllBlogs, viewOneBlog };
