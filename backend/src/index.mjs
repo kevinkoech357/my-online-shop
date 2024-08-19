@@ -1,5 +1,5 @@
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import compression from "compression";
 import MongoStore from "connect-mongo";
 import cookieParser from "cookie-parser";
@@ -13,11 +13,7 @@ import YAML from "yamljs";
 import connectToMongoDB from "./config/db.connect.mjs";
 
 // Import middlewares
-import {
-	JSONErrorHandler,
-	errorHandler,
-	notFoundHandler,
-} from "./middlewares/errorHandler.mjs";
+import { JSONErrorHandler, errorHandler, notFoundHandler } from "./middlewares/errorHandler.mjs";
 
 // Import routers
 import adminRouter from "./routes/adminRoute.mjs";
@@ -26,6 +22,7 @@ import blogRouter from "./routes/blogRoute.mjs";
 import brandRouter from "./routes/brandRoute.mjs";
 import locationRouter from "./routes/locationRoute.mjs";
 import newsletterRouter from "./routes/newsletterRoute.mjs";
+import orderRouter from "./routes/orderRoute.mjs";
 import productCategoryRouter from "./routes/productCategoryRoute.mjs";
 import productRouter from "./routes/productRoute.mjs";
 import userRouter from "./routes/userRoute.mjs";
@@ -76,6 +73,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/prod-categories", productCategoryRouter);
 app.use("/api/v1/brands", brandRouter);
