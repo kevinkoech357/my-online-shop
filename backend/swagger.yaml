@@ -130,7 +130,15 @@ components:
           type: array
         cartTotal:
           type: number
-        
+
+    OrderDetails:
+      type: object
+      properties:
+        _id:
+          type: string
+        message:
+          type: string
+
 
 paths:
   /auth/register:
@@ -2244,3 +2252,69 @@ paths:
                     type: boolean
                   message:
                     type: string
+
+
+  /order/create:
+    post:
+      tags:
+        - User Order Actions
+      summary: Create a New Order.
+      description: Allows authenticated users to make a new order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - paymentMethod
+              properties:
+                paymentMethod:
+                  type: string
+      responses:
+        '200':
+          description: Order created successfully.
+          content:
+            application/json:
+               schema:
+                $ref: '#/components/schemas/OrderDetails'
+        '401':
+          description: Unauthorized. User is not authenticated.
+        '403':
+          description: Forbidden. User is not authorized to access this resource.
+        '500':
+          description: Internal server error.
+
+  /order:
+    get:
+      tags:
+        - User Order Actions
+      summary: Get order.
+      description: | 
+        Allows authenticated users to retieve their orders.
+      responses:
+        '200':
+          description: Orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetails'
+        '500':
+          description: Internal server error.
+
+  /admin/order/all:
+    get:
+      tags:
+        - Admin Order Actions
+      summary: Get all Orders.
+      description: | 
+        Allows only adminstrators to retrieve all orders.
+      responses:
+        '200':
+          description: Orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetails'
+        '500':
+          description: Internal server error.
