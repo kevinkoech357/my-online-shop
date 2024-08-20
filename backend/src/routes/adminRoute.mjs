@@ -1,5 +1,6 @@
 import express from "express";
 
+import { blogImageResize, productImageResize, uploadPhoto } from "../middlewares/imageUploads.mjs";
 import isAdmin from "../middlewares/userRole.mjs";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkRequiredFields, validateIntegerFields } from "../middlewares/validateBody.mjs";
@@ -9,6 +10,7 @@ import { adminDeleteAccount, adminGetAllUsers, adminGetUserDetails, adminRecover
 import { adminDeleteBlog, adminDeleteBlogImage, adminModifyBlog, adminUploadBlogImages, adminWriteBlog } from "../controller/blogCtrl.mjs";
 import { adminCreateBrand, adminDeleteBrand, adminModifyBrand } from "../controller/brandCtrl.mjs";
 import { adminCreateLocation, adminDeleteLocation, adminModifyLocation } from "../controller/locationCtrl.mjs";
+import { adminViewOneOrder, allOrders, updateOrderStatus } from "../controller/orderCtrl.mjs";
 import { adminCreateProductCategory, adminDeleteProductCategory, adminModifyProductCategory } from "../controller/productCategoryCtrl.mjs";
 import {
 	adminCreateProduct,
@@ -17,7 +19,6 @@ import {
 	adminModifyProduct,
 	adminUploadProductImages,
 } from "../controller/productCtrl.mjs";
-import { blogImageResize, productImageResize, uploadPhoto } from "../middlewares/imageUploads.mjs";
 
 const adminRouter = express.Router();
 
@@ -27,6 +28,7 @@ const blogFields = ["title", "content", "category"];
 const titleField = ["title"];
 const locationField = ["name", "county", "town"];
 const deleteImageField = ["imageID"];
+const updateOrderStatusField = ["newStatus"];
 
 // Routes for performing User Account Actions
 adminRouter.get("/users/:id", validateMongoID, isAuthenticated, isAdmin, adminGetUserDetails);
@@ -96,6 +98,8 @@ adminRouter.patch("/location/update/:id", validateMongoID, isAuthenticated, isAd
 adminRouter.delete("/location/delete/:id", validateMongoID, isAuthenticated, isAdmin, adminDeleteLocation);
 
 // Routes for perfroming Order related actions
-adminRouter.get("/order/all", isAuthenticated, isAdmin, allOrders);
+adminRouter.get("/orders/all", isAuthenticated, isAdmin, allOrders);
+adminRouter.get("/order/:id", isAuthenticated, isAdmin, validateMongoID, adminViewOneOrder);
+adminRouter.patch("/order/update/:id", isAuthenticated, isAdmin, validateMongoID, checkRequiredFields(updateOrderStatusField), updateOrderStatus);
 
 export default adminRouter;
