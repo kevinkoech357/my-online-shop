@@ -2268,8 +2268,20 @@ paths:
               type: object
               required:
                 - paymentMethod
+                - deliveryAddress
+                - county
+                - town
+                - deliveryNotes
               properties:
                 paymentMethod:
+                  type: string
+                deliveryAddress:
+                  type: string
+                county:
+                  type: string
+                town:
+                  type: string
+                deliveryNotes:
                   type: string
       responses:
         '200':
