@@ -78,6 +78,12 @@ const orderSchema = new mongoose.Schema(
 				message: "Invalid user ID",
 			},
 		},
+		location: {
+			name: { type: String, required: true },
+			town: { type: String, required: true },
+			county: { type: String, required: true },
+			notes: String, // Optional delivery notes
+		},
 	},
 	{
 		timestamps: true,
