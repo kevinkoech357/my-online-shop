@@ -28,7 +28,7 @@ userRouter.delete("/cart/clear", isAuthenticated, clearCart);
 userRouter.delete("/cart/remove-product", checkRequiredFields(cartField), isAuthenticated, removeProductFromCart);
 
 // Suspend or delete account
-userRouter.post("/suspend", isAuthenticated, suspendAccount);
+userRouter.patch("/suspend", isAuthenticated, suspendAccount);
 userRouter.delete("/delete", isAuthenticated, deleteAccount);
 
 export default userRouter;

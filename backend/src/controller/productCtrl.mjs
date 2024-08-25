@@ -24,6 +24,12 @@ const adminCreateProduct = async (req, res, next) => {
 			lower: true,
 		});
 
+		const duplicateSlug = await Product.findOne({ slug: slug });
+
+		if (duplicateSlug) {
+			return res.status(409).json({ success: false, message: "Conflict. Product with the same name already exists." });
+		}
+
 		// Create new Product
 		const newProduct = new Product({
 			name: capitalizedName,
@@ -46,6 +52,7 @@ const adminCreateProduct = async (req, res, next) => {
 			details: newProduct,
 		});
 	} catch (error) {
+		console.error(error);
 		next(error);
 	}
 };
