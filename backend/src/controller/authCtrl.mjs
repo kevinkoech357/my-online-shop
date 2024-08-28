@@ -25,8 +25,7 @@ const registerUser = async (req, res, next) => {
 		if (existingEmail) {
 			return res.status(409).json({
 				success: false,
-				message:
-					"Email already registered. Proceed to login or choose a different email.",
+				message: "Email already registered. Proceed to login or choose a different email.",
 			});
 		}
 
@@ -35,8 +34,7 @@ const registerUser = async (req, res, next) => {
 		if (existingPhone) {
 			return res.status(409).json({
 				success: false,
-				message:
-					"Phone number already registered. Proceed to login or choose a different phone number.",
+				message: "Phone number already registered. Proceed to login or choose a different phone number.",
 			});
 		}
 
@@ -99,17 +97,14 @@ const loginUser = async (req, res, next) => {
 
 		// If user is not found, return 401 Unauthorized
 		if (!user) {
-			return res
-				.status(401)
-				.json({ success: false, message: "Invalid email or password!" });
+			return res.status(401).json({ success: false, message: "Invalid email or password!" });
 		}
 
 		// If user is not verified, return 401 Unauthorized
 		if (user.verified === false) {
 			return res.status(401.0).json({
 				success: false,
-				message:
-					"Email not verified. Check email for OTP or ask for a new one.",
+				message: "Email not verified. Check email for OTP or ask for a new one.",
 			});
 		}
 
@@ -117,8 +112,7 @@ const loginUser = async (req, res, next) => {
 		if (user.active === false) {
 			return res.status(401.0).json({
 				success: false,
-				message:
-					"User account is suspended. Contact Admin to re-activate account.",
+				message: "User account is suspended. Contact Admin to re-activate account.",
 			});
 		}
 
@@ -127,9 +121,7 @@ const loginUser = async (req, res, next) => {
 
 		// If password doesn't match, return 401 Unauthorized
 		if (!passwordMatch) {
-			return res
-				.status(401)
-				.json({ success: false, message: "Invalid email or password!" });
+			return res.status(401).json({ success: false, message: "Invalid email or password!" });
 		}
 
 		// If the user is verified and the password matches, create a session
@@ -165,9 +157,7 @@ const logoutUser = async (req, res, next) => {
 			res.clearCookie("userSession");
 
 			// Successful logout
-			return res
-				.status(200)
-				.json({ success: true, message: "Logout successful." });
+			return res.status(200).json({ success: true, message: "Logout successful." });
 		});
 	} catch (error) {
 		next(error);

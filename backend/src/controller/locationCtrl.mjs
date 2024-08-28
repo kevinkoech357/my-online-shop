@@ -54,9 +54,7 @@ const adminModifyLocation = async (req, res, next) => {
 
 		if (!locationToUpdate) {
 			// Return a 404 with not found message
-			return res
-				.status(404)
-				.json({ success: false, message: "Location Not Found" });
+			return res.status(404).json({ success: false, message: "Location Not Found" });
 		}
 
 		if (name) {
@@ -93,15 +91,11 @@ const adminDeleteLocation = async (req, res, next) => {
 
 		if (!locationToDelete) {
 			// Return a 404 with not found message
-			return res
-				.status(404)
-				.json({ success: false, message: "Location Not Found" });
+			return res.status(404).json({ success: false, message: "Location Not Found" });
 		}
 
 		// Return a success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Location Deleted Successfully" });
+		return res.status(200).json({ success: true, message: "Location Deleted Successfully" });
 	} catch (error) {
 		next(error);
 	}
@@ -120,9 +114,7 @@ const getAllLocations = async (_req, res, next) => {
 
 		if (!allLocations) {
 			// Return a 200 code with empty array
-			return res
-				.status(200)
-				.json({ success: true, message: "No Locations Found.", details: [] });
+			return res.status(200).json({ success: true, message: "No Locations Found.", details: [] });
 		}
 
 		// Return a success response
@@ -147,9 +139,7 @@ const viewOneLocation = async (req, res, next) => {
 
 		if (!location) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "Location Not Found" });
+			return res.status(404).json({ success: false, message: "Location Not Found" });
 		}
 
 		// Return a success response
@@ -165,10 +155,4 @@ const viewOneLocation = async (req, res, next) => {
 
 // ==========================================================END ANY-USER LOCATION RELATED ACTIONS==============================
 
-export {
-	adminCreateLocation,
-	adminModifyLocation,
-	adminDeleteLocation,
-	getAllLocations,
-	viewOneLocation,
-};
+export { adminCreateLocation, adminModifyLocation, adminDeleteLocation, getAllLocations, viewOneLocation };

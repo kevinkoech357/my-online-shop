@@ -1,4 +1,4 @@
-import fs from "fs/promises";
+import fs from "node:fs/promises";
 
 // Create the directories asynchronously if they don't exist
 const createDirectory = async (dir) => {

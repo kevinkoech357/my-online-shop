@@ -1,5 +1,5 @@
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createLogger, format, transports } from "winston";
 import "winston-daily-rotate-file";
 import createDirectory from "./createDirectory.mjs";

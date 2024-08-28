@@ -1,8 +1,5 @@
 import express from "express";
-import {
-	getAllLocations,
-	viewOneLocation,
-} from "../controller/locationCtrl.mjs";
+import { getAllLocations, viewOneLocation } from "../controller/locationCtrl.mjs";
 import validateMongoID from "../middlewares/validateMongoID.mjs";
 
 const locationRouter = express.Router();

@@ -17,9 +17,6 @@ const productCategorySchema = new mongoose.Schema(
 	},
 );
 
-const ProductCategory = mongoose.model(
-	"ProductCategory",
-	productCategorySchema,
-);
+const ProductCategory = mongoose.model("ProductCategory", productCategorySchema);
 
 export default ProductCategory;

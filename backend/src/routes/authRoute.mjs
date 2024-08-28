@@ -1,35 +1,17 @@
 import express from "express";
 import { regenerateOTP, verifyOTP } from "../controller/OTPCtrl.mjs";
-import {
-	loginUser,
-	logoutUser,
-	registerUser,
-} from "../controller/authCtrl.mjs";
+import { loginUser, logoutUser, registerUser } from "../controller/authCtrl.mjs";
 import isAuthenticated from "../middlewares/userStatus.mjs";
-import {
-	checkFieldLength,
-	checkRequiredFields,
-} from "../middlewares/validateBody.mjs";
+import { checkFieldLength, checkRequiredFields } from "../middlewares/validateBody.mjs";
 
 const authRouter = express.Router();
 
 // Define required fields
-const registrationFields = [
-	"firstname",
-	"lastname",
-	"email",
-	"phone",
-	"password",
-];
+const registrationFields = ["firstname", "lastname", "email", "phone", "password"];
 const loginFields = ["email", "password"];
 
 // Register a new user
-authRouter.post(
-	"/register",
-	checkRequiredFields(registrationFields),
-	checkFieldLength,
-	registerUser,
-);
+authRouter.post("/register", checkRequiredFields(registrationFields), checkFieldLength, registerUser);
 
 // Login user
 authRouter.post("/login", checkRequiredFields(loginFields), loginUser);

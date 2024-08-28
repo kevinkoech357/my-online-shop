@@ -47,17 +47,11 @@ const adminModifyProductCategory = async (req, res, next) => {
 		const capitalizedTitle = await capitalizeFirstLetter(title);
 
 		// Find and update the product category
-		const productCategoryToUpdate = await ProductCategory.findByIdAndUpdate(
-			id,
-			{ title: capitalizedTitle },
-			{ new: true },
-		);
+		const productCategoryToUpdate = await ProductCategory.findByIdAndUpdate(id, { title: capitalizedTitle }, { new: true });
 
 		if (!productCategoryToUpdate) {
 			// Return a 404 with not found message
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Category Not Found" });
+			return res.status(404).json({ success: false, message: "Product Category Not Found" });
 		}
 
 		// Return a success response
@@ -82,9 +76,7 @@ const adminDeleteProductCategory = async (req, res, next) => {
 
 		if (!productCategoryToDelete) {
 			// Return a 404 with not found message
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Category Not Found" });
+			return res.status(404).json({ success: false, message: "Product Category Not Found" });
 		}
 
 		// Return a success response
@@ -139,9 +131,7 @@ const viewOneProductCategory = async (req, res, next) => {
 
 		if (!productCategory) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "Product Category Not Found" });
+			return res.status(404).json({ success: false, message: "Product Category Not Found" });
 		}
 
 		// Return a success response
@@ -157,10 +147,4 @@ const viewOneProductCategory = async (req, res, next) => {
 
 // ==========================================================END ANY-USER PRODUCT CATEGORY RELATED ACTIONS==============================
 
-export {
-	adminCreateProductCategory,
-	adminModifyProductCategory,
-	adminDeleteProductCategory,
-	getAllProductCategories,
-	viewOneProductCategory,
-};
+export { adminCreateProductCategory, adminModifyProductCategory, adminDeleteProductCategory, getAllProductCategories, viewOneProductCategory };

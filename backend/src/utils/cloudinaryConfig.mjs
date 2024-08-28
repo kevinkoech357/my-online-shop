@@ -14,7 +14,7 @@ const cloudinaryUploadImage = async (fileToUpload) => {
 		const result = await cloudinary.uploader.upload(fileToUpload, {
 			folder: process.env.CLOUDINARY_FOLDER,
 			resource_type: "image",
-			allowed_formats: ["jpeg", "png"],
+			allowed_formats: ["jpeg", "jpg", "png"],
 		});
 
 		// Return the URL and public ID of the uploaded image
@@ -38,10 +38,9 @@ const cloudinaryDeleteImage = async (publicId) => {
 		if (result.result === "ok") {
 			console.log(`Image with public_id ${publicId} deleted successfully`);
 			return { success: true }; // Return success if the deletion was successful
-		} else {
-			console.error(`Error deleting image with public_id ${publicId}`);
-			throw new Error("Failed to delete image");
 		}
+		console.error(`Error deleting image with public_id ${publicId}`);
+		throw new Error("Failed to delete image");
 	} catch (error) {
 		console.error("Error deleting image:", error);
 		throw error;

@@ -43,9 +43,7 @@ const JSONErrorHandler = (err, _req, res, next) => {
 	// Check if the error is a SyntaxError, has status 400, and if the error occurred in the request body
 	if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
 		// Return a 400 response
-		return res
-			.status(400)
-			.json({ success: false, message: "Invalid JSON format." });
+		return res.status(400).json({ success: false, message: "Invalid JSON format." });
 	}
 	// If the error doesn't match the conditions above, proceed to the next middleware
 	next();

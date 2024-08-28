@@ -47,17 +47,11 @@ const adminModifyBrand = async (req, res, next) => {
 		const capitalizedTitle = await capitalizeFirstLetter(title);
 
 		// Find and update the Brand
-		const brandToUpdate = await Brand.findByIdAndUpdate(
-			id,
-			{ title: capitalizedTitle },
-			{ new: true },
-		);
+		const brandToUpdate = await Brand.findByIdAndUpdate(id, { title: capitalizedTitle }, { new: true });
 
 		if (!brandToUpdate) {
 			// Return a 404 with not found message
-			return res
-				.status(404)
-				.json({ success: false, message: "Brand Not Found" });
+			return res.status(404).json({ success: false, message: "Brand Not Found" });
 		}
 
 		// Return a success response
@@ -82,15 +76,11 @@ const adminDeleteBrand = async (req, res, next) => {
 
 		if (!brandToDelete) {
 			// Return a 404 with not found message
-			return res
-				.status(404)
-				.json({ success: false, message: "Brand Not Found" });
+			return res.status(404).json({ success: false, message: "Brand Not Found" });
 		}
 
 		// Return a success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Brand Deleted Successfully" });
+		return res.status(200).json({ success: true, message: "Brand Deleted Successfully" });
 	} catch (error) {
 		next(error);
 	}
@@ -109,9 +99,7 @@ const getAllBrands = async (_req, res, next) => {
 
 		if (!allBrands) {
 			// Return a 200 code with empty array
-			return res
-				.status(200)
-				.json({ success: true, message: "No Brands Found.", details: [] });
+			return res.status(200).json({ success: true, message: "No Brands Found.", details: [] });
 		}
 
 		// Return a success response
@@ -136,9 +124,7 @@ const viewOneBrand = async (req, res, next) => {
 
 		if (!brand) {
 			// Return 404
-			return res
-				.status(404)
-				.json({ success: false, message: "Brand Not Found" });
+			return res.status(404).json({ success: false, message: "Brand Not Found" });
 		}
 
 		// Return a success response
@@ -154,10 +140,4 @@ const viewOneBrand = async (req, res, next) => {
 
 // ==========================================================END ANY-USER BRAND RELATED ACTIONS==============================
 
-export {
-	adminCreateBrand,
-	adminModifyBrand,
-	adminDeleteBrand,
-	getAllBrands,
-	viewOneBrand,
-};
+export { adminCreateBrand, adminModifyBrand, adminDeleteBrand, getAllBrands, viewOneBrand };

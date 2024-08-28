@@ -17,9 +17,7 @@ const subscibeToNewsletter = async (req, res, next) => {
 
 		if (existingSubscriber) {
 			// Return a success
-			return res
-				.status(409)
-				.json({ success: false, message: "Already subscribed to Newsletter." });
+			return res.status(409).json({ success: false, message: "Already subscribed to Newsletter." });
 		}
 
 		const newSubsriber = new Newsletter({

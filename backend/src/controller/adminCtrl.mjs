@@ -12,9 +12,7 @@ const adminGetUserDetails = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Return success response
@@ -38,9 +36,7 @@ const adminGetAllUsers = async (_req, res, next) => {
 
 		if (!allUsers) {
 			// Return success with empty array
-			return res
-				.status(200)
-				.json({ success: true, message: "No users available.", users: [] });
+			return res.status(200).json({ success: true, message: "No users available.", users: [] });
 		}
 		// Return success response
 		return res.status(200).json({
@@ -60,23 +56,15 @@ const adminSuspendAccount = async (req, res, next) => {
 	const { id } = req.params;
 	try {
 		// Find and update user.active field
-		const user = await User.findByIdAndUpdate(
-			id,
-			{ active: false },
-			{ new: true },
-		);
+		const user = await User.findByIdAndUpdate(id, { active: false }, { new: true });
 
 		if (!user) {
 			// Return 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Return success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Account successfully suspended." });
+		return res.status(200).json({ success: true, message: "Account successfully suspended." });
 	} catch (error) {
 		next(error);
 	}
@@ -89,23 +77,15 @@ const adminRecoverAccount = async (req, res, next) => {
 	const { id } = req.params;
 	try {
 		// Find and update user.active field
-		const user = await User.findByIdAndUpdate(
-			id,
-			{ active: true },
-			{ new: true },
-		);
+		const user = await User.findByIdAndUpdate(id, { active: true }, { new: true });
 
 		if (!user) {
 			// Return 404 response
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Return success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Account successfully recovered." });
+		return res.status(200).json({ success: true, message: "Account successfully recovered." });
 	} catch (error) {
 		next(error);
 	}
@@ -123,24 +103,14 @@ const adminDeleteAccount = async (req, res, next) => {
 
 		if (!user) {
 			// Return 404 if user is Not found
-			return res
-				.status(404)
-				.json({ success: false, message: "User not found." });
+			return res.status(404).json({ success: false, message: "User not found." });
 		}
 
 		// Return success response
-		return res
-			.status(200)
-			.json({ success: true, message: "Account successfully deleted." });
+		return res.status(200).json({ success: true, message: "Account successfully deleted." });
 	} catch (error) {
 		next(error);
 	}
 };
 
-export {
-	adminGetUserDetails,
-	adminGetAllUsers,
-	adminSuspendAccount,
-	adminRecoverAccount,
-	adminDeleteAccount,
-};
+export { adminGetUserDetails, adminGetAllUsers, adminSuspendAccount, adminRecoverAccount, adminDeleteAccount };

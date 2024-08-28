@@ -3,17 +3,13 @@ import isInteger from "../utils/isInteger.mjs";
 
 // Middleware for validating if required body fields are present
 const checkRequiredFields = (requiredFields) => (req, res, next) => {
-	try {
-		// Check if all required fields are present in req.body
-		for (const field of requiredFields) {
-			if (!req.body[field]) {
-				throw new Error(`Missing required field: ${field}`);
-			}
+	// Check if all required fields are present in req.body
+	for (const field of requiredFields) {
+		if (!req.body[field]) {
+			return res.status(400).json({ success: false, message: `Missing required field: ${field}` });
 		}
-		next(); // Proceed to the next middleware or route handler
-	} catch (error) {
-		return res.status(400).json({ success: false, message: error.message });
 	}
+	next(); // Proceed to the next middleware or route handler
 };
 
 // Middleware for validating if firstname, lastname and password are of required length
@@ -40,9 +36,7 @@ const validateProductID = (req, res, next) => {
 	const isValid = mongoose.Types.ObjectId.isValid(productID);
 	// Invalid id
 	if (!isValid) {
-		return res
-			.status(400)
-			.json({ success: false, message: "Invalid ID parameter." });
+		return res.status(400).json({ success: false, message: "Invalid ID parameter." });
 	}
 
 	next();
@@ -89,18 +83,10 @@ const validateIntegerFields = (req, res, next) => {
 	const { quantity, price } = req.body;
 
 	if (!isInteger(quantity) || !isInteger(price)) {
-		return res
-			.status(400)
-			.json({ success: false, message: "Quantity and price must be integers" });
+		return res.status(400).json({ success: false, message: "Quantity and price must be integers" });
 	}
 
 	next();
 };
 
-export {
-	checkFieldLength,
-	checkRequiredFields,
-	validateProductID,
-	validateRatingDetails,
-	validateIntegerFields,
-};
+export { checkFieldLength, checkRequiredFields, validateProductID, validateRatingDetails, validateIntegerFields };
