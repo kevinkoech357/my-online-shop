@@ -206,9 +206,12 @@ const cancelMyOrder = async (req, res, next) => {
 			});
 		}
 
-		// Update order status to Cancelled
-		order.orderStatus = "Cancelled";
-		await order.save();
+		// Update the order status to Cancelled
+		await Order.findByIdAndUpdate(
+			orderId,
+			{ $set: { orderStatus: "Cancelled" } },
+			{ new: true }, // Return the updated document
+		);
 
 		// Restore product stock
 		const bulkOps = order.products.map((item) => ({
@@ -225,6 +228,8 @@ const cancelMyOrder = async (req, res, next) => {
 			order: order,
 		});
 	} catch (error) {
+		console.error("Error in cancelMyOrder:", error);
+
 		next(error);
 	}
 };
@@ -267,7 +272,7 @@ const allOrders = async (req, res, next) => {
 // to view details of any specific order based on its ID
 const adminViewOneOrder = async (req, res, next) => {
 	// Get order id from params
-	const { orderId } = req.params;
+	const { id: orderId } = req.params;
 
 	try {
 		// Find the order and populate necessary fields
@@ -300,7 +305,7 @@ const adminViewOneOrder = async (req, res, next) => {
 
 const updateOrderStatus = async (req, res, next) => {
 	// Get order id from params
-	const { orderId } = req.params;
+	const { id: orderId } = req.params;
 	// Get new status from body
 	const { newStatus } = req.body;
 
