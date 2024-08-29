@@ -223,76 +223,51 @@ const viewOneProduct = async (req, res, next) => {
 // Function to get all products (accessible by any user)
 const getAllProducts = async (req, res, next) => {
 	try {
-		// Check if req.query is null or empty
-		if (!req.query || Object.keys(req.query).length === 0) {
-			// If no query parameters provided, return all products
-			const allProducts = await Product.find();
-
-			if (allProducts.length === 0) {
-				return res.status(200).json({ success: true, message: "No products available" });
+		// Helper function to build the query object
+		const buildQuery = (params) => {
+			const query = {};
+			if (params.name) query.name = new RegExp(params.name, "i");
+			if (params.brand) query.brand = new RegExp(params.brand, "i");
+			if (params.category) query.category = new RegExp(params.category, "i");
+			if (params.minPrice || params.maxPrice) {
+				query.price = {};
+				if (params.minPrice) query.price.$gte = Number(params.minPrice);
+				if (params.maxPrice) query.price.$lte = Number(params.maxPrice);
 			}
-
-			// Send success response with all products
-			return res.status(200).json({
-				success: true,
-				message: "All products successfully retrieved.",
-				products: allProducts,
-			});
-		}
-
-		// Get query parameters
-		const { page = 1, limit = 10, sortBy = "createdAt", order = "asc", name, brand, category, minPrice, maxPrice } = req.query;
-
-		// Build query options
-		const options = {
-			page: Number.parseInt(page, 10),
-			limit: Number.parseInt(limit, 10),
-			sort: {
-				[sortBy]: order === "asc" ? 1 : -1,
-			},
+			return query;
 		};
 
-		// Filter products based on query parameters
-		const query = {};
+		// Helper function to handle pagination and sorting
+		const getPaginationOptions = (params) => ({
+			page: Number(params.page) || 1,
+			limit: Number(params.limit) || 10,
+			sort: {
+				[params.sortBy || "createdAt"]: params.order === "desc" ? -1 : 1,
+			},
+		});
 
-		if (name) {
-			query.name = new RegExp(name, "i");
-		}
+		// Build query and options
+		const query = buildQuery(req.query);
+		const options = getPaginationOptions(req.query);
 
-		if (brand) {
-			query.brand = new RegExp(brand, "i");
-		}
+		// Retrieve paginated products and total count
+		const [paginatedProducts, totalProducts] = await Promise.all([Product.paginate(query, options), Product.countDocuments(query)]);
 
-		if (category) {
-			query.category = new RegExp(category, "i");
-		}
-
-		if (minPrice || maxPrice) {
-			query.price = {};
-			if (minPrice) {
-				query.price.$gte = Number.parseFloat(minPrice);
-			}
-			if (maxPrice) {
-				query.price.$lte = Number.parseFloat(maxPrice);
-			}
-		}
-
-		// Retrieve paginated and filtered products
-		const allProducts = await Product.paginate(query, options);
-
-		// Check if products are found
-		if (allProducts.docs.length === 0) {
+		// Respond with products and total count
+		if (paginatedProducts.docs.length === 0) {
 			return res.status(200).json({
 				success: true,
 				message: "No products matching the criteria available.",
+				total: totalProducts,
+				products: [],
 			});
 		}
 
-		// Send success response with filtered products
-		return res.status(200).json({
+		res.status(200).json({
 			success: true,
 			message: "Products successfully retrieved.",
-			products: allProducts,
+			total: totalProducts,
+			products: paginatedProducts.docs,
 		});
 	} catch (error) {
 		next(error);

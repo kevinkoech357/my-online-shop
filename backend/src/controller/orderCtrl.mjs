@@ -15,6 +15,31 @@ const createNewOrder = async (req, res, next) => {
 	const { paymentMethod, deliveryAddress, county, town, deliveryNotes } = req.body;
 
 	try {
+		// Find user
+		const user = await User.findById(_id);
+		// Return 404 if user not found
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User Not Found" });
+		}
+
+		// Find the user's cart
+		const userCart = await Cart.findOne({ user: user._id });
+
+		if (!userCart) {
+			return res.status(404).json({
+				success: false,
+				message: "Cart not found.",
+			});
+		}
+
+		// Check if the cart is empty
+		if (userCart.items.length === 0) {
+			return res.status(400).json({
+				success: false,
+				message: "Cart is empty. Add items to the cart before placing an order.",
+			});
+		}
+
 		// Validate paymentMethod
 		const availablePaymentMethods = ["Cash On Delivery", "M-PESA"];
 		if (!availablePaymentMethods.includes(paymentMethod)) {
@@ -35,23 +60,6 @@ const createNewOrder = async (req, res, next) => {
 			return res.status(400).json({
 				success: false,
 				message: "Delivery is not available to the specified location.",
-			});
-		}
-
-		// Find user
-		const user = await User.findById(_id);
-		// Return 404 if user not found
-		if (!user) {
-			return res.status(404).json({ success: false, message: "User Not Found" });
-		}
-
-		// Find the user's cart
-		const userCart = await Cart.findOne({ user: user._id });
-
-		if (!userCart) {
-			return res.status(404).json({
-				success: false,
-				message: "Cart not found.",
 			});
 		}
 
