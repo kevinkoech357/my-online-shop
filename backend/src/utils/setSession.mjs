@@ -11,8 +11,8 @@ const setSessionOnLogin = async (user, req, res) => {
 		const cookieName = "userSession";
 		const cookieValue = sessionId;
 
-		// Set maxAge to 72 hours
-		const maxAge = 60000 * 60 * 72;
+		// Set maxAge to 14 days
+		const maxAge = 1000 * 60 * 60 * 24 * 14; // 14 days in milliseconds
 
 		// Set session variables
 		req.session.user = {
