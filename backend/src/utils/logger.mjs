@@ -2,6 +2,7 @@ import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLogger, format, transports } from "winston";
 import "winston-daily-rotate-file";
+import config from "../config.mjs";
 import createDirectory from "./createDirectory.mjs";
 
 // Get current file and directory paths
@@ -16,7 +17,7 @@ await createDirectory(logDirPath);
 
 // Configure Winston logger
 const logger = createLogger({
-	level: process.env.LOG_LEVEL || "info",
+	level: config.logLevel,
 	format: format.combine(
 		format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
 		format.errors({ stack: true }), // Include stack traces for errors
@@ -38,7 +39,7 @@ const logger = createLogger({
 });
 
 // If NOT in production then log to the `console` with the format:
-if (process.env.NODE_ENV !== "production") {
+if (config.nodeEnv !== "production") {
 	logger.add(
 		new transports.Console({
 			format: format.combine(format.colorize(), format.simple()),

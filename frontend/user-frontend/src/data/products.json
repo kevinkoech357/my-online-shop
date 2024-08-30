@@ -1,0 +1,103 @@
+[
+	{
+		"id": 1,
+		"name": "Smartphone X",
+		"slug": "smartphone-x",
+		"category": "Smartphones",
+		"price": 799,
+		"image": "/blue-icon.png",
+		"description": "A high-end smartphone with a sleek design and powerful performance.",
+		"numReviews": 120
+	},
+	{
+		"id": 2,
+		"name": "Gaming Laptop",
+		"slug": "gaming-laptop",
+		"category": "Laptops",
+		"price": 1200,
+		"image": "/blue-icon.png",
+		"description": "A top-of-the-line gaming laptop with advanced graphics and fast processing.",
+		"numReviews": 95
+	},
+	{
+		"id": 3,
+		"name": "Wireless Earbuds",
+		"slug": "wireless-earbuds",
+		"category": "Accessories",
+		"price": 129,
+		"image": "/blue-icon.png",
+		"description": "Compact and wireless earbuds with excellent sound quality and noise cancellation.",
+		"numReviews": 80,
+		"rating": 4.5
+	},
+	{
+		"id": 4,
+		"name": "4K Ultra HD TV",
+		"slug": "4k-ultra-hd-tv",
+		"category": "Electronics",
+		"price": 499,
+		"image": "/blue-icon.png",
+		"description": "A stunning 4K Ultra HD TV with vivid colors and crisp details.",
+		"numReviews": 150
+	},
+	{
+		"id": 5,
+		"name": "Bluetooth Speaker",
+		"slug": "bluetooth-speaker",
+		"category": "Accessories",
+		"price": 89,
+		"image": "/blue-icon.png",
+		"description": "Portable Bluetooth speaker with high-quality sound and long battery life.",
+		"numReviews": 70
+	},
+	{
+		"id": 6,
+		"name": "Smartwatch Pro",
+		"slug": "smartwatch-pro",
+		"category": "Wearables",
+		"price": 249,
+		"image": "/blue-icon.png",
+		"description": "Smartwatch with advanced health tracking features and stylish design.",
+		"numReviews": 110
+	},
+	{
+		"id": 7,
+		"name": "Digital Camera",
+		"slug": "digital-camera",
+		"category": "Cameras",
+		"price": 899,
+		"image": "/blue-icon.png",
+		"description": "High-resolution digital camera for professional and amateur photographers.",
+		"numReviews": 60
+	},
+	{
+		"id": 8,
+		"name": "Tablet Pro",
+		"slug": "tablet-pro",
+		"category": "Tablets",
+		"price": 499,
+		"image": "/blue-icon.png",
+		"description": "Versatile tablet with a high-resolution display and powerful performance.",
+		"numReviews": 85
+	},
+	{
+		"id": 9,
+		"name": "Home Robot Vacuum",
+		"slug": "home-robot-vacuum",
+		"category": "Home Appliances",
+		"price": 349,
+		"image": "/blue-icon.png",
+		"description": "Smart robot vacuum with advanced navigation and cleaning capabilities.",
+		"numReviews": 45
+	},
+	{
+		"id": 10,
+		"name": "Gaming Console",
+		"slug": "gaming-console",
+		"category": "Gaming",
+		"price": 399,
+		"image": "/blue-icon.png",
+		"description": "Latest gaming console with an extensive library of games and high-performance specs.",
+		"numReviews": 130
+	}
+]

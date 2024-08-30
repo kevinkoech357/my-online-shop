@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import config from "../config.mjs";
 
 const connectToMongoDB = async () => {
-	const dbURL = process.env.MONGO_URL;
+	const dbURL = config.mongoDbUrl;
 
 	if (!dbURL) {
 		console.log("No DB_URL ENV VAR Set!!");

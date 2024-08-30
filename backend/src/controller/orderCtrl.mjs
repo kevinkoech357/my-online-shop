@@ -15,6 +15,31 @@ const createNewOrder = async (req, res, next) => {
 	const { paymentMethod, deliveryAddress, county, town, deliveryNotes } = req.body;
 
 	try {
+		// Find user
+		const user = await User.findById(_id);
+		// Return 404 if user not found
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User Not Found" });
+		}
+
+		// Find the user's cart
+		const userCart = await Cart.findOne({ user: user._id });
+
+		if (!userCart) {
+			return res.status(404).json({
+				success: false,
+				message: "Cart not found.",
+			});
+		}
+
+		// Check if the cart is empty
+		if (userCart.items.length === 0) {
+			return res.status(400).json({
+				success: false,
+				message: "Cart is empty. Add items to the cart before placing an order.",
+			});
+		}
+
 		// Validate paymentMethod
 		const availablePaymentMethods = ["Cash On Delivery", "M-PESA"];
 		if (!availablePaymentMethods.includes(paymentMethod)) {
@@ -35,23 +60,6 @@ const createNewOrder = async (req, res, next) => {
 			return res.status(400).json({
 				success: false,
 				message: "Delivery is not available to the specified location.",
-			});
-		}
-
-		// Find user
-		const user = await User.findById(_id);
-		// Return 404 if user not found
-		if (!user) {
-			return res.status(404).json({ success: false, message: "User Not Found" });
-		}
-
-		// Find the user's cart
-		const userCart = await Cart.findOne({ user: user._id });
-
-		if (!userCart) {
-			return res.status(404).json({
-				success: false,
-				message: "Cart not found.",
 			});
 		}
 
@@ -198,9 +206,12 @@ const cancelMyOrder = async (req, res, next) => {
 			});
 		}
 
-		// Update order status to Cancelled
-		order.orderStatus = "Cancelled";
-		await order.save();
+		// Update the order status to Cancelled
+		await Order.findByIdAndUpdate(
+			orderId,
+			{ $set: { orderStatus: "Cancelled" } },
+			{ new: true }, // Return the updated document
+		);
 
 		// Restore product stock
 		const bulkOps = order.products.map((item) => ({
@@ -217,6 +228,8 @@ const cancelMyOrder = async (req, res, next) => {
 			order: order,
 		});
 	} catch (error) {
+		console.error("Error in cancelMyOrder:", error);
+
 		next(error);
 	}
 };
@@ -259,7 +272,7 @@ const allOrders = async (req, res, next) => {
 // to view details of any specific order based on its ID
 const adminViewOneOrder = async (req, res, next) => {
 	// Get order id from params
-	const { orderId } = req.params;
+	const { id: orderId } = req.params;
 
 	try {
 		// Find the order and populate necessary fields
@@ -292,7 +305,7 @@ const adminViewOneOrder = async (req, res, next) => {
 
 const updateOrderStatus = async (req, res, next) => {
 	// Get order id from params
-	const { orderId } = req.params;
+	const { id: orderId } = req.params;
 	// Get new status from body
 	const { newStatus } = req.body;
 

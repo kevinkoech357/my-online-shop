@@ -1,31 +1,36 @@
 import Newsletter from "../models/newsletterModel.mjs";
 import validateEmail from "../utils/validateEmail.mjs";
 
-// Define a subscibeToNewsletter function that will allows users
+// Define a subscribeToNewsletter function that will allow users
 // to subscribe to Weekly or Monthly newsletters
 
-const subscibeToNewsletter = async (req, res, next) => {
+const subscribeToNewsletter = async (req, res, next) => {
 	// Get email from body
 	const { email } = req.body;
 
 	try {
 		// Validate Email
-		await validateEmail(email, res);
+		if (!validateEmail(email)) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid email format",
+			});
+		}
 
 		// Check if email is already subscribed
 		const existingSubscriber = await Newsletter.findOne({ email });
 
 		if (existingSubscriber) {
-			// Return a success
+			// Return a conflict status
 			return res.status(409).json({ success: false, message: "Already subscribed to Newsletter." });
 		}
 
-		const newSubsriber = new Newsletter({
+		const newSubscriber = new Newsletter({
 			email,
 		});
 
 		// Save the new subscriber
-		await newSubsriber.save();
+		await newSubscriber.save();
 
 		return res.status(201).json({
 			success: true,
@@ -42,16 +47,21 @@ const unsubscribeFromNewsletter = async (req, res, next) => {
 
 	try {
 		// Validate Email
-		await validateEmail(email, res);
+		if (!validateEmail(email)) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid email format",
+			});
+		}
 
 		// Find and delete email
-		const emailToUnsubscribe = await Newsletter.deleteOne({ email });
+		const result = await Newsletter.deleteOne({ email });
 
 		// Return 404 if email not found
-		if (!emailToUnsubscribe) {
+		if (result.deletedCount === 0) {
 			return res.status(404).json({
 				success: false,
-				message: "Email Not Subscribed to Newsletter.",
+				message: "Email not subscribed to Newsletter.",
 			});
 		}
 
@@ -65,4 +75,4 @@ const unsubscribeFromNewsletter = async (req, res, next) => {
 	}
 };
 
-export { subscibeToNewsletter, unsubscribeFromNewsletter };
+export { subscribeToNewsletter, unsubscribeFromNewsletter };

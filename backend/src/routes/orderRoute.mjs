@@ -12,9 +12,9 @@ const orderRouter = express.Router();
 const newOrderField = ["paymentMethod", "deliveryAddress", "county", "town", "deliveryNotes"];
 
 // Authenticated user routes
-orderRouter.post("/create", checkRequiredFields(newOrderField), isAuthenticated, createNewOrder);
+orderRouter.post("/", checkRequiredFields(newOrderField), isAuthenticated, createNewOrder);
 orderRouter.get("/", isAuthenticated, myOrders);
 orderRouter.get("/:id", isAuthenticated, validateMongoID, viewOneOrder);
-orderRouter.patch("/cancel/:id", isAuthenticated, validateMongoID, cancelMyOrder);
+orderRouter.patch("/:id", isAuthenticated, validateMongoID, cancelMyOrder);
 
 export default orderRouter;

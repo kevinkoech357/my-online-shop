@@ -80,11 +80,32 @@ const validateRatingDetails = (req, res, next) => {
 
 // Middleware to validate if quantity and price are integers
 const validateIntegerFields = (req, res, next) => {
+	console.log("Request body:", req.body);
 	const { quantity, price } = req.body;
 
-	if (!isInteger(quantity) || !isInteger(price)) {
-		return res.status(400).json({ success: false, message: "Quantity and price must be integers" });
+	console.log("Quantity:", quantity, "Type:", typeof quantity);
+	console.log("Price:", price, "Type:", typeof price);
+
+	// Convert to numbers
+	const quantityNum = Number(quantity);
+	const priceNum = Number(price);
+
+	console.log("Quantity as number:", quantityNum, "Is integer:", Number.isInteger(quantityNum));
+	console.log("Price as number:", priceNum, "Is integer:", Number.isInteger(priceNum));
+
+	if (Number.isNaN(quantityNum) || Number.isNaN(priceNum) || !Number.isInteger(quantityNum) || !Number.isInteger(priceNum)) {
+		return res.status(400).json({
+			success: false,
+			message: "Quantity and price must be integers",
+			details: {
+				quantity: { value: quantity, parsed: quantityNum },
+				price: { value: price, parsed: priceNum },
+			},
+		});
 	}
+
+	req.body.quantity = quantityNum;
+	req.body.price = priceNum;
 
 	next();
 };

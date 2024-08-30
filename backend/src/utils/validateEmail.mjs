@@ -1,13 +1,8 @@
 // Check if email is in valid format
 
-const validateEmail = async (email, res) => {
+const validateEmail = (email) => {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	if (!emailRegex.test(email)) {
-		return res.status(400).json({
-			success: false,
-			message: "Invalid email format",
-		});
-	}
+	return emailRegex.test(email);
 };
 
 export default validateEmail;

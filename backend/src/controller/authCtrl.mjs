@@ -15,10 +15,20 @@ const registerUser = async (req, res, next) => {
 		// Extracting user data from the request body
 		const { email, password, firstname, lastname, phone } = req.body;
 		// Validation for email format
-		await validateEmail(email);
+		if (!validateEmail(email)) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid email format",
+			});
+		}
 
 		// Validation for phone format
-		await validatePhone(phone);
+		if (!validatePhone(phone)) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid phone number format",
+			});
+		}
 
 		// Find user using email which must be unique for all users
 		const existingEmail = await User.findOne({ email });
@@ -131,7 +141,7 @@ const loginUser = async (req, res, next) => {
 		return res.status(200).json({
 			success: true,
 			message: `Welcome back ${user.firstname} ${user.lastname}`,
-			details: req.session.user,
+			details: user,
 		});
 	} catch (error) {
 		next(error);

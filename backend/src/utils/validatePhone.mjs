@@ -1,13 +1,11 @@
 // Check if phone is in valid format
 
-const validatePhone = async (phone, res) => {
+const validatePhone = (phone) => {
 	// Validation for phone format
-	if (!/^\d+$/.test(phone)) {
-		return res.status(400).json({
-			success: false,
-			message: "Invalid phone number format",
-		});
+	if (/^\d+$/.test(phone)) {
+		return true; // Phone is valid
 	}
+	return false; // Phone is invalid
 };
 
 export default validatePhone;

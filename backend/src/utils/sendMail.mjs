@@ -1,18 +1,13 @@
-import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-
-dotenv.config();
-
-// Retrieve MAIL_SERVER, MAIL_USERNAME, and MAIL_PASSWORD from environment variables
-const { MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD } = process.env;
+import config from "../config.mjs";
 
 // Create transporter for sending emails
 const transporter = nodemailer.createTransport({
-	host: MAIL_SERVER,
+	host: config.mail.server,
 	port: 587,
 	auth: {
-		user: MAIL_USERNAME,
-		pass: MAIL_PASSWORD,
+		user: config.mail.username,
+		pass: config.mail.password,
 	},
 });
 

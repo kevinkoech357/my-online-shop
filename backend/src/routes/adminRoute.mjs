@@ -38,7 +38,7 @@ adminRouter.post("/users/recover/:id", validateMongoID, isAuthenticated, isAdmin
 adminRouter.delete("/users/delete/:id", validateMongoID, isAuthenticated, isAdmin, adminDeleteAccount);
 
 // Routes for performing Product related actions
-adminRouter.post("/products/create", checkRequiredFields(productFields), validateIntegerFields, isAuthenticated, isAdmin, adminCreateProduct);
+adminRouter.post("/products/create", validateIntegerFields, isAuthenticated, isAdmin, adminCreateProduct);
 adminRouter.put(
 	"/products/upload/:id/images",
 	validateMongoID,
@@ -98,8 +98,8 @@ adminRouter.patch("/location/update/:id", validateMongoID, isAuthenticated, isAd
 adminRouter.delete("/location/delete/:id", validateMongoID, isAuthenticated, isAdmin, adminDeleteLocation);
 
 // Routes for perfroming Order related actions
-adminRouter.get("/orders/all", isAuthenticated, isAdmin, allOrders);
-adminRouter.get("/order/:id", isAuthenticated, isAdmin, validateMongoID, adminViewOneOrder);
-adminRouter.patch("/order/update/:id", isAuthenticated, isAdmin, validateMongoID, checkRequiredFields(updateOrderStatusField), updateOrderStatus);
+adminRouter.get("/orders", isAuthenticated, isAdmin, allOrders);
+adminRouter.get("/orders/:id", isAuthenticated, isAdmin, validateMongoID, adminViewOneOrder);
+adminRouter.put("/orders/:id", isAuthenticated, isAdmin, validateMongoID, checkRequiredFields(updateOrderStatusField), updateOrderStatus);
 
 export default adminRouter;
