@@ -140,7 +140,7 @@ components:
             type: object
             properties:
               product:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductDetails'
               quantity:
                 type: integer
         paymentIntent:
@@ -159,7 +159,7 @@ components:
             currency:
               type: string
         orderedBy:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/UserDetails'
         orderStatus:
           type: string
         deliveryLocation:
@@ -173,29 +173,6 @@ components:
               type: string
             notes:
               type: string
-    Product:
-      type: object
-      properties:
-        name:
-          type: string
-        price:
-          type: number
-        images:
-          type: array
-          items:
-            type: string
-        quantity:
-          type: integer
-    User:
-      type: object
-      properties:
-        name:
-          type: string
-        email:
-          type: string
-        phone:
-          type: string
-
 
 paths:
   /auth/register:
@@ -2425,13 +2402,11 @@ paths:
         '404':
           description: Order not found or does not belong to the user.
 
-    delete:
+    patch:
       tags:
         - User Order Actions
       summary: Cancel an order
       description: Allows users to cancel an order based on its status.
-      tags:
-        - Orders
       parameters:
         - name: id
           in: path
