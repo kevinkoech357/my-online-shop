@@ -31,7 +31,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(helmet()); // Set security HTTP headers
 
-const allowedOrigins = ['https://localhost:7000', 'http://localhost:7000', 'http://165.22.213.236:7000', 'https://myonlineshop-backend.kevinkoech.tech'];
+const allowedOrigins = ['https://localhost:5173', 'http://localhost:5173', 'http://165.22.213.236:7000', 'https://myonlineshop-backend.kevinkoech.tech'];
 
 app.use(
     cors({
