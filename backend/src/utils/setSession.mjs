@@ -7,13 +7,6 @@ const setSessionOnLogin = async (user, req, res) => {
 		const buffer = await randomBytesAsync(16);
 		const sessionId = buffer.toString("hex");
 
-		// Set the cookie
-		const cookieName = "userSession";
-		const cookieValue = sessionId;
-
-		// Set maxAge to 14 days
-		const maxAge = 1000 * 60 * 60 * 24 * 14; // 14 days in milliseconds
-
 		// Set session variables
 		req.session.user = {
 			_id: user._id,
@@ -24,9 +17,23 @@ const setSessionOnLogin = async (user, req, res) => {
 		};
 
 		// Set the session cookie
-		res.cookie(cookieName, cookieValue, { maxAge, signed: true });
+		const cookieName = "userSession";
+		const cookieValue = sessionId;
+
+		const maxAge = 1000 * 60 * 60 * 24 * 14; // 14 days
+		return res.cookie(cookieName, cookieValue, {
+			maxAge,
+			signed: true,
+			secure: false,
+			httpOnly: true,
+			sameSite: "lax",
+		});
 	} catch (error) {
 		console.error("Error setting session during login:", error);
+		return res.status(500).json({
+			success: false,
+			message: "Internal server error setting session.",
+		});
 	}
 };
 

@@ -1,6 +1,6 @@
 import express from "express";
 import { regenerateOTP, verifyOTP } from "../controller/OTPCtrl.mjs";
-import { loginUser, logoutUser, registerUser } from "../controller/authCtrl.mjs";
+import { checkAuth, loginUser, logoutUser, registerUser } from "../controller/authCtrl.mjs";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkFieldLength, checkRequiredFields } from "../middlewares/validateBody.mjs";
 

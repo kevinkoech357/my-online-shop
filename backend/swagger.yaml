@@ -279,7 +279,7 @@ paths:
               required:
                 - email
                 - otp
-              properties: 
+              properties:
                 email:
                   type: string
                   format: email
@@ -335,7 +335,7 @@ paths:
               required:
                 - email
                 - password
-              properties: 
+              properties:
                 email:
                   type: string
                   format: email
@@ -409,7 +409,7 @@ paths:
               required:
                 - email
                 - otp
-              properties: 
+              properties:
                 email:
                   type: string
                   format: email
@@ -531,7 +531,7 @@ paths:
                 previousPassword:
                   type: string
                   minLength: 8
-                password: 
+                password:
                   type: string
                   minLength: 8
       responses:
@@ -549,7 +549,7 @@ paths:
           description: User not found. The specified user ID does not exist.
         '500':
           description: Internal server error.
-      
+
   /user/change-email:
     put:
       tags:
@@ -564,7 +564,7 @@ paths:
               type: object
               required:
                 - email
-              properties: 
+              properties:
                 email:
                   type: string
                   format: email
@@ -584,7 +584,7 @@ paths:
           description: User not found. The specified user ID does not exist.
         '500':
           description: Internal server error.
-      
+
   /user/save-address:
     patch:
       tags:
@@ -601,7 +601,7 @@ paths:
                 - type
                 - county
                 - town
-              properties: 
+              properties:
                 type:
                   type: string
                   enum: [primary, secondary]
@@ -750,7 +750,7 @@ paths:
         '404':
           description: User not found. The specified user ID does not exist.
         '500':
-          description: Internal server error.      
+          description: Internal server error.
 
   /admin/users/suspend/{id}:
     post:
@@ -883,7 +883,7 @@ paths:
                   type: string
                 category:
                   type: string
-                brand: 
+                brand:
                   type: string
                 color:
                   type: string
@@ -948,14 +948,14 @@ paths:
                   type: string
                 category:
                   type: string
-                brand: 
+                brand:
                   type: string
                 color:
                   type: string
                 price:
                   type: number
                 quantity:
-                  type: number  
+                  type: number
       responses:
         '200':
           description: Product details updated successfully.
@@ -971,7 +971,7 @@ paths:
           description: Product not Found.
         '500':
           description: Internal server error.
-    
+
   /admin/products/upload/{id}/images:
     put:
       tags:
@@ -1130,7 +1130,7 @@ paths:
       tags:
         - Product Actions
       summary: Get all products
-      description: | 
+      description: |
         Allows any user to retrieve all products.
         Supports filtering by name, brand, category, and price range.
         If no query parameters are provided, all products available will be returned.
@@ -1189,7 +1189,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductDetails'
         '500':
-          description: Internal server error. 
+          description: Internal server error.
 
 
   /products/wishlist:
@@ -1236,7 +1236,7 @@ paths:
           required: true
           description: ID of the product to rate.
           schema:
-            type: string     
+            type: string
       requestBody:
         required: true
         content:
@@ -1279,7 +1279,7 @@ paths:
           required: true
           description: ID of the product retrieve ratings for.
           schema:
-            type: string     
+            type: string
       responses:
         '200':
           description: Product ratings retrieved successfully.
@@ -1549,7 +1549,7 @@ paths:
                 content:
                   type: string
                 category:
-                  type: string 
+                  type: string
       responses:
         '200':
           description: Blog post edited successfully.
@@ -1565,7 +1565,7 @@ paths:
           description: Blog post not Found.
         '500':
           description: Internal server error.
-    
+
   /admin/blog/upload/{id}/images:
     put:
       tags:
@@ -1725,7 +1725,7 @@ paths:
       tags:
         - Blog Actions
       summary: Get all blog posts.
-      description: | 
+      description: |
         Allows any user to retrieve all blog posts.
       responses:
         '200':
@@ -1807,7 +1807,7 @@ paths:
           description: Product Category not Found.
         '500':
           description: Internal server error.
-    
+
 
   /admin/product/category/delete/{id}:
     delete:
@@ -1871,7 +1871,7 @@ paths:
       tags:
         - Product Category Actions
       summary: Get all Product Categories.
-      description: | 
+      description: |
         Allows any user to retrieve all Product Categories.
       responses:
         '200':
@@ -1953,7 +1953,7 @@ paths:
           description: Brand not Found.
         '500':
           description: Internal server error.
-    
+
 
   /admin/brand/delete/{id}:
     delete:
@@ -2017,7 +2017,7 @@ paths:
       tags:
         - Brand Actions
       summary: Get all Brands.
-      description: | 
+      description: |
         Allows any user to retrieve all Brands.
       responses:
         '200':
@@ -2111,7 +2111,7 @@ paths:
           description: Location not Found.
         '500':
           description: Internal server error.
-    
+
 
   /admin/location/delete/{id}:
     delete:
@@ -2175,7 +2175,7 @@ paths:
       tags:
         - Location Actions
       summary: Get all Locations.
-      description: | 
+      description: |
         Allows any user to retrieve all Locations.
       responses:
         '200':
@@ -2200,7 +2200,7 @@ paths:
               type: object
               required:
                 - email
-              properties: 
+              properties:
                 email:
                   type: string
                   format: email
@@ -2254,7 +2254,7 @@ paths:
               type: object
               required:
                 - email
-              properties: 
+              properties:
                 email:
                   type: string
                   format: email
