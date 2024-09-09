@@ -174,4 +174,4 @@ const logoutUser = async (req, res, next) => {
 	}
 };
 
-export { registerUser, loginUser, logoutUser, checkAuth };
+export { registerUser, loginUser, logoutUser };

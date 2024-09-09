@@ -31,11 +31,22 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(helmet()); // Set security HTTP headers
 
+const allowedOrigins = ['https://localhost:7000', 'http://localhost:7000', 'http://165.22.213.236:7000', 'https://myonlineshop-backend.kevinkoech.tech'];
+
 app.use(
-	cors({
-		credentials: true, // Allow cookies to be sent with the request
-	}),
+    cors({
+        origin: function (origin, callback) {
+            // Check if the request origin is in the allowedOrigins array
+            if (allowedOrigins.includes(origin) || !origin) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true, // Allow cookies to be sent with the request
+    }),
 );
+
 
 app.use(morgan("dev")); // HTTP request logger
 app.use(compression()); // Compress response bodies
