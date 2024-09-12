@@ -10,7 +10,7 @@ const subscribeToNewsletter = async (req, res, next) => {
 
 	try {
 		// Validate Email
-		if (!validateEmail(email)) {
+		if (!email || !validateEmail(email)) {
 			return res.status(400).json({
 				success: false,
 				message: "Invalid email format",
