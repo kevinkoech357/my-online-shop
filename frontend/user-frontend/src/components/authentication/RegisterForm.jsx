@@ -15,21 +15,25 @@ import {
 	Stack,
 	Text,
 	useColorModeValue,
+	useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
+import { registerUserService } from "../../services/authService";
 
 const RegisterCard = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [formData, setFormData] = useState({
-		firstName: "",
-		lastName: "",
+		firstname: "",
+		lastname: "",
 		email: "",
 		phone: "",
 		password: "",
 	});
 	const [errors, setErrors] = useState({});
+	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
+	const toast = useToast();
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -37,7 +41,6 @@ const RegisterCard = () => {
 			...prevData,
 			[name]: value,
 		}));
-		// Clear the error for this field when the user starts typing
 		if (errors[name]) {
 			setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
 		}
@@ -45,8 +48,9 @@ const RegisterCard = () => {
 
 	const validateForm = () => {
 		const newErrors = {};
-		if (!formData.firstName.trim())
-			newErrors.firstName = "First name is required";
+		if (!formData.firstname.trim())
+			newErrors.firstname = "First name is required";
+		if (!formData.lastname.trim()) newErrors.lastname = "Last name is required";
 		if (!formData.email.trim()) newErrors.email = "Email is required";
 		if (!/\S+@\S+\.\S+/.test(formData.email))
 			newErrors.email = "Email is invalid";
@@ -60,13 +64,36 @@ const RegisterCard = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		if (validateForm()) {
-			console.log("Form submitted:", formData);
-			// Here you would typically send the data to your backend
-			// For now, let's simulate a successful registration by navigating to the login page
-			navigate("/auth/login");
+			setIsLoading(true);
+			try {
+				// Send a POST method to /auth/register using formData
+				const response = await registerUserService(formData);
+				toast({
+					title: "Registration successful",
+					description:
+						response.message || "Please check your email for verification.",
+					status: "success",
+					duration: 5000,
+					isClosable: true,
+					position: "top-right",
+				});
+				navigate("/auth/verify-email", { state: { email: formData.email } });
+			} catch (error) {
+				toast({
+					title: "Registration failed",
+					description:
+						error.message || "An error occurred during registration.",
+					status: "error",
+					duration: 5000,
+					isClosable: true,
+					position: "top-right",
+				});
+			} finally {
+				setIsLoading(false);
+			}
 		}
 	};
 
@@ -96,27 +123,31 @@ const RegisterCard = () => {
 						<HStack>
 							<Box>
 								<FormControl
-									id="firstName"
+									id="firstname"
 									isRequired
-									isInvalid={errors.firstName}
+									isInvalid={errors.firstname}
 								>
 									<FormLabel>First Name</FormLabel>
 									<Input
 										type="text"
-										name="firstName"
-										value={formData.firstName}
+										name="firstname"
+										value={formData.firstname}
 										onChange={handleChange}
 									/>
-									<FormErrorMessage>{errors.firstName}</FormErrorMessage>
+									<FormErrorMessage>{errors.firstname}</FormErrorMessage>
 								</FormControl>
 							</Box>
 							<Box>
-								<FormControl id="lastName">
+								<FormControl
+									id="lastname"
+									isRequired
+									isInvalid={errors.lastname}
+								>
 									<FormLabel>Last Name</FormLabel>
 									<Input
 										type="text"
-										name="lastName"
-										value={formData.lastName}
+										name="lastname"
+										value={formData.lastname}
 										onChange={handleChange}
 									/>
 								</FormControl>
@@ -174,6 +205,7 @@ const RegisterCard = () => {
 									bg: "blue.500",
 								}}
 								type="submit"
+								isLoading={isLoading}
 							>
 								Sign up
 							</Button>
