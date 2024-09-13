@@ -4,8 +4,11 @@ import apiClient from "./api-client";
 // Function to register a user
 export const registerUserService = async (userData) => {
 	try {
-		const response = await apiClient.post("/auth/register", userData);
-		return response.data;
+		const response = await apiClient("/auth/register", {
+			method: "POST",
+			body: JSON.stringify(userData),
+		});
+		return response;
 	} catch (error) {
 		handleError(error);
 	}
@@ -14,8 +17,11 @@ export const registerUserService = async (userData) => {
 // Verify OTP
 export const verifyOTPService = async (userData) => {
 	try {
-		const response = await apiClient.post("/auth/verify", userData);
-		return response.data;
+		const response = await apiClient("/auth/verify", {
+			method: "POST",
+			body: JSON.stringify(userData),
+		});
+		return response;
 	} catch (error) {
 		handleError(error);
 	}
@@ -24,8 +30,11 @@ export const verifyOTPService = async (userData) => {
 // Resend OTP
 export const resendOTPService = async (email) => {
 	try {
-		const response = await apiClient.post("/auth/resend", email);
-		return response.data;
+		const response = await apiClient("/auth/resend", {
+			method: "POST",
+			body: JSON.stringify({ email }),
+		});
+		return response;
 	} catch (error) {
 		handleError(error);
 	}
@@ -34,8 +43,11 @@ export const resendOTPService = async (email) => {
 // Login user
 export const loginUserService = async (userCredentials) => {
 	try {
-		const response = await apiClient.post("/auth/login", userCredentials);
-		return response.data;
+		const response = await apiClient("/auth/login", {
+			method: "POST",
+			body: JSON.stringify(userCredentials),
+		});
+		return response;
 	} catch (error) {
 		handleError(error);
 	}
@@ -44,10 +56,10 @@ export const loginUserService = async (userCredentials) => {
 // Logout user
 export const logoutUserService = async () => {
 	try {
-		const response = await apiClient.post("/auth/logout", {
-			withCredentials: true,
+		const response = await apiClient("/auth/logout", {
+			method: "POST",
 		});
-		return response.data;
+		return response;
 	} catch (error) {
 		handleError(error);
 	}
@@ -56,8 +68,10 @@ export const logoutUserService = async () => {
 // Check user login status
 export const checkUserLoginStatus = async () => {
 	try {
-		const response = await apiClient.get("/user", { withCredentials: true });
-		return response.data;
+		const response = await apiClient("/user", {
+			method: "GET",
+		});
+		return response;
 	} catch (error) {
 		handleError(error);
 	}

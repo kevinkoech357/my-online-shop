@@ -7,10 +7,12 @@ export const handleError = (error) => {
 	} else if (error.request) {
 		// No response was received from the server
 		console.error("Network error:", error.message);
-		throw new Error("Network error. Please check your connection.");
+		throw new Error(
+			error.message || "Network error. Please check your connection.",
+		);
 	} else {
 		// Something else went wrong during request setup
 		console.error("Error:", error.message);
-		throw new Error("An unexpected error occurred.");
+		throw new Error(error.message || "An unexpected error occurred.");
 	}
 };
