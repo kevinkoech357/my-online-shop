@@ -2,7 +2,6 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
 	Box,
 	Button,
-	Checkbox,
 	Flex,
 	FormControl,
 	FormLabel,
@@ -16,17 +15,29 @@ import {
 	Text,
 	useColorModeValue,
 } from "@chakra-ui/react";
-import React from "react";
+import { useState } from "react";
+import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const LoginCard = () => {
-	const [showPassword, setShowPassword] = React.useState(false);
-	const [email, setEmail] = React.useState("");
-	const [password, setPassword] = React.useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const { login, isLoading } = useAuth() || {};
+	const navigate = useNavigate();
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		// Handle login logic here
-		console.log("Login attempt with:", { email, password });
+
+		const userCredentials = { email, password };
+
+		try {
+			await login(userCredentials);
+			navigate("/");
+		} catch (error) {
+			// Error handling is managed in the `login` function in AuthContext
+			console.error(error);
+		}
 	};
 
 	return (
@@ -56,6 +67,7 @@ const LoginCard = () => {
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
+								required
 							/>
 						</FormControl>
 						<FormControl id="password" isRequired>
@@ -65,6 +77,7 @@ const LoginCard = () => {
 									type={showPassword ? "text" : "password"}
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
+									required
 								/>
 								<InputRightElement h={"full"}>
 									<IconButton
@@ -72,9 +85,7 @@ const LoginCard = () => {
 											showPassword ? "Hide password" : "Show password"
 										}
 										icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-										onClick={() =>
-											setShowPassword((showPassword) => !showPassword)
-										}
+										onClick={() => setShowPassword((prev) => !prev)}
 										variant={"ghost"}
 									/>
 								</InputRightElement>
@@ -86,18 +97,29 @@ const LoginCard = () => {
 								align={"start"}
 								justify={"space-between"}
 							>
-								<Checkbox>Remember me</Checkbox>
-								<Link color={"blue.400"}>Forgot password?</Link>
+								<Link
+									as={ReactRouterLink}
+									to="/auth/forgot-password"
+									color={"blue.400"}
+								>
+									Forgot password?
+								</Link>
+								<Link
+									as={ReactRouterLink}
+									to="/auth/register"
+									color={"blue.400"}
+								>
+									Create an account
+								</Link>
 							</Stack>
 							<Button
 								bg={"blue.400"}
 								color={"white"}
-								_hover={{
-									bg: "blue.500",
-								}}
+								_hover={{ bg: "blue.500" }}
 								type="submit"
+								isDisabled={isLoading}
 							>
-								Sign in
+								{isLoading ? "Logging in..." : "Login"}
 							</Button>
 						</Stack>
 					</Stack>

@@ -1,5 +1,6 @@
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { Global, css } from "@emotion/react";
+import React from "react";
 import {
 	Route,
 	RouterProvider,
@@ -7,7 +8,7 @@ import {
 	createRoutesFromElements,
 } from "react-router-dom";
 import AuthLayout from "./layouts/AuthLayout";
-import ProductLayout from "./layouts/ProductLayout"; // Import the new ProductLayout
+import ProductLayout from "./layouts/ProductLayout";
 import RootLayout from "./layouts/RootLayout";
 import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
 import LoginPage from "./pages/authentication/LoginPage";
@@ -21,7 +22,7 @@ import ProductsPage from "./pages/products/ProductsPage";
 import theme from "./theme";
 
 const GlobalStyles = css`
-  @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
 `;
 
 const router = createBrowserRouter(
