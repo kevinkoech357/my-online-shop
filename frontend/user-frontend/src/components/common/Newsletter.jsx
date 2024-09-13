@@ -7,7 +7,7 @@ import {
 	Input,
 	Text,
 	useColorModeValue,
-	useToast, // Import useToast
+	useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { subscribeToNewsletter } from "../../services/userService";
@@ -49,13 +49,11 @@ const NewsletterSection = () => {
 				position: "top-right",
 			});
 		} catch (error) {
-			console.error(error);
+			const { message } = error.message;
 			toast({
 				title: "Subscription failed",
-				description:
-					error.message ||
-					"An error occurred while subscribing. Please try again.",
-				status: "error",
+				description: message || "You are already subscribed to our newsletter.",
+				status: "info",
 				duration: 5000,
 				isClosable: true,
 				position: "top-right",
