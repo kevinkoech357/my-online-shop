@@ -15,11 +15,11 @@ import {
 	Stack,
 	Text,
 	useColorModeValue,
-	useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
 import { registerUserService } from "../../services/authService";
+import { useCustomToast } from "../../utils/toastify";
 
 const RegisterCard = () => {
 	const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +33,7 @@ const RegisterCard = () => {
 	const [errors, setErrors] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
-	const toast = useToast();
+	const showToast = useCustomToast();
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -71,26 +71,18 @@ const RegisterCard = () => {
 			try {
 				// Send a POST method to /auth/register using formData
 				const response = await registerUserService(formData);
-				toast({
-					title: "Registration successful",
-					description:
-						response.message || "Please check your email for verification.",
-					status: "success",
-					duration: 5000,
-					isClosable: true,
-					position: "top-right",
-				});
+				showToast(
+					"Registration successful",
+					response.message || "Please check your email for verification.",
+					"success",
+				);
 				navigate("/auth/verify-email", { state: { email: formData.email } });
 			} catch (error) {
-				toast({
-					title: "Registration failed",
-					description:
-						error.message || "An error occurred during registration.",
-					status: "error",
-					duration: 5000,
-					isClosable: true,
-					position: "top-right",
-				});
+				showToast(
+					"Registration failed",
+					error.message || "An error occurred during registration.",
+					"error",
+				);
 			} finally {
 				setIsLoading(false);
 			}

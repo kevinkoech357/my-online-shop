@@ -1,4 +1,3 @@
-import { useToast } from "@chakra-ui/react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -6,6 +5,7 @@ import {
 	loginUserService,
 	logoutUserService,
 } from "../services/authService";
+import { useCustomToast } from "../utils/toastify";
 
 const AuthContext = createContext(null);
 
@@ -13,17 +13,16 @@ export const AuthProvider = ({ children }) => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
-	const toast = useToast();
+	const showToast = useCustomToast();
 
 	useEffect(() => {
 		const checkStatus = async () => {
 			try {
 				await checkUserLoginStatus();
 				setIsLoggedIn(true);
-				navigate("/");
+				//navigate("/");
 			} catch (error) {
 				console.error(error);
-
 				setIsLoggedIn(false);
 				navigate("/auth/login");
 			} finally {
@@ -37,25 +36,19 @@ export const AuthProvider = ({ children }) => {
 	const login = async (userCredentials) => {
 		try {
 			const response = await loginUserService(userCredentials);
-			toast({
-				title: "Login Successful",
-				description: response.message || "Welcome back!",
-				status: "success",
-				duration: 5000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast(
+				"Login Successful",
+				response.message || "Welcome back!",
+				"success",
+			);
 			setIsLoggedIn(true);
 		} catch (error) {
 			console.error(error);
-			toast({
-				title: "Login Failed",
-				description: error.message || "Please try again later.",
-				status: "error",
-				duration: 5000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast(
+				"Login Failed",
+				error.message || "Please try again later.",
+				"error",
+			);
 			throw new Error("Login failed");
 		}
 	};
@@ -63,27 +56,13 @@ export const AuthProvider = ({ children }) => {
 	const logout = async () => {
 		try {
 			const response = await logoutUserService();
-			toast({
-				title: "Logout Successful",
-				description: response.message,
-				status: "success",
-				duration: 3000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast("Logout Successful", response.message, "success");
 			setIsLoggedIn(false);
 			navigate("/auth/login");
 		} catch (error) {
 			console.error(error);
 
-			toast({
-				title: "Logout Failed",
-				description: error.message,
-				status: "error",
-				duration: 3000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast("Logout Failed", error.message, "error");
 		}
 	};
 
