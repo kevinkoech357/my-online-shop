@@ -11,15 +11,40 @@ import {
 	useToast,
 } from "@chakra-ui/react";
 import { PinInput, PinInputField } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { resendOTPService, verifyOTPService } from "../../services/authService";
 
 const OTPVerification = () => {
 	const [otp, setOtp] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [isResendDisabled, setIsResendDisabled] = useState(false);
+	const [timer, setTimer] = useState(0);
 	const toast = useToast();
+	const location = useLocation();
+	const navigate = useNavigate();
 
-	// This should be replaced with the actual email from your application state or props
-	const userEmail = "username@mail.com";
+	// Get the email from the location state
+	const userEmail = location.state?.email || "N/A";
+
+	useEffect(() => {
+		// Initialize timer
+		let interval;
+		if (isResendDisabled) {
+			interval = setInterval(() => {
+				setTimer((prevTimer) => {
+					if (prevTimer <= 1) {
+						clearInterval(interval);
+						setIsResendDisabled(false);
+						return 0;
+					}
+					return prevTimer - 1;
+				});
+			}, 1000);
+		}
+
+		return () => clearInterval(interval);
+	}, [isResendDisabled]);
 
 	const handleOtpChange = (value) => {
 		setOtp(value);
@@ -40,41 +65,54 @@ const OTPVerification = () => {
 
 		setIsLoading(true);
 		try {
-			// Here you would typically send the OTP to your backend for verification
-			// For this example, we'll simulate an API call with a timeout
-			await new Promise((resolve) => setTimeout(resolve, 1500));
-
+			const userData = { email: userEmail, otp };
+			const response = await verifyOTPService(userData);
 			toast({
 				title: "Verification Successful",
-				description: "Your email has been verified",
+				description: response.message || "Your email has been verified",
 				status: "success",
 				duration: 3000,
 				isClosable: true,
 				position: "top-right",
 			});
-			// Here you would typically redirect the user or update your app's state
-		} catch (_error) {
+			navigate("/auth/login");
+		} catch (error) {
 			toast({
 				title: "Verification Failed",
-				description: "Please try again or request a new OTP",
+				description: error.message || "Please try again or request a new OTP",
 				status: "error",
 				duration: 3000,
 				isClosable: true,
+				position: "top-right",
 			});
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const handleResendOtp = () => {
-		// Logic to resend OTP would go here
-		toast({
-			title: "OTP Resent",
-			description: "A new OTP has been sent to your email",
-			status: "info",
-			duration: 3000,
-			isClosable: true,
-		});
+	const handleResendOtp = async () => {
+		if (isResendDisabled) return;
+
+		try {
+			setIsResendDisabled(true);
+			setTimer(90); // Set timer for 90 seconds
+			await resendOTPService({ email: userEmail });
+			toast({
+				title: "Sending New Code",
+				description: "A new OTP is being sent to your email.",
+				status: "info",
+				duration: 3000,
+				isClosable: true,
+			});
+		} catch (error) {
+			toast({
+				title: "Failed to Resend OTP",
+				description: error.response?.data?.message || "Please try again later",
+				status: "error",
+				duration: 3000,
+				isClosable: true,
+			});
+		}
 	};
 
 	return (
@@ -141,10 +179,16 @@ const OTPVerification = () => {
 					</Button>
 				</Stack>
 				<Text textAlign="center" fontSize="sm">
-					Didn't receive the code?{" "}
-					<Button variant="link" color="blue.500" onClick={handleResendOtp}>
-						Resend OTP
-					</Button>
+					{isResendDisabled ? (
+						`Resend code in ${timer}s`
+					) : (
+						<>
+							Didn't receive the code?{" "}
+							<Button variant="link" color="blue.500" onClick={handleResendOtp}>
+								Resend OTP
+							</Button>
+						</>
+					)}
 				</Text>
 			</Stack>
 		</Flex>

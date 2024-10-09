@@ -7,12 +7,59 @@ import {
 	Input,
 	Text,
 	useColorModeValue,
+	useToast,
 } from "@chakra-ui/react";
+import { useState } from "react";
+import { subscribeToNewsletter } from "../../services/userService";
 
 const NewsletterSection = () => {
+	const [email, setEmail] = useState("");
+	const toast = useToast();
+
 	const bgColor = useColorModeValue("gray.50", "gray.900");
 	const buttonBg = useColorModeValue("blue.500", "blue.600");
 	const buttonHoverBg = useColorModeValue("blue.600", "blue.700");
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		if (!email || !/\S+@\S+\.\S+/.test(email)) {
+			toast({
+				title: "Invalid email address",
+				description: "Please enter a valid email address.",
+				status: "error",
+				duration: 5000,
+				isClosable: true,
+				position: "top-right",
+			});
+			return;
+		}
+
+		try {
+			const response = await subscribeToNewsletter(email);
+			setEmail(""); // Clear email field
+			toast({
+				title: "Subscription successful",
+				description:
+					response.message ||
+					"You've successfully subscribed to our newsletter.",
+				status: "success",
+				duration: 5000,
+				isClosable: true,
+				position: "top-right",
+			});
+		} catch (error) {
+			const { message } = error.message;
+			toast({
+				title: "Subscription failed",
+				description: message || "You are already subscribed to our newsletter.",
+				status: "info",
+				duration: 5000,
+				isClosable: true,
+				position: "top-right",
+			});
+		}
+	};
 
 	return (
 		<Box
@@ -47,8 +94,11 @@ const NewsletterSection = () => {
 							bg={useColorModeValue("white", "gray.800")}
 							borderColor={useColorModeValue("gray.300", "gray.600")}
 							w={{ base: "full", sm: "auto" }}
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 						/>
 						<Button
+							onClick={handleSubmit}
 							bg={buttonBg}
 							color="white"
 							_hover={{
