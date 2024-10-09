@@ -2,3 +2,4 @@ uploads/
 node_modules/
 .env
 src/logs
+ecosystem.config.js
