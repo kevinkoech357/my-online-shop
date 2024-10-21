@@ -18,7 +18,7 @@ import connectToMongoDB from "./config/db.connect.mjs";
 import { JSONErrorHandler, errorHandler, notFoundHandler } from "./middlewares/errorHandler.mjs";
 
 // Import all routes from a single file
-import routes from "./routes/index.mjs";
+import routes from "./routes/routes.mjs";
 
 // Initialize Express application
 const app = express();
@@ -27,39 +27,49 @@ const app = express();
 connectToMongoDB();
 
 // Basic middleware setup
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(helmet()); // Set security HTTP headers
 
-const allowedOrigins = ['https://localhost:5173', 'http://localhost:5173', 'http://165.22.213.236:7000', 'https://myonlineshop-backend.kevinkoech.tech'];
+const allowedOrigins = [
+	"http://127.0.0.1:5173",
+	"http://localhost:5173",
+	"http://127.0.0.1:7000",
+	"http://165.22.213.236:7000",
+	"https://myonlineshop-backend.kevinkoech.tech",
+];
 
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            // Check if the request origin is in the allowedOrigins array
-            if (allowedOrigins.includes(origin) || !origin) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true, // Allow cookies to be sent with the request
-    }),
-);
+// Custom CORS options delegate function
+const corsOptionsDelegate = (req, callback) => {
+	let corsOptions;
+	if (allowedOrigins.indexOf(req.header("Origin")) !== -1) {
+		corsOptions = {
+			origin: true,
+			methods: ["GET", "POST", "PUT", undefined, "PATCH", "DELETE"],
+			allowedHeaders: ["Content-Type", "Authorization"],
+			credentials: true,
+		}; // reflect (enable) the requested origin in the CORS response
+	} else {
+		corsOptions = { origin: false }; // disable CORS for this request
+	}
+	callback(null, corsOptions);
+};
 
+// Use the custom CORS options delegate
+app.use(cors(corsOptionsDelegate));
 
 app.use(morgan("dev")); // HTTP request logger
 app.use(compression()); // Compress response bodies
 
-// Rate limiting
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per windowMs
-	standardHeaders: true,
-	legacyHeaders: false,
-});
+// // Rate limiting
+// const limiter = rateLimit({
+// 	windowMs: 15 * 60 * 1000, // 15 minutes
+// 	max: 100, // Limit each IP to 100 requests per windowMs
+// 	standardHeaders: true,
+// 	legacyHeaders: false,
+// });
 
-app.use(limiter);
+// app.use(limiter);
 
 // Handle cookies and sessions
 app.use(cookieParser(config.cookieSecret));
@@ -71,9 +81,9 @@ app.use(
 		cookie: {
 			maxAge: 1000 * 60 * 60 * 24 * 14, // 14 days in milliseconds
 			signed: true,
-			secure: true, // Set to true in production when using HTTPS
+			secure: false, // Set to true in production when using HTTPS
 			httpOnly: true, // Prevent client-side access
-			sameSite: "none", // Prevent CSRF attacks
+			sameSite: "lax", // Prevent CSRF attacks
 		},
 		store: MongoStore.create({
 			mongoUrl: config.mongoDbUrl,
