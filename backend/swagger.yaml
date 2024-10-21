@@ -397,6 +397,82 @@ paths:
                     type: boolean
                   message:
                     type: string
+
+  /auth/admin/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login registered and verified admins.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
   /auth/resend:
     post:
       tags:
@@ -1269,6 +1345,98 @@ paths:
         '500':
           description: Internal server error.
 
+  /products/search:
+    get:
+      tags:
+        - Product Actions
+      summary: Search for products
+      description: Retrieve a list of products based on search criteria such as name, category, or brand.
+      parameters:
+        - name: search
+          in: query
+          description: The name, brand or category to search.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with a list of products.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Products successfully retrieved."
+                  total:
+                    type: integer
+                    example: 100
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "productId123"
+                        name:
+                          type: string
+                          example: "Product Name"
+                        brand:
+                          type: string
+                          example: "Brand Name"
+                        category:
+                          type: string
+                          example: "Category Name"
+                        price:
+                          type: number
+                          format: float
+                          example: 29.99
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-10-21T12:34:56Z"
+
+        '400':
+          description: Bad request, possibly due to invalid query parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid search criteria."
+
+        '404':
+          description: No products found matching the criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "No products matching the criteria available."
+                  total:
+                    type: integer
+                    example: 0
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties: {}
+
   /products/{id}/rating:
     get:
       tags:
@@ -1320,7 +1488,7 @@ paths:
     post:
       tags:
         - Cart Actions
-      summary: Update User Cart
+      summary: Create / Update User Cart
       description: Updates or creates a user's shopping cart with new items.
       requestBody:
         required: true
@@ -1414,7 +1582,7 @@ paths:
         '500':
           description: Internal Server Error.
 
-  /user/my-cart:
+  /user/cart:
     get:
       tags:
         - Cart Actions
@@ -1454,23 +1622,19 @@ paths:
         '500':
           description: Internal server error.
 
-  /user/cart/remove-product:
-    delete:
+  /user/cart/remove/{id}:
+    patch:
       tags:
         - Cart Actions
       summary: Remove a Product from a User's Cart.
       description: Allows authenticated users to remove a product from their cart based on its ID.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - productID
-              properties:
-                productID:
-                  type: string
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the product retrieve ratings for.
+          schema:
+            type: string
       responses:
         '200':
           description: Product successfully removed from cart.
