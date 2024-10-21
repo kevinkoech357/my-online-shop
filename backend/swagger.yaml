@@ -8,7 +8,7 @@ info:
     The API is designed to be easy to use and integrate with various front-end applications.
 
 servers:
-  - url: https://myonlineshop-backend.kevinkoech.tech/api/v1
+  - url: https://myonlineshop-backend.kevinkoech.site/api/v1
     description: Production server
   - url: http://127.0.0.1:7000/api/v1
     description: Development server
