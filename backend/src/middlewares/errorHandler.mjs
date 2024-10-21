@@ -1,22 +1,27 @@
 import logger from "../utils/logger.mjs";
 
 // Global app error handler
-const errorHandler = (err, _req, res, _next) => {
-	// Log the error stack trace using Winston
-	logger.error(err.stack);
+const errorHandler = (err, req, res, next) => {
+	// Log the error stack trace
+	logger.error(`Error: ${err.message}, URL: ${req.originalUrl}, Method: ${req.method}, Stack: ${err.stack}`);
 
 	// Default to 500 Internal Server Error
-	let statusCode = 500;
-	let message = "Internal Server Error. Please try again later.";
+	let statusCode = err.statusCode || 500;
+	let message = err.message || "Internal Server Error. Please try again later.";
 
 	// Handle specific error types
 	if (err.name === "ValidationError") {
 		statusCode = 400;
-		message = "Validation Error. Please check your input and try again.";
+		message = Object.values(err.errors)
+			.map((val) => val.message)
+			.join(", ");
 	} else if (err.code === 11000) {
 		// MongoDB duplicate key error code
 		statusCode = 409;
 		message = "Conflict Error. Duplicate key found.";
+	} else if (err.name === "UnauthorizedError") {
+		statusCode = 401;
+		message = "Unauthorized access. Please log in.";
 	}
 
 	// Send a JSON response with the error status and message
