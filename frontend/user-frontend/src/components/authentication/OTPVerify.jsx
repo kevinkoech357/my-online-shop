@@ -8,21 +8,21 @@ import {
 	Stack,
 	Text,
 	useColorModeValue,
-	useToast,
 } from "@chakra-ui/react";
 import { PinInput, PinInputField } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { resendOTPService, verifyOTPService } from "../../services/authService";
+import { useCustomToast } from "../../utils/toastify";
 
 const OTPVerification = () => {
 	const [otp, setOtp] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [isResendDisabled, setIsResendDisabled] = useState(false);
 	const [timer, setTimer] = useState(0);
-	const toast = useToast();
 	const location = useLocation();
 	const navigate = useNavigate();
+	const showToast = useCustomToast();
 
 	// Get the email from the location state
 	const userEmail = location.state?.email || "N/A";
@@ -52,14 +52,7 @@ const OTPVerification = () => {
 
 	const handleVerify = async () => {
 		if (otp.length !== 6) {
-			toast({
-				title: "Invalid OTP",
-				description: "Please enter a 6-digit OTP",
-				status: "error",
-				duration: 3000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast("Invalid OTP", "Please enter a 6-digit OTP", "error");
 			return;
 		}
 
@@ -67,24 +60,18 @@ const OTPVerification = () => {
 		try {
 			const userData = { email: userEmail, otp };
 			const response = await verifyOTPService(userData);
-			toast({
-				title: "Verification Successful",
-				description: response.message || "Your email has been verified",
-				status: "success",
-				duration: 3000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast(
+				"Verification Successful",
+				response.message || "Your email has been verified",
+				"success",
+			);
 			navigate("/auth/login");
 		} catch (error) {
-			toast({
-				title: "Verification Failed",
-				description: error.message || "Please try again or request a new OTP",
-				status: "error",
-				duration: 3000,
-				isClosable: true,
-				position: "top-right",
-			});
+			showToast(
+				"Verification Failed",
+				error.message || "Please try again or request a new OTP",
+				"error",
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -97,21 +84,17 @@ const OTPVerification = () => {
 			setIsResendDisabled(true);
 			setTimer(90); // Set timer for 90 seconds
 			await resendOTPService({ email: userEmail });
-			toast({
-				title: "Sending New Code",
-				description: "A new OTP is being sent to your email.",
-				status: "info",
-				duration: 3000,
-				isClosable: true,
-			});
+			showToast(
+				"Sending New Code",
+				"A new OTP is being sent to your email.",
+				"info",
+			);
 		} catch (error) {
-			toast({
-				title: "Failed to Resend OTP",
-				description: error.response?.data?.message || "Please try again later",
-				status: "error",
-				duration: 3000,
-				isClosable: true,
-			});
+			showToast(
+				"Failed to Resend OTP",
+				error.response?.data?.message || "Please try again later",
+				"error",
+			);
 		}
 	};
 

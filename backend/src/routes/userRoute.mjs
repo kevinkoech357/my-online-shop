@@ -3,8 +3,9 @@ import express from "express";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkRequiredFields } from "../middlewares/validateBody.mjs";
 
-import { clearCart, getUserCart, removeProductFromCart, userCart } from "../controller/cartCtrl.mjs";
+import { clearCart, createOrUpdateCart, getUserCart, removeProductFromCart } from "../controller/cartCtrl.mjs";
 import { changeEmail, deleteAccount, getUserDetails, getWishlist, saveAddress, suspendAccount, updateUserDetails } from "../controller/userCtrl.mjs";
+import validateMongoID from "../middlewares/validateMongoID.mjs";
 
 const userRouter = express.Router();
 
@@ -22,10 +23,10 @@ userRouter.patch("/save-address", checkRequiredFields(addressField), isAuthentic
 userRouter.get("/wishlist", isAuthenticated, getWishlist);
 
 // Cart functionality
-userRouter.post("/cart/create", isAuthenticated, userCart);
-userRouter.get("/my-cart", isAuthenticated, getUserCart);
+userRouter.post("/cart/create", isAuthenticated, createOrUpdateCart);
+userRouter.get("/cart", isAuthenticated, getUserCart);
 userRouter.delete("/cart/clear", isAuthenticated, clearCart);
-userRouter.delete("/cart/remove-product", checkRequiredFields(cartField), isAuthenticated, removeProductFromCart);
+userRouter.patch("/cart/remove/:id", validateMongoID, isAuthenticated, removeProductFromCart);
 
 // Suspend or delete account
 userRouter.patch("/suspend", isAuthenticated, suspendAccount);

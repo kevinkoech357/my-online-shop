@@ -27,7 +27,10 @@ const adminCreateProduct = async (req, res, next) => {
 		const duplicateSlug = await Product.findOne({ slug: slug });
 
 		if (duplicateSlug) {
-			return res.status(409).json({ success: false, message: "Conflict. Product with the same name already exists." });
+			return res.status(409).json({
+				success: false,
+				message: "Conflict. Product with the same name already exists.",
+			});
 		}
 
 		// Create new Product
@@ -226,34 +229,66 @@ const getAllProducts = async (req, res, next) => {
 		// Helper function to build the query object
 		const buildQuery = (params) => {
 			const query = {};
+
+			// Case-insensitive search for product name, brand, or category
 			if (params.name) query.name = new RegExp(params.name, "i");
 			if (params.brand) query.brand = new RegExp(params.brand, "i");
 			if (params.category) query.category = new RegExp(params.category, "i");
+
+			// Filtering by price range (if provided)
 			if (params.minPrice || params.maxPrice) {
 				query.price = {};
 				if (params.minPrice) query.price.$gte = Number(params.minPrice);
 				if (params.maxPrice) query.price.$lte = Number(params.maxPrice);
 			}
+
 			return query;
 		};
 
-		// Helper function to handle pagination and sorting
-		const getPaginationOptions = (params) => ({
-			page: Number(params.page) || 1,
-			limit: Number(params.limit) || 10,
-			sort: {
-				[params.sortBy || "createdAt"]: params.order === "desc" ? -1 : 1,
-			},
-		});
+		// Helper function for pagination and sorting
+		const getPaginationOptions = (params) => {
+			const page = Number(params.page) || 1;
+			const limit = Number(params.limit) || 20; // Default to 20 products per page
+			const sortBy = params.sortBy || "createdAt"; // Sort by createdAt if no field is specified
+			const order = params.order === "desc" ? -1 : 1; // Default to ascending order
 
-		// Build query and options
+			return {
+				page,
+				limit,
+				sort: { [sortBy]: order },
+			};
+		};
+
+		// Ensure parameters are validated
+		const validateParams = (params) => {
+			if (params.minPrice && Number.isNaN(params.minPrice)) {
+				throw new Error("Invalid value for minPrice");
+			}
+			if (params.maxPrice && Number.isNaN(params.maxPrice)) {
+				throw new Error("Invalid value for maxPrice");
+			}
+			if (params.page && Number.isNaN(params.page)) {
+				throw new Error("Invalid value for page");
+			}
+			if (params.limit && Number.isNaN(params.limit)) {
+				throw new Error("Invalid value for limit");
+			}
+		};
+
+		// Validate query parameters
+		validateParams(req.query);
+
+		// Build the query and pagination options
 		const query = buildQuery(req.query);
 		const options = getPaginationOptions(req.query);
 
-		// Retrieve paginated products and total count
-		const [paginatedProducts, totalProducts] = await Promise.all([Product.paginate(query, options), Product.countDocuments(query)]);
+		// Retrieve products and total count
+		const [paginatedProducts, totalProducts] = await Promise.all([
+			Product.paginate(query, options), // Fetch paginated products
+			Product.countDocuments(query), // Get total product count
+		]);
 
-		// Respond with products and total count
+		// If no products match the query, return a message
 		if (paginatedProducts.docs.length === 0) {
 			return res.status(200).json({
 				success: true,
@@ -263,7 +298,8 @@ const getAllProducts = async (req, res, next) => {
 			});
 		}
 
-		res.status(200).json({
+		// Successful response with products
+		return res.status(200).json({
 			success: true,
 			message: "Products successfully retrieved.",
 			total: totalProducts,
@@ -430,6 +466,67 @@ const getProductRating = async (req, res, next) => {
 	}
 };
 
+// Function to search a product based on name, brand or category
+
+const searchProducts = async (req, res, next) => {
+	try {
+		// Extract search term from query parameters
+		const { search } = req.query;
+
+		// If no search term is provided, return an error
+		if (!search) {
+			return res.status(400).json({
+				success: false,
+				message: "Search term is required.",
+			});
+		}
+
+		// Helper function for pagination and sorting
+		const getPaginationOptions = (params) => ({
+			page: Number(params.page) || 1,
+			limit: Number(params.limit) || 20, // Default limit to 20
+			sort: {
+				[params.sortBy || "createdAt"]: params.order === "desc" ? -1 : 1,
+			},
+		});
+
+		// Build query to search in name, category, and brand fields
+		const query = {
+			$or: [
+				{ name: new RegExp(search, "i") }, // Case-insensitive search in product name
+				{ category: new RegExp(search, "i") }, // Case-insensitive search in category
+				{ brand: new RegExp(search, "i") }, // Case-insensitive search in brand
+			],
+		};
+
+		// Get pagination options
+		const options = getPaginationOptions(req.query);
+
+		// Retrieve products and total count based on the search query
+		const [paginatedProducts, totalProducts] = await Promise.all([Product.paginate(query, options), Product.countDocuments(query)]);
+
+		// If no products are found
+		if (paginatedProducts.docs.length === 0) {
+			return res.status(200).json({
+				success: true,
+				message: "No products found matching the search term.",
+				total: totalProducts,
+				products: [],
+			});
+		}
+
+		// Return products that match the search
+		return res.status(200).json({
+			success: true,
+			message: "Products successfully retrieved.",
+			total: totalProducts,
+			products: paginatedProducts.docs,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
 // ==========================================================END ANY-USER PRODUCT RELATED ACTIONS====================
 
 export {
@@ -443,4 +540,5 @@ export {
 	adminUploadProductImages,
 	adminDeleteProductImage,
 	getProductRating,
+	searchProducts,
 };

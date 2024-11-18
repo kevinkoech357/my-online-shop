@@ -1,4 +1,67 @@
 import User from "../models/userModel.mjs";
+import { verifyData } from "../utils/hashData.mjs";
+
+// Define adminLogin function that allows only admins
+// to login in to admin dashboard
+
+const adminLogin = async (req, res, next) => {
+	// Extract email and password from request body
+	const { email, password } = req.body;
+
+	try {
+		// Find admin user
+		const user = await User.findOne({ email });
+
+		// If admin is not found, return 401 Unauthorized
+		if (!user) {
+			return res.status(401).json({ success: false, message: "Invalid email or password!" });
+		}
+
+		// If user is not admin, return 401 Unauthorized
+		if (user.role !== "admin") {
+			return res.status(401).json({
+				success: false,
+				message: "Only registered admins can login.",
+			});
+		}
+
+		// If user is not verified, return 401 Unauthorized
+		if (user.verified === false) {
+			return res.status(401).json({
+				success: false,
+				message: "Email not verified. Check email for OTP or ask for a new one.",
+			});
+		}
+
+		// If user is inactive(suspended), return 401 Unauthorized
+		if (user.active === false) {
+			return res.status(401).json({
+				success: false,
+				message: "User account is suspended. Contact Admin to re-activate account.",
+			});
+		}
+
+		// Verify password
+		const passwordMatch = await verifyData(user.password, password);
+
+		// If password doesn't match, return 401 Unauthorized
+		if (!passwordMatch) {
+			return res.status(401).json({ success: false, message: "Invalid email or password!" });
+		}
+
+		// If the user is verified and the password matches, create a session
+		await setSessionOnLogin(user, req, res, next);
+
+		// Successful login
+		return res.status(200).json({
+			success: true,
+			message: `Welcome back ${user.firstname} ${user.lastname}`,
+			details: user,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
 
 // Define a adminGetUserDetails function that returns a JSON
 // response with the specified user details
@@ -113,4 +176,4 @@ const adminDeleteAccount = async (req, res, next) => {
 	}
 };
 
-export { adminGetUserDetails, adminGetAllUsers, adminSuspendAccount, adminRecoverAccount, adminDeleteAccount };
+export { adminLogin, adminGetUserDetails, adminGetAllUsers, adminSuspendAccount, adminRecoverAccount, adminDeleteAccount };

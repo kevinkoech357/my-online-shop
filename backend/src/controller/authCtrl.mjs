@@ -98,10 +98,10 @@ const registerUser = async (req, res, next) => {
 // If not, the user is denied logging in.
 
 const loginUser = async (req, res, next) => {
-	try {
-		// Extract email and password from request body
-		const { email, password } = req.body;
+	// Extract email and password from request body
+	const { email, password } = req.body;
 
+	try {
 		// Find user by email
 		const user = await User.findOne({ email });
 
@@ -112,7 +112,7 @@ const loginUser = async (req, res, next) => {
 
 		// If user is not verified, return 401 Unauthorized
 		if (user.verified === false) {
-			return res.status(401.0).json({
+			return res.status(401).json({
 				success: false,
 				message: "Email not verified. Check email for OTP or ask for a new one.",
 			});
@@ -120,7 +120,7 @@ const loginUser = async (req, res, next) => {
 
 		// If user is inactive(suspended), return 401 Unauthorized
 		if (user.active === false) {
-			return res.status(401.0).json({
+			return res.status(401).json({
 				success: false,
 				message: "User account is suspended. Contact Admin to re-activate account.",
 			});

@@ -1,5 +1,6 @@
 import express from "express";
 import { regenerateOTP, verifyOTP } from "../controller/OTPCtrl.mjs";
+import { adminLogin } from "../controller/adminCtrl.mjs";
 import { loginUser, logoutUser, registerUser } from "../controller/authCtrl.mjs";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkFieldLength, checkRequiredFields } from "../middlewares/validateBody.mjs";
@@ -15,6 +16,9 @@ authRouter.post("/register", checkRequiredFields(registrationFields), checkField
 
 // Login user
 authRouter.post("/login", checkRequiredFields(loginFields), loginUser);
+
+// Login admin
+authRouter.post("/admin/login", checkRequiredFields(loginFields), adminLogin);
 
 // Verify OTP
 authRouter.post("/verify", verifyOTP);

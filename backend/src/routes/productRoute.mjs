@@ -1,5 +1,5 @@
 import express from "express";
-import { addToWishlist, getAllProducts, getProductRating, rateProduct, viewOneProduct } from "../controller/productCtrl.mjs";
+import { addToWishlist, getAllProducts, getProductRating, rateProduct, searchProducts, viewOneProduct } from "../controller/productCtrl.mjs";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkRequiredFields, validateProductID, validateRatingDetails } from "../middlewares/validateBody.mjs";
 import validateMongoID from "../middlewares/validateMongoID.mjs";
@@ -12,8 +12,10 @@ const ratingField = ["star"];
 
 // Product related open/public routes
 productRouter.get("/", getAllProducts);
+productRouter.get("/search", searchProducts);
 productRouter.get("/:id", validateMongoID, viewOneProduct);
 productRouter.get("/:id/rating", validateMongoID, getProductRating);
+productRouter.get("/search", searchProducts);
 
 // Wishlist related private routes
 productRouter.patch("/wishlist", checkRequiredFields(wishlistField), validateProductID, isAuthenticated, addToWishlist);

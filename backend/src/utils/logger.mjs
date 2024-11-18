@@ -1,7 +1,7 @@
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLogger, format, transports } from "winston";
-import "winston-daily-rotate-file";
+import DailyRotateFile from "winston-daily-rotate-file";
 import config from "../config.mjs";
 import createDirectory from "./createDirectory.mjs";
 
@@ -25,7 +25,7 @@ const logger = createLogger({
 	),
 	transports: [
 		// Log to a file with daily rotation
-		new transports.DailyRotateFile({
+		new DailyRotateFile({
 			filename: `${logDirPath}/mos-%DATE%.log`,
 			datePattern: "YYYY-MM-DD",
 			zippedArchive: true,

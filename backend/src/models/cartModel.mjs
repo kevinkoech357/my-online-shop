@@ -32,6 +32,12 @@ const itemSchema = new mongoose.Schema({
 		required: [true, "Price is required"],
 		min: [0, "Price cannot be negative"],
 	},
+	name: {
+		type: String,
+	},
+	slug: {
+		type: String,
+	},
 });
 
 const cartSchema = new mongoose.Schema(

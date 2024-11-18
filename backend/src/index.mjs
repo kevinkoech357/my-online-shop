@@ -18,7 +18,7 @@ import connectToMongoDB from "./config/db.connect.mjs";
 import { JSONErrorHandler, errorHandler, notFoundHandler } from "./middlewares/errorHandler.mjs";
 
 // Import all routes from a single file
-import routes from "./routes/index.mjs";
+import routes from "./routes/routes.mjs";
 
 // Initialize Express application
 const app = express();
@@ -31,44 +31,45 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(helmet()); // Set security HTTP headers
 
-const allowedOrigins = ['https://localhost:5173', 'http://localhost:5173', 'https://myonlineshop.kevinkoech.site', 'https://myonlineshop-backend.kevinkoech.site'];
+const allowedOrigins = [
+	"https://localhost:5173",
+	"http://localhost:5173",
+	"https://myonlineshop.kevinkoech.site",
+	"https://myonlineshop-backend.kevinkoech.site",
+];
 
 app.use(
-    cors({
-        origin: function (origin, callback) {
-            // Check if the request origin is in the allowedOrigins array
-            if (allowedOrigins.includes(origin) || !origin) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true, // Allow cookies to be sent with the request
-    }),
+	cors({
+		origin: (origin, callback) => {
+			// Check if the request origin is in the allowedOrigins array
+			if (allowedOrigins.includes(origin) || !origin) {
+				callback(null, true);
+			} else {
+				callback(new Error("Not allowed by CORS"));
+			}
+		},
+		credentials: true, // Allow cookies to be sent with the request
+	}),
 );
-
 
 app.use(morgan("dev")); // HTTP request logger
 app.use(compression()); // Compress response bodies
 
 // Set trust proxy to 2 because we have two proxies: Cloudflare -> Nginx -> Your App
-app.set('trust proxy', 2);
+app.set("trust proxy", 2);
 
 // Create a limiter with Cloudflare-specific configurations
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-  standardHeaders: true,
-  legacyHeaders: false,
-  
-  // Custom key generator to use CF-Connecting-IP if available
-  keyGenerator: (request) => {
-    // Prefer the CF-Connecting-IP header (set by Cloudflare)
-    return request.header('CF-Connecting-IP') 
-      || request.ip 
-      || request.headers['x-forwarded-for']?.split(',')[0] 
-      || request.socket.remoteAddress;
-  }
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per window
+	standardHeaders: true,
+	legacyHeaders: false,
+
+	// Custom key generator to use CF-Connecting-IP if available
+	keyGenerator: (request) => {
+		// Prefer the CF-Connecting-IP header (set by Cloudflare)
+		return request.header("CF-Connecting-IP") || request.ip || request.headers["x-forwarded-for"]?.split(",")[0] || request.socket.remoteAddress;
+	},
 });
 
 app.use(limiter);
