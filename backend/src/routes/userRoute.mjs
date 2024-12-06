@@ -22,12 +22,6 @@ userRouter.patch("/save-address", checkRequiredFields(addressField), isAuthentic
 // Users wishlist
 userRouter.get("/wishlist", isAuthenticated, getWishlist);
 
-// Cart functionality
-userRouter.post("/cart/create", isAuthenticated, createOrUpdateCart);
-userRouter.get("/cart", isAuthenticated, getUserCart);
-userRouter.delete("/cart/clear", isAuthenticated, clearCart);
-userRouter.patch("/cart/remove/:id", validateMongoID, isAuthenticated, removeProductFromCart);
-
 // Suspend or delete account
 userRouter.patch("/suspend", isAuthenticated, suspendAccount);
 userRouter.delete("/delete", isAuthenticated, deleteAccount);

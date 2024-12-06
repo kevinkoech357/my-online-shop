@@ -13,7 +13,14 @@ const setSessionOnLogin = async (user, req, res) => {
 			firstname: user.firstname,
 			lastname: user.lastname,
 			email: user.email,
+			phone: user.phone,
 			role: user.role,
+			active: user.active,
+			verified: user.verified,
+			primaryAddress: user.primaryAddress,
+			secondaryAddresses: user.secondaryAddresses,
+			wishlistCount: user.wishlist?.length || 0,
+			cartItemCount: user.cart?.length || 0,
 		};
 
 		// Set the session cookie
@@ -24,9 +31,9 @@ const setSessionOnLogin = async (user, req, res) => {
 		return res.cookie(cookieName, cookieValue, {
 			maxAge,
 			signed: true,
-			secure: true,
+			secure: false,
 			httpOnly: true,
-			sameSite: "none",
+			sameSite: "lax",
 		});
 	} catch (error) {
 		console.error("Error setting session during login:", error);

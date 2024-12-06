@@ -174,4 +174,72 @@ const logoutUser = async (req, res, next) => {
 	}
 };
 
-export { registerUser, loginUser, logoutUser };
+// Check user authentication status
+const checkUserAuthStatus = async (req, res) => {
+	try {
+		const { _id } = req.user;
+
+		// Find the user by ID
+		const user = await User.findById(_id).select("-password -__v").lean();
+
+		if (!user) {
+			return res.status(401).json({
+				success: false,
+				message: "User not found. Please log in again.",
+			});
+		}
+
+		// Return user details
+		return res.status(200).json({
+			success: true,
+			message: "User retrieved successfully",
+			details: user,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: "An error occurred while checking user status",
+			details: process.env.NODE_ENV === "development" ? error.message : null,
+		});
+	}
+};
+
+// Check admin authentication status
+const checkAdminAuthStatus = async (req, res) => {
+	try {
+		const { _id } = req.user;
+
+		// Find the user by ID
+		const user = await User.findById(_id).select("-password -__v").lean();
+
+		if (!user) {
+			return res.status(401).json({
+				success: false,
+				message: "User not found. Please log in again.",
+			});
+		}
+
+		// Check if user is an admin
+		if (user.role !== "admin") {
+			return res.status(403).json({
+				success: false,
+				message: "Access denied. Admin privileges required.",
+			});
+		}
+
+		// Return admin details
+		return res.status(200).json({
+			success: true,
+			message: "Admin retrieved successfully",
+			details: user,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: "An error occurred while checking admin status",
+			details: process.env.NODE_ENV === "development" ? error.message : null,
+		});
+	}
+};
+
+export { registerUser, loginUser, logoutUser, checkUserAuthStatus, checkAdminAuthStatus };

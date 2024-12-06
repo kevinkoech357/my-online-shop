@@ -1,7 +1,7 @@
 import express from "express";
 import { regenerateOTP, verifyOTP } from "../controller/OTPCtrl.mjs";
 import { adminLogin } from "../controller/adminCtrl.mjs";
-import { loginUser, logoutUser, registerUser } from "../controller/authCtrl.mjs";
+import { checkAdminAuthStatus, checkUserAuthStatus, loginUser, logoutUser, registerUser } from "../controller/authCtrl.mjs";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkFieldLength, checkRequiredFields } from "../middlewares/validateBody.mjs";
 
@@ -28,5 +28,9 @@ authRouter.post("/resend", regenerateOTP);
 
 // Logout user
 authRouter.post("/logout", isAuthenticated, logoutUser);
+
+// Check user and admin auth status
+authRouter.get("/status", isAuthenticated, checkUserAuthStatus);
+authRouter.get("/admin/status", isAuthenticated, checkAdminAuthStatus);
 
 export default authRouter;
