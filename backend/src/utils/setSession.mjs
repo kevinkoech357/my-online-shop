@@ -31,9 +31,9 @@ const setSessionOnLogin = async (user, req, res) => {
 		return res.cookie(cookieName, cookieValue, {
 			maxAge,
 			signed: true,
-			secure: false,
+			secure: true,
 			httpOnly: true,
-			sameSite: "lax",
+			sameSite: "none",
 		});
 	} catch (error) {
 		console.error("Error setting session during login:", error);

@@ -3,15 +3,12 @@ import express from "express";
 import isAuthenticated from "../middlewares/userStatus.mjs";
 import { checkRequiredFields } from "../middlewares/validateBody.mjs";
 
-import { clearCart, createOrUpdateCart, getUserCart, removeProductFromCart } from "../controller/cartCtrl.mjs";
 import { changeEmail, deleteAccount, getUserDetails, getWishlist, saveAddress, suspendAccount, updateUserDetails } from "../controller/userCtrl.mjs";
-import validateMongoID from "../middlewares/validateMongoID.mjs";
 
 const userRouter = express.Router();
 
 // Required field for saving address
 const addressField = ["county", "town", "type"];
-const cartField = ["productID"];
 
 // User account details
 userRouter.get("/", isAuthenticated, getUserDetails);

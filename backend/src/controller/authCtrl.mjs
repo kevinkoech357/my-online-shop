@@ -144,6 +144,7 @@ const loginUser = async (req, res, next) => {
 			details: user,
 		});
 	} catch (error) {
+		console.log(error);
 		next(error);
 	}
 };

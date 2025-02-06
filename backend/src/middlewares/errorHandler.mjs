@@ -35,6 +35,7 @@ const errorHandler = (err, req, res, next) => {
 const notFoundHandler = (req, res, _next) => {
 	// Create a new Error instance with a message indicating the requested URL
 	const error = new Error(`Not Found - ${req.originalUrl}`);
+
 	// Return a 404
 	return res.status(404).json({
 		success: false,
