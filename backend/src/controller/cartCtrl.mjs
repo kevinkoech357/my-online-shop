@@ -1,86 +1,132 @@
 import Cart from "../models/cartModel.mjs";
 import Product from "../models/productModel.mjs";
-import User from "../models/userModel.mjs";
 
-// Define createOrUpdateCart function that will enable an authenticated user
-// to add or update items in his/her cart
+// Helper function to validate cart items
+export const validateCartItems = async (items) => {
+	const response = {
+		success: true,
+		errors: [],
+	};
 
-const createOrUpdateCart = async (req, res, next) => {
-	// Get user ID from the request
+	if (!Array.isArray(items)) {
+		response.success = false;
+		response.errors.push("Cart items must be an array");
+		return response;
+	}
+
+	for (const item of items) {
+		if (!item.product || !item.quantity || !item.color) {
+			response.success = false;
+			response.errors.push("Each cart item must have product, quantity, and color");
+		}
+		if (item.quantity <= 0 || !Number.isInteger(item.quantity)) {
+			response.success = false;
+			response.errors.push("Quantity must be an integer greater than 0");
+		}
+	}
+
+	return response;
+};
+
+// Helper function to ensure a cart exists for the user
+const ensureCartExists = async (userId) => {
+	// Find or create the cart
+	const cart = await Cart.findOne({ user: userId });
+
+	if (!cart) {
+		// If no cart exists, create a new one with default values
+		return await Cart.create({
+			user: userId,
+			items: [],
+			cartTotal: 0,
+		});
+	}
+
+	// Ensure the cart has valid default values
+	if (!Array.isArray(cart.items)) {
+		p;
+		cart.items = [];
+	}
+	if (typeof cart.cartTotal !== "number") {
+		cart.cartTotal = 0;
+	}
+
+	// Save the cart if any defaults were applied
+	await cart.save();
+
+	return cart;
+};
+
+// Create or update the cart
+const createOrUpdateCart = async (req, res) => {
+	// Retrieve users id from session
 	const { _id } = req.user;
-	// Get cart details from the request body
+	// Get cart from body
 	const { cart } = req.body;
 
-	console.log(cart);
 	try {
-		// Find the user by ID
-		const user = await User.findById(_id);
-		// If user not found, return 404
-		if (!user) {
-			return res.status(404).json({ success: false, message: "User Not Found" });
+		if (!cart || !cart.items) {
+			return res.status(400).json({ success: false, message: "Invalid cart format" });
 		}
 
-		// Retrieve existing cart or initialize a new one
-		let existingCart = await Cart.findOne({ user: _id });
-		if (!existingCart) {
-			existingCart = new Cart({ user: _id, items: [], cartTotal: 0 });
+		const validationResponse = await validateCartItems(cart.items);
+
+		if (!validationResponse.success) {
+			return res.status(400).json({ success: false, message: "Cart validation failed", details: validationResponse });
 		}
 
-		// Retrieve all products needed for the cart in one query
+		const existingCart = await ensureCartExists(_id);
+
+		// Retrieve products
 		const productIds = cart.items.map((item) => item.product);
-		const products = await Product.find({ _id: { $in: productIds } }).select("_id price quantity color name slug");
+		const products = await Product.find({ _id: { $in: productIds } }).select("_id price quantity color name slug status");
 
-		// Create a map of products for quick lookup
 		const productsMap = products.reduce((map, product) => {
 			map[product._id.toString()] = product;
 			return map;
 		}, {});
 
-		// Merge new items with existing items
-		const updatedItems = [...existingCart.items]; // Copy existing items
+		const updatedItems = [...existingCart.items];
 
 		for (const newItem of cart.items) {
-			// Lookup the product in the map
 			const product = productsMap[newItem.product];
-			if (!product) {
-				return res.status(404).json({
-					success: false,
-					message: "Product Not Found",
-				});
-			}
 
-			// Validate quantity
-			if (newItem.quantity <= 0 || !Number.isInteger(newItem.quantity)) {
+			// Check if the product exists and is active
+			if (!product || product.status !== "active") {
 				return res.status(400).json({
 					success: false,
-					message: "Quantity must be an integer greater than or equal to 1.",
+					message: `Product with ID ${newItem.product} is unavailable or inactive`,
 				});
 			}
 
-			// Check if quantity exceeds available stock
+			// Check if the requested quantity is within stock limits
 			if (newItem.quantity > product.quantity) {
 				return res.status(400).json({
 					success: false,
-					message: `Quantity exceeds available stock for product ${newItem.product.name}.`,
+					message: `Requested quantity for product '${product.name}' exceeds available stock (${product.quantity})`,
 				});
 			}
 
-			// Check if color is available
-			if (newItem.color !== product.color) {
+			// Check if the requested color is available for the product
+			if (!product.color.includes(newItem.color)) {
 				return res.status(400).json({
 					success: false,
-					message: "Sorry. Requested color not available in stock.",
+					message: `Color '${newItem.color}' is not available for product '${product.name}'`,
 				});
 			}
 
-			// Check if the product already exists in the cart
 			const existingItemIndex = updatedItems.findIndex((item) => item.product.toString() === newItem.product && item.color === newItem.color);
 
 			if (existingItemIndex !== -1) {
-				// If it exists, update its quantity
-				updatedItems[existingItemIndex].quantity += newItem.quantity;
+				const newQuantity = updatedItems[existingItemIndex].quantity + newItem.quantity;
+				if (newQuantity > product.quantity) {
+					return res.status(400).json({
+						success: false,
+						message: `Adding ${newItem.quantity} more items for product '${product.name}' exceeds stock limit`,
+					});
+				}
+				updatedItems[existingItemIndex].quantity = newQuantity;
 			} else {
-				// If it's a new product, add it to the cart
 				updatedItems.push({
 					product: product._id,
 					quantity: newItem.quantity,
@@ -92,22 +138,18 @@ const createOrUpdateCart = async (req, res, next) => {
 			}
 		}
 
-		// Update cart items and total
 		existingCart.items = updatedItems;
 		existingCart.cartTotal = updatedItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-		// Save the updated cart
 		await existingCart.save();
 
-		// Respond with the updated or new cart
 		return res.status(200).json({
 			success: true,
-			message: existingCart.isNew ? "New Cart Created" : "Cart Updated",
+			message: "Cart updated successfully",
 			cart: existingCart,
 		});
 	} catch (error) {
-		console.error(error);
-		next(error);
+		return res.json({ error: error });
 	}
 };
 
@@ -119,22 +161,8 @@ const getUserCart = async (req, res, next) => {
 	const { _id } = req.user;
 
 	try {
-		// Find the user by ID
-		const user = await User.findById(_id);
-		if (!user) {
-			// Return 404 if the user is not found
-			return res.status(404).json({ success: false, message: "User Not Found" });
-		}
-
-		// Retrieve the user's cart and populate product details
+		// Find the cart using users ID
 		const existingCart = await Cart.findOne({ user: _id });
-		if (!existingCart) {
-			// Return 404 if the cart is not found
-			return res.status(404).json({
-				success: false,
-				message: "Cart Not Found",
-			});
-		}
 
 		if (existingCart.items.length === 0) {
 			// Return a message indicating the cart is empty
@@ -160,23 +188,12 @@ const clearCart = async (req, res, next) => {
 	const { _id } = req.user;
 
 	try {
-		// Find the user by ID
-		const user = await User.findById(_id);
-		if (!user) {
-			// Return 404 if the user is not found
-			return res.status(404).json({ success: false, message: "User Not Found" });
-		}
-
-		// Retrieve the user's cart
-		const existingCart = await Cart.findOne({ user: _id });
-		if (!existingCart) {
-			// Return 404 if the cart is not found
-			return res.status(404).json({ success: false, message: "Cart Not Found" });
-		}
+		// Find the cart using users ID
+		const existingCart = await ensureCartExists(_id);
 
 		if (existingCart.items.length === 0) {
 			// Return a message indicating the cart is empty
-			return res.status(200).json({ success: true, message: "Cart is empty. Nothing to clear." });
+			return res.status(200).json({ success: true, message: "Cart is empty. Nothing to clear.", cart: existingCart });
 		}
 
 		// Use the cart model's method to clear the cart
@@ -195,29 +212,15 @@ const clearCart = async (req, res, next) => {
 const removeProductFromCart = async (req, res, next) => {
 	// Extract user ID and product ID from the request
 	const { _id } = req.user;
-	const { id: productID } = req.prarams;
+	const { id: productID } = req.params;
 
 	try {
-		// Find the user by ID
-		const user = await User.findById(_id);
-		if (!user) {
-			// Return 404 if the user is not found
-			return res.status(404).json({ success: false, message: "User Not Found" });
-		}
-
-		// Retrieve the user's cart
-		const existingCart = await Cart.findOne({ user: _id });
-		if (!existingCart) {
-			// Return 404 if the cart is not found
-			return res.status(404).json({ success: false, message: "Cart Not Found" });
-		}
+		// Find the cart using users ID
+		const existingCart = await ensureCartExists(_id);
 
 		if (existingCart.items.length === 0) {
 			// Return a message indicating the cart is empty
-			return res.status(200).json({
-				success: true,
-				message: "Cart is empty. No product to remove.",
-			});
+			return res.status(200).json({ success: true, message: "Cart is empty. No Product to remove.", cart: existingCart });
 		}
 
 		// Find the index of the product in the cart items array
@@ -225,7 +228,7 @@ const removeProductFromCart = async (req, res, next) => {
 
 		if (productIndex === -1) {
 			// Return 404 if the product is not found in the cart
-			return res.status(404).json({ success: false, message: "Product Not Found" });
+			return res.status(404).json({ success: false, message: "Product Not Found in Cart" });
 		}
 
 		// Use the cart model's method to remove the product
@@ -238,7 +241,6 @@ const removeProductFromCart = async (req, res, next) => {
 			cart: existingCart,
 		});
 	} catch (error) {
-		console.error(error);
 		next(error);
 	}
 };

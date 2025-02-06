@@ -11,108 +11,156 @@ import helmet from "helmet";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
-
 import config from "./config.mjs";
-// Import db connection, app config and middlewares
 import connectToMongoDB from "./config/db.connect.mjs";
 import { JSONErrorHandler, errorHandler, notFoundHandler } from "./middlewares/errorHandler.mjs";
-
-// Import all routes from a single file
 import routes from "./routes/routes.mjs";
 
-// Initialize Express application
 const app = express();
 
 // Connect to MongoDB
 connectToMongoDB();
 
-// Basic middleware setup
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(helmet()); // Set security HTTP headers
-
+// Define allowed origins based on environment
 const allowedOrigins = [
-	"https://localhost:5173",
-	"http://localhost:5173",
+	"http://localhost:5173", // Vite dev server
+	"http://127.0.0.1:5173", // Alternative local address
 	"https://myonlineshop.kevinkoech.site",
 	"https://myonlineshop-backend.kevinkoech.site",
+	"http://127.0.0.1:7000",
+].filter(Boolean);
+
+// CORS configuration with proper error handling
+const corsOptions = {
+	origin: (origin, callback) => {
+		// Allow requests with no origin (like mobile apps or curl requests)
+		if (!origin || allowedOrigins.includes(origin)) {
+			callback(null, true);
+		} else {
+			callback(new Error("CORS: Request origin is not allowed"));
+		}
+	},
+	credentials: true, // Allow credentials
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+	exposedHeaders: ["set-cookie"],
+	maxAge: 86400, // Cache preflight requests for 24 hours
+};
+
+// Security middleware configuration
+const securityMiddleware = [
+	// CORS config
+	cors(corsOptions),
+
+	// Helmet with CSP configuration
+	helmet({
+		contentSecurityPolicy: {
+			directives: {
+				defaultSrc: ["'self'"],
+				scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+				styleSrc: ["'self'", "'unsafe-inline'"],
+				imgSrc: ["'self'", "data:", "https:"],
+				connectSrc: ["'self'", ...allowedOrigins],
+				frameSrc: ["'none'"],
+				objectSrc: ["'none'"],
+				upgradeInsecureRequests: [],
+			},
+		},
+		crossOriginEmbedderPolicy: false, // Might need to be false depending on your requirements
+		crossOriginResourcePolicy: { policy: "cross-origin" },
+		crossOriginOpenerPolicy: { policy: "same-origin" },
+	}),
+
+	// Logging
+	morgan("dev"),
+
+	// Parse JSON and URL-encoded bodies
+	express.json({ limit: "10mb" }),
+	express.urlencoded({ extended: true, limit: "10mb" }),
+
+	// Compression
+	compression(),
 ];
 
-app.use(
-	cors({
-		origin: (origin, callback) => {
-			// Check if the request origin is in the allowedOrigins array
-			if (allowedOrigins.includes(origin) || !origin) {
-				callback(null, true);
-			} else {
-				callback(new Error("Not allowed by CORS"));
-			}
-		},
-		credentials: true, // Allow cookies to be sent with the request
-	}),
-);
+// Apply security middleware
+for (const middleware of securityMiddleware) {
+	app.use(middleware);
+}
 
-app.use(morgan("dev")); // HTTP request logger
-app.use(compression()); // Compress response bodies
-
-// Set trust proxy to 2 because we have two proxies: Cloudflare -> Nginx -> Your App
-app.set("trust proxy", 2);
-
-// Create a limiter with Cloudflare-specific configurations
-const limiter = rateLimit({
+// Rate limiting configuration
+const rateLimitConfig = {
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per window
-	standardHeaders: true,
-	legacyHeaders: false,
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 
-	// Custom key generator to use CF-Connecting-IP if available
+	// Use Cloudflare's IP if available
 	keyGenerator: (request) => {
-		// Prefer the CF-Connecting-IP header (set by Cloudflare)
 		return request.header("CF-Connecting-IP") || request.ip || request.headers["x-forwarded-for"]?.split(",")[0] || request.socket.remoteAddress;
 	},
-});
 
-app.use(limiter);
+	// Custom error handler
+	handler: (req, res) => {
+		res.status(429).json({
+			error: "Too many requests, please try again later.",
+			retryAfter: Math.ceil(windowMs / 1000 / 60), // minutes
+		});
+	},
+};
 
-// Handle cookies and sessions
-app.use(cookieParser(config.cookieSecret));
-app.use(
-	session({
-		secret: config.sessionSecret,
-		saveUninitialized: false,
-		resave: false,
-		cookie: {
-			maxAge: 1000 * 60 * 60 * 24 * 14, // 14 days in milliseconds
-			signed: true,
-			secure: true, // Set to true in production when using HTTPS
-			httpOnly: true, // Prevent client-side access
-			sameSite: "none", // Prevent CSRF attacks
+app.set("trust proxy", 2); // Trust Cloudflare -> Nginx -> App
+app.use(rateLimit(rateLimitConfig));
+
+// Session configuration
+const sessionConfig = {
+	secret: config.sessionSecret,
+	name: "sessionId", // Custom cookie name
+	saveUninitialized: false, // Don't create session until something stored
+	resave: false, // Don't save session if unmodified
+	rolling: true, // Reset maxAge on every response
+	cookie: {
+		maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+		httpOnly: true, // Prevent client-side access to the cookie
+		secure: process.env.NODE_ENV === "production", // Require HTTPS in production
+		sameSite: "none", // CSRF protection
+		domain:
+			process.env.NODE_ENV === "production"
+				? ".kevinkoech.site" // Allow sharing between subdomains
+				: undefined,
+	},
+	store: MongoStore.create({
+		mongoUrl: config.mongoDbUrl,
+		ttl: 14 * 24 * 60 * 60, // 14 days in seconds
+		crypto: {
+			secret: config.sessionSecret, // Encrypt session data
 		},
-		store: MongoStore.create({
-			mongoUrl: config.mongoDbUrl,
-			ttl: 14 * 24 * 60 * 60, // 14 days in seconds
-		}),
+		touchAfter: 24 * 3600, // Update only once in 24 hours
 	}),
-);
+};
 
-// Mount app routes
+app.use(cookieParser(config.cookieSecret));
+app.use(session(sessionConfig));
+
+// API routes
 const API_V1_PREFIX = "/api/v1";
 for (const [name, router] of Object.entries(routes)) {
 	app.use(`${API_V1_PREFIX}/${name}`, router);
 }
 
-// Set up Swagger UI
+// Swagger documentation
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const swaggerDocument = YAML.load(resolve(__dirname, "..", "swagger.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Error handling middlewares
+// Error handling
 app.use(JSONErrorHandler);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Start the server
-app.listen(config.port, () => {
-	console.log(`Server is running on http://127.0.0.1:${config.port}/api-docs`);
+// Start server
+const port = config.port || 7000;
+app.listen(port, () => {
+	console.log(`Server running at http://127.0.0.1:${port}/api-docs`);
+	console.log(`Environment: ${process.env.NODE_ENV}`);
 });

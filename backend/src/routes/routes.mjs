@@ -2,6 +2,7 @@ import adminRouter from "./adminRoute.mjs";
 import authRouter from "./authRoute.mjs";
 import blogRouter from "./blogRoute.mjs";
 import brandRouter from "./brandRoute.mjs";
+import cartRouter from "./cartRoute.mjs";
 import locationRouter from "./locationRoute.mjs";
 import newsletterRouter from "./newsletterRoute.mjs";
 import orderRouter from "./orderRoute.mjs";
@@ -20,4 +21,5 @@ export default {
 	"prod-categories": productCategoryRouter,
 	products: productRouter,
 	user: userRouter,
+	cart: cartRouter,
 };
