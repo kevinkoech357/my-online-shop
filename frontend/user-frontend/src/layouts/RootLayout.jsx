@@ -8,11 +8,15 @@ const RootLayout = () => {
 	return (
 		<AuthProvider>
 			<Box display="flex" flexDirection="column" minHeight="100vh">
-				<Navbar />
-				<Box as="main" flex="1" p={4}>
+				<Box as="header">
+					<Navbar />
+				</Box>
+				<Box as="main" flex="1" p={{ base: 2, md: 4 }}>
 					<Outlet />
 				</Box>
-				<Footer />
+				<Box as="footer">
+					<Footer />
+				</Box>
 			</Box>
 		</AuthProvider>
 	);

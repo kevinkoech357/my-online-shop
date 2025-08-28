@@ -13,6 +13,7 @@ import { PinInput, PinInputField } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { resendOTPService, verifyOTPService } from "../../services/authService";
+import AuthService from "../../services/authService";
 import { useCustomToast } from "../../utils/toastify";
 
 const OTPVerification = () => {
@@ -59,7 +60,7 @@ const OTPVerification = () => {
 		setIsLoading(true);
 		try {
 			const userData = { email: userEmail, otp };
-			const response = await verifyOTPService(userData);
+			const response = await AuthService.verifyOTP(userData);
 			showToast(
 				"Verification Successful",
 				response.message || "Your email has been verified",
@@ -83,7 +84,7 @@ const OTPVerification = () => {
 		try {
 			setIsResendDisabled(true);
 			setTimer(90); // Set timer for 90 seconds
-			await resendOTPService({ email: userEmail });
+			await AuthService.resendOTP(userEmail);
 			showToast(
 				"Sending New Code",
 				"A new OTP is being sent to your email.",

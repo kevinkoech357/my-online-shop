@@ -4,6 +4,7 @@ import {
 	Button,
 	Flex,
 	FormControl,
+	FormHelperText,
 	FormLabel,
 	Heading,
 	IconButton,
@@ -16,27 +17,52 @@ import {
 	useColorModeValue,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { Link as ReactRouterLink } from "react-router-dom";
+import useAuth from "../../context/AuthContext";
+import { useCustomToast } from "../../utils/toastify";
 
 const LoginCard = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const { login, isLoading } = useAuth() || {};
-	const navigate = useNavigate();
+	const showToast = useCustomToast();
+
+	// Enhanced email validation
+	const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
+	const isFormValid = () => {
+		return (
+			email.trim() !== "" && password.trim() !== "" && emailRegex.test(email)
+		);
+	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		const userCredentials = { email, password };
+		if (!isFormValid()) {
+			showToast(
+				"Validation Error",
+				"Please check your email and password.",
+				"error",
+			);
+			return;
+		}
+
+		const userCredentials = {
+			email: email.trim(),
+			password: password.trim(),
+		};
 
 		try {
 			await login(userCredentials);
-			navigate("/");
 		} catch (error) {
-			// Error handling is managed in the `login` function in AuthContext
-			console.error(error);
+			console.error("Login error:", error);
+			showToast(
+				"Login Error",
+				error.message || "Login failed. Please try again.",
+				"error",
+			);
 		}
 	};
 
@@ -61,14 +87,24 @@ const LoginCard = () => {
 					p={8}
 				>
 					<Stack spacing={4} as="form" onSubmit={handleSubmit}>
-						<FormControl id="email" isRequired>
+						<FormControl
+							id="email"
+							isRequired
+							isInvalid={!emailRegex.test(email) && email !== ""}
+						>
 							<FormLabel>Email address</FormLabel>
 							<Input
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								required
+								placeholder="Enter your email"
 							/>
+							{!emailRegex.test(email) && email !== "" && (
+								<FormHelperText color="red.500">
+									Please enter a valid email address.
+								</FormHelperText>
+							)}
 						</FormControl>
 						<FormControl id="password" isRequired>
 							<FormLabel>Password</FormLabel>
@@ -78,12 +114,14 @@ const LoginCard = () => {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									required
+									placeholder="Enter your password"
 								/>
 								<InputRightElement h={"full"}>
 									<IconButton
 										aria-label={
 											showPassword ? "Hide password" : "Show password"
 										}
+										aria-describedby="password"
 										icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
 										onClick={() => setShowPassword((prev) => !prev)}
 										variant={"ghost"}
@@ -117,9 +155,10 @@ const LoginCard = () => {
 								color={"white"}
 								_hover={{ bg: "blue.500" }}
 								type="submit"
-								isDisabled={isLoading}
+								isLoading={isLoading}
+								isDisabled={!isFormValid()}
 							>
-								{isLoading ? "Logging in..." : "Login"}
+								Login
 							</Button>
 						</Stack>
 					</Stack>

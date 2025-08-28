@@ -1,12 +1,12 @@
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { Global, css } from "@emotion/react";
-import React from "react";
 import {
 	Route,
 	RouterProvider,
 	createBrowserRouter,
 	createRoutesFromElements,
 } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AuthLayout from "./layouts/AuthLayout";
 import ProductLayout from "./layouts/ProductLayout";
 import RootLayout from "./layouts/RootLayout";
@@ -17,6 +17,7 @@ import RegisterPage from "./pages/authentication/RegisterPage";
 import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
 import ErrorPage from "./pages/general/ErrorPage";
 import Home from "./pages/general/Home";
+import CartPage from "./pages/products/CartPage";
 import ProductDetailsPage from "./pages/products/ProductDetailsPage";
 import ProductsPage from "./pages/products/ProductsPage";
 import theme from "./theme";
@@ -40,9 +41,20 @@ const router = createBrowserRouter(
 				<Route path="forgot-password" element={<ForgotPasswordPage />} />
 				<Route path="reset-password" element={<ResetPasswordPage />} />
 			</Route>
+			<Route path="cart" element={<CartPage />} />
 			<Route path="*" element={<ErrorPage />} />
 		</Route>,
 	),
+	{
+		future: {
+			v7_fetcherPersist: true,
+			v7_normalizeFormMethod: true,
+			v7_partialHydration: true,
+			v7_skipActionErrorRevalidation: true,
+			v7_startTransition: true,
+			v7_relativeSplatPath: true,
+		},
+	},
 );
 
 function App() {

@@ -7,10 +7,13 @@ import {
 	useColorModeValue,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-
 import Rating from "./ProductRating";
 
 const ProductCard = ({ product }) => {
+	// Use the first image URL if available, otherwise fallback to a placeholder
+	const imageUrl =
+		product.images.length > 0 ? product.images[0].url : "/blue-icon.png";
+
 	return (
 		<Link to={`/products/${product.slug}`}>
 			<Box
@@ -34,7 +37,7 @@ const ProductCard = ({ product }) => {
 				)}
 
 				<Image
-					src={product.image}
+					src={imageUrl}
 					alt={product.name}
 					roundedTop="lg"
 					w="100%"
@@ -72,7 +75,8 @@ const ProductCard = ({ product }) => {
 					</Flex>
 
 					<Flex justifyContent="space-between" alignItems="center" mt="4">
-						<Rating rating={product.rating} />
+						{/* Ensure `product.totalRating` is correctly provided to the Rating component */}
+						<Rating rating={parseFloat(product.totalRating) || 0} />
 						<Box fontSize="2xl" color={useColorModeValue("gray.800", "white")}>
 							<Box as="span" color="gray.600" fontSize="lg">
 								KES

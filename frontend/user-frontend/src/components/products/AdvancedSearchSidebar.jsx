@@ -4,32 +4,74 @@ import {
 	Checkbox,
 	CheckboxGroup,
 	Heading,
+	Input,
 	RangeSlider,
 	RangeSliderFilledTrack,
 	RangeSliderThumb,
 	RangeSliderTrack,
+	Select,
 	Stack,
 	Text,
 	VStack,
 	useColorModeValue,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useCallback, useState } from "react";
+import { useCustomToast } from "../../utils/toastify";
 
-const AdvancedSearchSidebar = ({ onFilterChange }) => {
-	const [priceRange, setPriceRange] = useState([100, 1000]);
+const categories = [
+	"Smartphones",
+	"Laptops",
+	"Clothing",
+	"Kitchenware",
+	"TVs",
+	"Furniture",
+	"Gaming",
+];
+
+const AdvancedSearchSidebar = ({ onFilterChange, initialFilters = {} }) => {
+	const [name, setName] = useState(initialFilters.name || "");
+	const [brand, setBrand] = useState(initialFilters.brand || "");
+	const [category, setCategory] = useState(initialFilters.category || "");
+	const [priceRange, setPriceRange] = useState([
+		initialFilters.minPrice || 0,
+		initialFilters.maxPrice || 50000,
+	]);
+	const [sortBy, setSortBy] = useState(initialFilters.sortBy || "createdAt");
+	const [order, setOrder] = useState(initialFilters.order || "desc");
+
+	const showToast = useCustomToast();
 
 	const bgColor = useColorModeValue("white", "gray.800");
 	const textColor = useColorModeValue("gray.800", "gray.100");
 	const borderColor = useColorModeValue("gray.200", "gray.700");
 	const buttonColorScheme = useColorModeValue("blue", "blue");
 
-	const handleCategoryChange = (selectedCategories) => {
-		onFilterChange({ type: "category", value: selectedCategories });
-	};
-
-	const handlePriceChange = (priceRange) => {
-		onFilterChange({ type: "price", value: priceRange });
-	};
+	const handleApplyFilters = useCallback(() => {
+		const filters = {
+			name,
+			brand,
+			category,
+			minPrice: priceRange[0],
+			maxPrice: priceRange[1],
+			sortBy,
+			order,
+		};
+		onFilterChange(filters);
+		showToast(
+			"Filters applied",
+			"The product list has been updated.",
+			"success",
+		);
+	}, [
+		name,
+		brand,
+		category,
+		priceRange,
+		sortBy,
+		order,
+		onFilterChange,
+		showToast,
+	]);
 
 	return (
 		<Box
@@ -44,39 +86,57 @@ const AdvancedSearchSidebar = ({ onFilterChange }) => {
 			<Heading as="h3" size="md" mb={6}>
 				Advanced Search
 			</Heading>
-
 			<VStack align="start" spacing={6}>
-				{/* Category Filter */}
+				<Stack align="start" spacing={4} w="full">
+					<Text fontWeight="bold" fontSize="sm">
+						Product Name
+					</Text>
+					<Input
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+						placeholder="Search by name"
+					/>
+				</Stack>
+
+				<Stack align="start" spacing={4} w="full">
+					<Text fontWeight="bold" fontSize="sm">
+						Brand
+					</Text>
+					<Input
+						value={brand}
+						onChange={(e) => setBrand(e.target.value)}
+						placeholder="Search by brand"
+					/>
+				</Stack>
+
 				<Stack align="start" spacing={4} w="full">
 					<Text fontWeight="bold" fontSize="sm">
 						Category
 					</Text>
-					<CheckboxGroup onChange={handleCategoryChange}>
-						<VStack align="start" spacing={2}>
-							<Checkbox value="Smartphones">Smartphones</Checkbox>
-							<Checkbox value="Laptops">Laptops</Checkbox>
-							<Checkbox value="Clothing">Clothing</Checkbox>
-							<Checkbox value="Kitchenware">Kitchenware</Checkbox>
-							<Checkbox value="TVs">TVs</Checkbox>
-							<Checkbox value="Furniture">Furniture</Checkbox>
-							<Checkbox value="Gaming">Gaming</Checkbox>
-						</VStack>
-					</CheckboxGroup>
+					<Select
+						value={category}
+						onChange={(e) => setCategory(e.target.value)}
+						placeholder="Select category"
+					>
+						{categories.map((cat) => (
+							<option key={cat} value={cat}>
+								{cat}
+							</option>
+						))}
+					</Select>
 				</Stack>
 
-				{/* Price Range Slider with Display */}
 				<Stack align="start" spacing={4} w="full">
 					<Text fontWeight="bold" fontSize="sm">
 						Price Range
 					</Text>
-					<Text>{`KES.${priceRange[0]} - KES.${priceRange[1]}`}</Text>
+					<Text>{`KES ${priceRange[0]} - KES ${priceRange[1]}`}</Text>
 					<RangeSlider
-						defaultValue={[100, 1000]}
+						value={priceRange}
 						min={0}
-						max={2000}
-						step={50}
-						onChange={(val) => setPriceRange(val)} // Update state when slider is moved
-						onChangeEnd={handlePriceChange}
+						max={50000}
+						step={100}
+						onChange={setPriceRange}
 						colorScheme={buttonColorScheme}
 					>
 						<RangeSliderTrack>
@@ -87,7 +147,27 @@ const AdvancedSearchSidebar = ({ onFilterChange }) => {
 					</RangeSlider>
 				</Stack>
 
-				{/* Apply Filters Button */}
+				<Stack align="start" spacing={4} w="full">
+					<Text fontWeight="bold" fontSize="sm">
+						Sort By
+					</Text>
+					<Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+						<option value="createdAt">Date Created</option>
+						<option value="price">Price</option>
+						<option value="name">Name</option>
+					</Select>
+				</Stack>
+
+				<Stack align="start" spacing={4} w="full">
+					<Text fontWeight="bold" fontSize="sm">
+						Order
+					</Text>
+					<Select value={order} onChange={(e) => setOrder(e.target.value)}>
+						<option value="asc">Ascending</option>
+						<option value="desc">Descending</option>
+					</Select>
+				</Stack>
+
 				<Button
 					colorScheme={buttonColorScheme}
 					w="full"
@@ -95,7 +175,7 @@ const AdvancedSearchSidebar = ({ onFilterChange }) => {
 					size="md"
 					borderRadius="full"
 					_hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
-					onClick={() => onFilterChange(null)}
+					onClick={handleApplyFilters}
 				>
 					Apply Filters
 				</Button>
